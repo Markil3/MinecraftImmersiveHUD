@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "markil3.immersive_hud.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "ClientPlayerHook",
+    "HeldItemHook",
+    "HudHook",
+    "ProfilerHook"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

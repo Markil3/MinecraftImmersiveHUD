@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "immersive_hud",
+  "version": "${version}",
+
+  "name": "Immersive HUD",
+  "description": "This mod aims to move the ingame HUD out of the way whenever possible. Whenever an element updates (i.e., health changes, you swap items, you look at something, etc.), the respective item will show up. However, once you've been able to see the information, it will fade away and allow you to enjoy your game without the clutter of unneeded HUD elements.\n\nNote that the following elements are unaffected:\n* The F3 Menu. Honestly, anyone who uses this isn't in the need for immersion at the moment.\n* The chat. This will automatically fade away by itself.\n* The oxygen bar. This will disappear as soon as it is filled, anyway.\n* Boss health. It is helpful to have this available in a hectic situation.\n* Sub-maximum health or hunger. In hectic battles, it can be convenient to see health at a glance.",
+  "authors": [
+    "Markil 3"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+
+  "license": "GPL-3.0-only",
+  "icon": "assets/immersive_hud/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "markil3.immersive_hud.Main"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "modid.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "minecraft": "1.16.x"
+  }
+}
