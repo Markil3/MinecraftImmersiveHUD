@@ -5,6 +5,7 @@ up. However, once you've been able to see the information, it will fade away and
 your game without the clutter of unneeded HUD elements.
 
 ![screenshot1](screenshot1.png)![screenshot2](screenshot2.png)![screenshot3](screenshot3.png)![screenshot4](screenshot4.png)![screenshot5](screenshot5.png)
+![demo](demo.gif)
 
 The following elements will only show up under certain conditions:
 * The health and armor bars will only show up when your health changes (i.e. after taking damage), when your health is low or when holding food.
