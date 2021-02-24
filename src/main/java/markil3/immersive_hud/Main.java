@@ -1,20 +1,19 @@
 /**
  * This Minecraft mod aims to move the ingame HUD out of the way whenever
- * possible.
- * Copyright (C) 2021 Markil 3
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * possible. Copyright (C) 2021 Markil 3
+ * <p>
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ * <p>
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package markil3.immersive_hud;
 
@@ -29,22 +28,25 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * The main entry point for the Immersive HUD mod.
+ *
+ * @author Markil 3
+ * @version 0.1-1.16.4-forge
  */
 @Mod("immersive_hud")
 public class Main
 {
-/**
- * Class logger.
- */
-private static final Logger LOGGER = LogManager.getLogger();
+    /**
+     * Class logger.
+     */
+    private static final Logger LOGGER = LogManager.getLogger();
 
-public Main()
-{
-//Make sure the mod being absent on the other network side does not
-// cause the client to display the server as incompatible
-ModLoadingContext.get()
-.registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair
-.of(() -> FMLNetworkConstants.IGNORESERVERONLY,
-(a, b) -> true));
-}
+    public Main()
+    {
+        //Make sure the mod being absent on the other network side does not
+        // cause the client to display the server as incompatible
+        ModLoadingContext.get()
+                .registerExtensionPoint(ExtensionPoint.DISPLAYTEST, () -> Pair
+                        .of(() -> FMLNetworkConstants.IGNORESERVERONLY,
+                                (a, b) -> true));
+    }
 }

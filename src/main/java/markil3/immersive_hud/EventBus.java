@@ -55,7 +55,7 @@ import java.util.Optional;
  * Contains the logic for changing the HUD.
  *
  * @author Markil 3
- * @version 0.1
+ * @version 0.1-1.16.4-forge
  */
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class EventBus
