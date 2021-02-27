@@ -42,9 +42,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -60,17 +57,17 @@ public class TimerUtils
      * The number of ticks that the hand will be onscreen. Every tick is 1/20th
      * of a second.
      */
-    static final int HAND_TIME = 10 * 20;
+    private static final int HAND_TIME = 10 * 20;
     /**
      * The number of ticks most elements will be onscreen. Every tick is 1/20th
      * of a second.
      */
-    static final int VISUAL_TIME = 6 * 20;
+    private static final int VISUAL_TIME = 6 * 20;
     /**
      * The number of ticks that the health and hunger bars will be onscreen.
      * Every tick is 1/20th of a second.
      */
-    static final int HEALTH_TIME = (int) ((float) VISUAL_TIME * 2.5);
+    private static final int HEALTH_TIME = (int) ((float) VISUAL_TIME * 2.5);
 
     /**
      * How many more ticks the hand will be onscreen. Every tick is 1/20th of a
