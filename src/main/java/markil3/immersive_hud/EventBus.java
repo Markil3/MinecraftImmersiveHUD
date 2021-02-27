@@ -140,6 +140,24 @@ public class EventBus
                 resetAlpha();
             }
             break;
+        case POTION_ICONS:
+            if (event instanceof RenderGameOverlayEvent.Pre)
+            {
+                TimerUtils.updatePotions(mc.player);
+                event.setCanceled(true);
+                RenderUtils.renderPotionIcons(mc,
+                        mc.ingameGUI,
+                        event.getMatrixStack());
+                resetAlpha();
+            }
+            /*
+             * Reset the transparency.
+             */
+            else if (event instanceof RenderGameOverlayEvent.Post)
+            {
+                resetAlpha();
+            }
+            break;
         case HOTBAR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {

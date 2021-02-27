@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BowItem;
@@ -19,10 +20,16 @@ import net.minecraft.item.ShootableItem;
 import net.minecraft.item.SnowballItem;
 import net.minecraft.item.ThrowablePotionItem;
 import net.minecraft.item.TridentItem;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 
 public class TimerUtils
@@ -65,6 +72,8 @@ public class TimerUtils
      * second will be the offhand.
      */
     private static int mapLock;
+
+    private static HashMap<Effect, Integer> effectTime = new HashMap<>();
 
     /**
      * How many more ticks the hotbar will be onscreen. Every tick is 1/20th of
@@ -308,6 +317,63 @@ public class TimerUtils
         }
 
         return canceled;
+    }
+
+    /**
+     * Updates the timings of some of the potions currently affecting the
+     * player.
+     *
+     * @param player - The player being affected.
+     */
+    public static void updatePotions(ClientPlayerEntity player)
+    {
+        for (Effect effect : Collections.checkedSet(effectTime.keySet(),
+                Effect.class))
+        {
+            if (!player.isPotionActive(effect))
+            {
+                effectTime.remove(effect);
+            }
+        }
+    }
+
+    /**
+     * Obtains how transparent
+     *
+     * @param player
+     * @param effectinstance
+     *
+     * @return
+     */
+    public static float getPotionAlpha(ClientPlayerEntity player,
+                                       EffectInstance effectinstance)
+    {
+        final int BLINK_TIME = 200;
+        float effectAlpha = 0.0F;
+        Integer time = effectTime.get(effectinstance.getPotion());
+        if (time == null)
+        {
+            effectTime.put(effectinstance.getPotion(), (time = VISUAL_TIME));
+        }
+        else
+        {
+            effectTime.put(effectinstance.getPotion(), (time -= 1));
+        }
+        if (effectinstance.getDuration() <= BLINK_TIME)
+        {
+            effectAlpha =
+                    MathHelper.sin(7000F / (effectinstance.getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
+                            .getDuration() + 100F) + 0.5F;
+        }
+        else if (effectinstance.getDuration() <= BLINK_TIME + 10)
+        {
+            effectAlpha = -(effectinstance.getDuration() - 200) / 22F + 0.454F;
+        }
+        else
+        {
+            effectAlpha = Main.getAlpha(time);
+        }
+        return effectAlpha;
     }
 
     /**

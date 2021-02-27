@@ -1,32 +1,36 @@
 /**
  * Copyright (C) 2009-2021 Mojang Studios
- *
- * Players are free to create, build, and mod within Minecraft if the
- * branding usage guidelines are followed. Fan art, logos, videos, and screen
- * shots are acceptable as long as they are not used to falsely represent
- * Mojang Minecraft assets.  If you intend to use any portion of the name in
- * relation to services, products, or distribution, you must adhere to the
- * following requirements.
- *
- * Mojang's terms of service and brand guidelines are designed to let you
- * know in plain terms what you can and cannot do with your game, the Mojang
- * brand or Mojang assets.
- * https://account.mojang.com/documents/minecraft_eula
+ * <p>
+ * Players are free to create, build, and mod within Minecraft if the branding
+ * usage guidelines are followed. Fan art, logos, videos, and screen shots are
+ * acceptable as long as they are not used to falsely represent Mojang Minecraft
+ * assets.  If you intend to use any portion of the name in relation to
+ * services, products, or distribution, you must adhere to the following
+ * requirements.
+ * <p>
+ * Mojang's terms of service and brand guidelines are designed to let you know
+ * in plain terms what you can and cannot do with your game, the Mojang brand or
+ * Mojang assets. https://account.mojang.com/documents/minecraft_eula
  */
 package markil3.immersive_hud;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.IngameGui;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.PotionSpriteUploader;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.AttackIndicatorStatus;
 import net.minecraft.crash.CrashReport;
@@ -35,9 +39,15 @@ import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Contains methods for rendering various HUD elements. Most of these methods
@@ -50,6 +60,102 @@ import net.minecraft.world.World;
  */
 public class RenderUtils
 {
+    public static void renderPotionIcons(Minecraft mc,
+                                     IngameGui gui,
+                                     MatrixStack matrixStack)
+    {
+        int scaledWidth = mc.getMainWindow().getScaledWidth();
+        int scaledHeight = mc.getMainWindow().getScaledHeight();
+
+        Collection<EffectInstance> collection =
+                mc.player.getActivePotionEffects();
+        if (!collection.isEmpty())
+        {
+            RenderSystem.enableBlend();
+            int i = 0;
+            int j = 0;
+            PotionSpriteUploader potionspriteuploader =
+                    mc.getPotionSpriteUploader();
+            List<Runnable> list =
+                    Lists.newArrayListWithExpectedSize(collection.size());
+            mc.getTextureManager()
+                    .bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
+
+            for (EffectInstance effectinstance : Ordering.natural()
+                    .reverse()
+                    .sortedCopy(collection))
+            {
+                Effect effect = effectinstance.getPotion();
+                float effectAlpha = TimerUtils.getPotionAlpha(mc.player, effectinstance);
+                if (!effectinstance.shouldRenderHUD() || effectAlpha < 0.01F)
+                {
+                    continue;
+                }
+                // Rebind in case previous renderHUDEffect changed texture
+                mc.getTextureManager()
+                        .bindTexture(ContainerScreen.INVENTORY_BACKGROUND);
+                if (effectinstance.isShowIcon())
+                {
+                    int k = scaledWidth;
+                    int l = 1;
+                    if (mc.isDemo())
+                    {
+                        l += 15;
+                    }
+
+                    if (effect.isBeneficial())
+                    {
+                        ++i;
+                        k = k - 25 * i;
+                    }
+                    else
+                    {
+                        ++j;
+                        k = k - 25 * j;
+                        l += 26;
+                    }
+
+                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, effectAlpha);
+                    if (effectinstance.isAmbient())
+                    {
+                        gui.blit(matrixStack, k, l, 165, 166, 24, 24);
+                    }
+                    else
+                    {
+                        gui.blit(matrixStack, k, l, 141, 166, 24, 24);
+                    }
+
+                    TextureAtlasSprite textureatlassprite =
+                            potionspriteuploader.getSprite(effect);
+                    int j1 = k;
+                    int k1 = l;
+                    float f1 = effectAlpha;
+                    list.add(() -> {
+                        mc.getTextureManager()
+                                .bindTexture(textureatlassprite.getAtlasTexture()
+                                        .getTextureLocation());
+                        RenderSystem.color4f(1.0F, 1.0F, 1.0F, f1);
+                        gui.blit(matrixStack,
+                                j1 + 3,
+                                k1 + 3,
+                                gui.getBlitOffset(),
+                                18,
+                                18,
+                                textureatlassprite);
+                    });
+                    effectinstance.renderHUDEffect(gui,
+                            matrixStack,
+                            k,
+                            l,
+                            gui.getBlitOffset(),
+                            effectAlpha);
+                }
+            }
+
+            list.forEach(Runnable::run);
+        }
+    }
+
     /**
      * Renders the horse jump bar.
      *
