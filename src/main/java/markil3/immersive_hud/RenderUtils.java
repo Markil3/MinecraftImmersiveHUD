@@ -49,6 +49,9 @@ import net.minecraft.world.World;
 import java.util.Collection;
 import java.util.List;
 
+import static markil3.immersive_hud.TimerUtils.FADE_IN_TIME;
+import static markil3.immersive_hud.TimerUtils.FADE_OUT_TIME;
+
 /**
  * Contains methods for rendering various HUD elements. Most of these methods
  * come from {@link IngameGui} and
@@ -177,7 +180,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, maxRenderTime);
+        float alpha = Main.getAlpha(renderTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME);
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
@@ -222,7 +225,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, maxRenderTime);
+        float alpha = Main.getAlpha(renderTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
@@ -256,7 +259,7 @@ public class RenderUtils
                 String s = "" + mc.player.experienceLevel;
                 int i1 = (scaledWidth - gui.getFontRenderer()
                         .getStringWidth(s)) / 2;
-                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime, maxRenderTime) + 9F) * alpha) - (int) (4F * alpha);
+                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME) + 9F) * alpha) - (int) (4F * alpha);
                 gui.getFontRenderer()
                         .drawString(matrixStack,
                                 s,
@@ -320,7 +323,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, maxRenderTime);
+        float alpha = Main.getAlpha(renderTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME);
 
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();

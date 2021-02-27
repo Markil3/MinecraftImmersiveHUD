@@ -32,15 +32,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 
-import static markil3.immersive_hud.Main.FADE_IN_TIME;
-
 public class TimerUtils
 {
     /**
      * The number of ticks that the hand will be onscreen. Every tick is 1/20th
      * of a second.
      */
-    static final int HAND_TIME = 10 * 20;
+    private static final int HAND_TIME = 10 * 20;
     /**
      * The number of ticks most elements will be onscreen. Every tick is 1/20th
      * of a second.
@@ -50,7 +48,9 @@ public class TimerUtils
      * The number of ticks that the health and hunger bars will be onscreen.
      * Every tick is 1/20th of a second.
      */
-    static final int HEALTH_TIME = (int) ((float) VISUAL_TIME * 2.5);
+    private static final int HEALTH_TIME = (int) ((float) VISUAL_TIME * 2.5);
+    public static final int FADE_IN_TIME = 5;
+    public static final int FADE_OUT_TIME = 20;
 
     /**
      * How many more ticks the hand will be onscreen. Every tick is 1/20th of a
@@ -188,7 +188,7 @@ public class TimerUtils
      */
     public static int getHotbarTranslation()
     {
-        return (int) (22F * Main.getAlpha(hotbarTime, VISUAL_TIME));
+        return (int) (22F * Main.getAlpha(hotbarTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME));
     }
 
 
@@ -201,7 +201,7 @@ public class TimerUtils
     public static int getExperienceTranslation()
     {
         return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(
-                experienceTime, VISUAL_TIME)) - 3;
+                experienceTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME)) - 3;
     }
 
 
@@ -213,7 +213,7 @@ public class TimerUtils
      */
     public static int getJumpTranslation()
     {
-        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime, VISUAL_TIME)) - 3;
+        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME)) - 3;
     }
 
 
@@ -357,7 +357,7 @@ public class TimerUtils
         {
             setAlpha(Main.getAlpha(crosshairTime > 0 ?
                                    crosshairTime :
-                                   VISUAL_TIME - FADE_IN_TIME, VISUAL_TIME));
+                                   VISUAL_TIME, VISUAL_TIME, 0, 0));
         }
         else
         {
@@ -429,7 +429,7 @@ public class TimerUtils
         }
         else
         {
-            effectAlpha = Main.getAlpha(time, VISUAL_TIME);
+            effectAlpha = Main.getAlpha(time, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME);
         }
         return effectAlpha;
     }
@@ -693,7 +693,7 @@ public class TimerUtils
                 stack.translate(0F,
                         getHealthTranslation(),
                         0F);
-                setAlpha(Main.getAlpha(healthTime, HEALTH_TIME));
+                setAlpha(Main.getAlpha(healthTime, HEALTH_TIME, FADE_IN_TIME, FADE_OUT_TIME));
                 return false;
             }
             return true;
@@ -754,7 +754,7 @@ public class TimerUtils
         }
         else
         {
-            setAlpha(Main.getAlpha(hungerTime, HEALTH_TIME));
+            setAlpha(Main.getAlpha(hungerTime, HEALTH_TIME, FADE_IN_TIME, FADE_OUT_TIME));
             stack.push();
             stack.translate(0F,
                     getHealthTranslation(),
@@ -780,7 +780,7 @@ public class TimerUtils
          */
         if (healthTime > 0)
         {
-            setAlpha(Main.getAlpha(healthTime, HEALTH_TIME));
+            setAlpha(Main.getAlpha(healthTime, HEALTH_TIME, FADE_IN_TIME, FADE_OUT_TIME));
             stack.push();
             stack.translate(0F,
                     getHealthTranslation(),
@@ -859,7 +859,7 @@ public class TimerUtils
             stack.translate(0F,
                     getHealthTranslation(),
                     0F);
-            setAlpha(Main.getAlpha(mountTime, VISUAL_TIME));
+            setAlpha(Main.getAlpha(mountTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME));
             return false;
         }
         return true;

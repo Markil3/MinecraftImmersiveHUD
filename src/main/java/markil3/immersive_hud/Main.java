@@ -34,10 +34,7 @@ import org.apache.logging.log4j.Logger;
  */
 @Mod("immersive_hud")
 public class Main
-{
-    public static final int FADE_IN_TIME = 5;
-    public static final int FADE_OUT_TIME = 20;
-    /**
+{    /**
      * Class logger.
      */
     private static final Logger LOGGER = LogManager.getLogger();
@@ -62,15 +59,15 @@ public class Main
      *
      * @return The proper transparency to render something.
      */
-    static float getAlpha(int renderTime, int maxTime)
+    static float getAlpha(int renderTime, int maxTime, int fadeInTime, int fadeOutTime)
     {
-        if (renderTime <= FADE_OUT_TIME)
+        if (renderTime <= fadeOutTime)
         {
-            return renderTime / (float) FADE_OUT_TIME;
+            return renderTime / (float) fadeOutTime;
         }
-        else if (renderTime > maxTime - FADE_IN_TIME)
+        else if (renderTime > maxTime - fadeInTime)
         {
-            return (maxTime - renderTime) / (float) FADE_IN_TIME;
+            return (maxTime - renderTime) / (float) fadeInTime;
         }
         return 1F;
     }
