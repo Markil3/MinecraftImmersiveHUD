@@ -49,4 +49,19 @@ public class Main
                         .of(() -> FMLNetworkConstants.IGNORESERVERONLY,
                                 (a, b) -> true));
     }
+
+    /**
+     * A utility method to handle the transparency timing. It will (for the most
+     * part), make
+     *
+     * @param renderTime - How many ticks until the element entirely
+     * disappears.
+     *
+     * @return The proper transparency to render something.
+     */
+    static float getAlpha(int renderTime)
+    {
+        return Math.min(renderTime / 20.0F,
+                1.0F);
+    }
 }

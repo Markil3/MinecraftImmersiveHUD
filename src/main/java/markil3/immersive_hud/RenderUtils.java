@@ -46,26 +46,10 @@ import net.minecraft.world.World;
  * with some tweaks to make the mod work.
  *
  * @author Mojang Studios
- * @author Markil 3
  * @version 0.1-1.16.4-forge
  */
 public class RenderUtils
 {
-    /**
-     * A utility method to handle the transparency timing. It will (for the most
-     * part), make
-     *
-     * @param renderTime - How many ticks until the element entirely
-     * disappears.
-     *
-     * @author Markil 3
-     */
-    static float getAlpha(int renderTime)
-    {
-        return Math.min(renderTime / 20.0F,
-                1.0F);
-    }
-
     /**
      * Renders the horse jump bar.
      *
@@ -87,7 +71,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = getAlpha(renderTime);
+        float alpha = Main.getAlpha(renderTime);
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
@@ -132,7 +116,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = getAlpha(renderTime);
+        float alpha = Main.getAlpha(renderTime);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
@@ -230,7 +214,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = getAlpha(renderTime);
+        float alpha = Main.getAlpha(renderTime);
 
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2021 Markil 3
  * <p>
  * This program is free software: you can redistribute it and/or modify it under
@@ -188,6 +188,26 @@ public class EventBus
     private static float experienceProgress = -1;
 
     /**
+     * Sets the transparency level of the next drawn element.
+     *
+     * @param alpha - The transparency, from 0 to 1.
+     */
+    private static void setAlpha(float alpha)
+    {
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+    }
+
+    /**
+     * Resets the transparency level.
+     *
+     * @see #setAlpha(float)
+     */
+    private static void resetAlpha()
+    {
+        setAlpha(1.0F);
+    }
+
+    /**
      * Run whenever the player clicks a mouse button. This brings the hands into
      * view, and briefly brings the health and hunger into view if the held item
      * is food.
@@ -311,174 +331,87 @@ public class EventBus
     }
 
     /**
-     * Called whenever we are drawing a part of the GUI. This is where most of
-     * the change checks are made and adjustments or overrides are done.
+     * Determines whether or not to draw the crosshair, adjusting the alpha as
+     * needed.
      *
-     * @param event - event data
+     * @return If true, then cancel drawing the crosshair.
+     *
+     * @since 0.2-1.16.4-forge
      */
-    @SubscribeEvent
-    public static void onGUIDraw(final RenderGameOverlayEvent event)
+    private static boolean drawCrosshair()
     {
-        /*
-         * When the health percentage falls to this level or below, the
-         * health bar won't disappear, allowing the player to be constantly
-         * reminded of their low health.
-         */
-        final float CONST_BOUNDARY = 0.5F;
-        /*
-         * When hunger falls to this level or below, the hunger bar won't
-         * disappear, allowing the player to be constantly reminded of their
-         * low hunger.
-         */
-        final int HUNGER_BOUNDARY = 15;
-
         Minecraft mc = Minecraft.getInstance();
         boolean changed = false;
-        int hotbarSlot;
-        Item item, handItem = null;
-        switch (event.getType())
+        boolean canceled = false;
+
+        if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS)
         {
-        case CROSSHAIRS:
-            if (event instanceof RenderGameOverlayEvent.Pre)
+            if (mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
             {
-                if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS)
+                if (mc.objectMouseOver.hitInfo == null || mc.objectMouseOver.hitInfo != mc.player
+                        .getRidingEntity())
                 {
-                    if (mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
-                    {
-                        if (mc.objectMouseOver.hitInfo == null || mc.objectMouseOver.hitInfo != mc.player
-                                .getRidingEntity())
-                        {
-                            changed = true;
-                        }
-                    }
-                    else
-                    {
-                        changed = true;
-                    }
-                }
-                if (changed || mainHandLock || offHandLock || crosshairTime > 0)
-                {
-                    RenderSystem.color4f(1.0F,
-                            1.0F,
-                            1.0F,
-                            RenderUtils.getAlpha(crosshairTime > 0 ?
-                                                 crosshairTime :
-                                                 VISUAL_TIME));
-                }
-                else
-                {
-                    event.setCanceled(true);
-                }
-                if (crosshairTime > 0)
-                {
-                    crosshairTime--;
+                    changed = true;
                 }
             }
-            else if (event instanceof RenderGameOverlayEvent.Post)
+            else
             {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                changed = true;
             }
-            break;
-        case HOTBAR:
-            if (event instanceof RenderGameOverlayEvent.Pre)
+        }
+        if (changed || mainHandLock || offHandLock || crosshairTime > 0)
+        {
+            setAlpha(Main.getAlpha(crosshairTime > 0 ?
+                                          crosshairTime :
+                                          VISUAL_TIME));
+        }
+        else
+        {
+            canceled = true;
+        }
+        if (crosshairTime > 0)
+        {
+            crosshairTime--;
+        }
+
+        return canceled;
+    }
+
+    /**
+     * Updates several fields relating to what items are being held by the
+     * player.
+     *
+     * @return If true, then there have been changes in the hotbar.
+     *
+     * @see #drawHotbar()
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean updateHotbar()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        Item item, handItem;
+        boolean changed = false;
+
+        mainHandLock = offHandLock = false;
+        mapLock = 0;
+        for (int i = 0, l = Hand.values().length; i < l; i++)
+        {
+            item =
+                    Optional.ofNullable(mc.player.getHeldItem(Hand.values()[i]))
+                            .map(ItemStack::getItem)
+                            .orElse(null);
+            if (item != null)
             {
-                mainHandLock = offHandLock = false;
-                mapLock = 0;
-                event.setCanceled(true);
-                for (int i = 0, l = Hand.values().length; i < l; i++)
+                if (item instanceof ShootableItem)
                 {
-                    item =
-                            Optional.ofNullable(mc.player.getHeldItem(Hand.values()[i]))
-                                    .map(ItemStack::getItem)
-                                    .orElse(null);
-                    if (item != null)
+                    /*
+                     * Enables the crosshairs and lock the hand
+                     * whenever the bow is drawn.
+                     */
+                    if (item instanceof BowItem)
                     {
-                        if (item instanceof ShootableItem)
-                        {
-                            /*
-                             * Enables the crosshairs and lock the hand
-                             * whenever the bow is drawn.
-                             */
-                            if (item instanceof BowItem)
-                            {
-                                if (mc.player.isHandActive() && mc.player.getActiveHand()
-                                        .ordinal() == i)
-                                {
-                                    switch (i)
-                                    {
-                                    case 0:
-                                        mainHandLock = true;
-                                        break;
-                                    case 1:
-                                        offHandLock = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            /*
-                             * Enables the crosshairs and lock the hand
-                             * whenever a loaded crossbow is equipped.
-                             */
-                            else if (item instanceof CrossbowItem)
-                            {
-                                if (CrossbowItem.isCharged(mc.player.getHeldItem(
-                                        Hand.values()[i])))
-                                {
-                                    switch (i)
-                                    {
-                                    case 0:
-                                        mainHandLock = true;
-                                        break;
-                                    case 1:
-                                        offHandLock = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            /*
-                             * We don't know how modded items behave
-                             * exactly, so we keep it safe and enable the
-                             * crosshairs at all times for any shootable
-                             * items.
-                             */
-                            else
-                            {
-                                switch (i)
-                                {
-                                case 0:
-                                    mainHandLock = true;
-                                    break;
-                                case 1:
-                                    offHandLock = true;
-                                    break;
-                                }
-                            }
-                        }
-                        /**
-                         * Items that have the crosshairs enabled for as long
-                         * as the item is actively being used.
-                         */
-                        else if (item instanceof TridentItem || item instanceof ShieldItem)
-                        {
-                            if (mc.player.isHandActive() && mc.player.getActiveHand()
-                                    .ordinal() == i)
-                            {
-                                switch (i)
-                                {
-                                case 0:
-                                    mainHandLock = true;
-                                    break;
-                                case 1:
-                                    offHandLock = true;
-                                    break;
-                                }
-                            }
-                        }
-                        /**
-                         * Items that have the crosshairs enabled for as long
-                         * as the item is being held at all.
-                         */
-                        else if (item instanceof ThrowablePotionItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderPearlItem || item instanceof FishingRodItem)
+                        if (mc.player.isHandActive() && mc.player.getActiveHand()
+                                .ordinal() == i)
                         {
                             switch (i)
                             {
@@ -490,193 +423,468 @@ public class EventBus
                                 break;
                             }
                         }
-                        /**
-                         * Maps get special treatment. The hand is locked,
-                         * but the crosshairs are not enabled.
-                         */
-                        else if (item instanceof FilledMapItem)
-                        {
-                            mapLock = mapLock | (2 - i);
-                        }
                     }
-
                     /*
-                     * Checks for a change in the item
+                     * Enables the crosshairs and lock the hand
+                     * whenever a loaded crossbow is equipped.
                      */
-                    if (i == 0)
+                    else if (item instanceof CrossbowItem)
                     {
-                        handItem = mainHandItem;
-                    }
-                    else if (i == 1)
-                    {
-                        handItem = offHandItem;
-                    }
-                    if (item != handItem)
-                    {
-                        changed = true;
-                        /*
-                         * Briefly shows the health and hunger bar whenever
-                         * food is switched to.
-                         */
-                        if (item.isFood())
+                        if (CrossbowItem.isCharged(mc.player.getHeldItem(
+                                Hand.values()[i])))
                         {
-                            healthTime = HEALTH_TIME;
-                            hungerTime = HEALTH_TIME;
+                            switch (i)
+                            {
+                            case 0:
+                                mainHandLock = true;
+                                break;
+                            case 1:
+                                offHandLock = true;
+                                break;
+                            }
                         }
-                        if (i == 0)
+                    }
+                    /*
+                     * We don't know how modded items behave
+                     * exactly, so we keep it safe and enable the
+                     * crosshairs at all times for any shootable
+                     * items.
+                     */
+                    else
+                    {
+                        switch (i)
                         {
-                            mainHandItem = item;
-                            mainHandTime = HAND_TIME;
-                        }
-                        else if (i == 1)
-                        {
-                            offHandItem = item;
-                            offHandTime = HAND_TIME;
+                        case 0:
+                            mainHandLock = true;
+                            break;
+                        case 1:
+                            offHandLock = true;
+                            break;
                         }
                     }
                 }
-
                 /*
-                 * Checks for a change in what slot is used.
+                 * Items that have the crosshairs enabled for as long
+                 * as the item is actively being used.
                  */
-                hotbarSlot = mc.player.inventory.currentItem;
-                if (selectedHotbarSlot != hotbarSlot)
+                else if (item instanceof TridentItem || item instanceof ShieldItem)
                 {
-                    selectedHotbarSlot = hotbarSlot;
-                    mainHandTime = HAND_TIME;
-                    changed = true;
+                    if (mc.player.isHandActive() && mc.player.getActiveHand()
+                            .ordinal() == i)
+                    {
+                        switch (i)
+                        {
+                        case 0:
+                            mainHandLock = true;
+                            break;
+                        case 1:
+                            offHandLock = true;
+                            break;
+                        }
+                    }
                 }
+                /*
+                 * Items that have the crosshairs enabled for as long
+                 * as the item is being held at all.
+                 */
+                else if (item instanceof ThrowablePotionItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderPearlItem || item instanceof FishingRodItem)
+                {
+                    switch (i)
+                    {
+                    case 0:
+                        mainHandLock = true;
+                        break;
+                    case 1:
+                        offHandLock = true;
+                        break;
+                    }
+                }
+                /*
+                 * Maps get special treatment. The hand is locked,
+                 * but the crosshairs are not enabled.
+                 */
+                else if (item instanceof FilledMapItem)
+                {
+                    mapLock = mapLock | (2 - i);
+                }
+            }
 
-                if (changed)
+            /*
+             * Checks for a change in the item
+             */
+            if (i == 0)
+            {
+                handItem = mainHandItem;
+            }
+            else
+            {
+                handItem = offHandItem;
+            }
+            if (item != handItem)
+            {
+                changed = true;
+                /*
+                 * Briefly shows the health and hunger bar whenever
+                 * food is switched to.
+                 */
+                if (item.isFood())
                 {
-                    hotbarTime = VISUAL_TIME;
+                    healthTime = HEALTH_TIME;
+                    hungerTime = HEALTH_TIME;
                 }
-                else if (hotbarTime > 0)
+                if (i == 0)
                 {
-                    hotbarTime--;
+                    mainHandItem = item;
+                    mainHandTime = HAND_TIME;
                 }
-                RenderUtils.renderHotbar(mc, mc.ingameGUI,
-                        event.getMatrixStack(),
-                        event.getPartialTicks(), hotbarTime);
+                else if (i == 1)
+                {
+                    offHandItem = item;
+                    offHandTime = HAND_TIME;
+                }
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Determines whether or not to draw the hotbar, adjusting the alpha as
+     * needed.
+     *
+     * @return If true, then cancel drawing the hotbar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawHotbar()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        int hotbarSlot;
+
+        boolean changed = updateHotbar();
+        /*
+         * Checks for a change in what slot is used.
+         */
+        hotbarSlot = mc.player.inventory.currentItem;
+        if (selectedHotbarSlot != hotbarSlot)
+        {
+            selectedHotbarSlot = hotbarSlot;
+            mainHandTime = HAND_TIME;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            hotbarTime = VISUAL_TIME;
+        }
+        else if (hotbarTime > 0)
+        {
+            hotbarTime--;
+        }
+
+        return hotbarTime == 0;
+    }
+
+    /**
+     * Determines whether or not to draw the health bar, adjusting the alpha as
+     * needed.
+     *
+     * @return If true, then cancel drawing the health.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawHealth()
+    {
+        /*
+         * When the health percentage falls to this level or below, the
+         * health bar won't disappear, allowing the player to be constantly
+         * reminded of their low health.
+         */
+        final float HEALTH_BOUNDARY = 0.5F;
+        Minecraft mc = Minecraft.getInstance();
+        boolean changed = false;
+        /*
+         * Skip healthy bars that haven't updated in awhile.
+         */
+        boolean canceled =
+                healthTime == 0 && health / maxHealth > HEALTH_BOUNDARY;
+
+        /*
+         * Checks for a change in current or max health.
+         */
+        if (health != mc.player.getHealth())
+        {
+            health = mc.player.getHealth();
+            changed = true;
+        }
+        if (maxHealth != mc.player.getMaxHealth())
+        {
+            maxHealth = mc.player.getMaxHealth();
+            changed = true;
+        }
+        if (changed)
+        {
+            healthTime = HEALTH_TIME;
+        }
+        else if (healthTime > 0)
+        {
+            healthTime--;
+        }
+        /*
+         * Only makes a change if the player is healthy. Otherwise,
+         * the bar is shown.
+         */
+        if (health / maxHealth > HEALTH_BOUNDARY)
+        {
+            setAlpha(Main.getAlpha(healthTime));
+        }
+        return canceled;
+    }
+
+    /**
+     * Determines whether or not to draw the hunger bar, adjusting the alpha as
+     * needed.
+     *
+     * @return If true, then cancel drawing the hunger bar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawHunger()
+    {
+        /*
+         * When hunger falls to this level or below, the hunger bar won't
+         * disappear, allowing the player to be constantly reminded of their
+         * low hunger.
+         */
+        final int HUNGER_BOUNDARY = 15;
+        Minecraft mc = Minecraft.getInstance();
+        boolean canceled = hungerTime == 0 && hunger > HUNGER_BOUNDARY;
+        boolean changed = false;
+
+        if (hunger != mc.player.getFoodStats().getFoodLevel())
+        {
+            hunger = mc.player.getFoodStats().getFoodLevel();
+            changed = true;
+        }
+        if (isFoodPoisoned != mc.player.isPotionActive(Effects.HUNGER))
+        {
+            isFoodPoisoned =
+                    mc.player.isPotionActive(Effects.HUNGER);
+            changed = true;
+        }
+        if (hunger <= HUNGER_BOUNDARY)
+        {
+            changed = true;
+        }
+        if (changed)
+        {
+            hungerTime = HEALTH_TIME;
+            setAlpha(Main.getAlpha(hungerTime));
+        }
+        else if (hungerTime > 0)
+        {
+            hungerTime--;
+        }
+        /*
+         * Only makes a change if the player is satisfied. Otherwise,
+         * the bar is shown.
+         */
+        return canceled;
+    }
+
+    /**
+     * Determines whether or not to draw the armor bar, adjusting the alpha as
+     * needed.
+     *
+     * @return If true, then cancel drawing the armor bar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawArmor()
+    {
+        /*
+         * Renders armor along with health.
+         */
+        if (healthTime > 0)
+        {
+            setAlpha(Main.getAlpha(healthTime));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Determines whether or not to draw the mount's health, adjusting the alpha
+     * as needed.
+     *
+     * @return If true, then cancel drawing the mount health bar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawMountHealth()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        Entity tmp = mc.player.getRidingEntity();
+        boolean changed = false;
+        if (tmp == null)
+        {
+            mountHealth = -1;
+            mountMaxHealth = -1;
+        }
+        else
+        {
+            LivingEntity mount = (LivingEntity) tmp;
+            if (mountHealth != mount.getHealth())
+            {
+                mountHealth = mount.getHealth();
+                changed = true;
+            }
+            if (mountMaxHealth != mount.getMaxHealth())
+            {
+                mountMaxHealth = mount.getMaxHealth();
+                changed = true;
+            }
+        }
+        if (changed)
+        {
+            mountTime = VISUAL_TIME;
+        }
+        else if (mountTime > 0)
+        {
+            mountTime--;
+        }
+
+        if (mountTime > 0)
+        {
+            setAlpha(Main.getAlpha(mountTime));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Determines whether or not to draw the horse jump bar, adjusting the alpha
+     * as needed.
+     *
+     * @return If true, then cancel drawing the jump bar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawJumpbar()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player.getHorseJumpPower() > 0)
+        {
+            jumpTime = VISUAL_TIME;
+        }
+        else if (jumpTime > 0)
+        {
+            jumpTime--;
+        }
+        return jumpTime == 0;
+    }
+
+    /**
+     * Determines whether or not to draw the experience bar, adjusting the alpha
+     * as needed.
+     *
+     * @return If true, then cancel drawing the experience bar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    private static boolean drawExperience()
+    {
+        Minecraft mc = Minecraft.getInstance();
+        boolean changed = false;
+
+        if (experienceProgress != mc.player.experience)
+        {
+            experienceProgress = mc.player.experience;
+            changed = true;
+        }
+        if (changed)
+        {
+            experienceTime = VISUAL_TIME;
+        }
+        else if (experienceTime > 0)
+        {
+            experienceTime--;
+        }
+        return experienceProgress == 0;
+    }
+
+    /**
+     * Called whenever we are drawing a part of the GUI. This is where most of
+     * the change checks are made and adjustments or overrides are done.
+     *
+     * @param event - event data
+     */
+    @SubscribeEvent
+    public static void onGUIDraw(final RenderGameOverlayEvent event)
+    {
+        Minecraft mc = Minecraft.getInstance();
+        switch (event.getType())
+        {
+        case CROSSHAIRS:
+            if (event instanceof RenderGameOverlayEvent.Pre)
+            {
+                if (drawCrosshair())
+                {
+                    event.setCanceled(true);
+                }
+            }
+            /*
+             * Reset the transparency.
+             */
+            else if (event instanceof RenderGameOverlayEvent.Post)
+            {
+                resetAlpha();
+            }
+            break;
+        case HOTBAR:
+            if (event instanceof RenderGameOverlayEvent.Pre)
+            {
+                event.setCanceled(true);
+                if (!drawHotbar())
+                {
+                    RenderUtils.renderHotbar(mc, mc.ingameGUI,
+                            event.getMatrixStack(),
+                            event.getPartialTicks(), hotbarTime);
+                }
             }
             break;
         case HEALTH:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                /*
-                 * Skip healthy bars that haven't updated in awhile.
-                 */
-                if (healthTime == 0 && health / maxHealth > CONST_BOUNDARY)
+                if (drawHealth())
                 {
                     event.setCanceled(true);
                 }
-
-                /**
-                 * Checks for a change in current or max health.
-                 */
-                if (health != mc.player.getHealth())
-                {
-                    health = mc.player.getHealth();
-                    changed = true;
-                }
-                if (maxHealth != mc.player.getMaxHealth())
-                {
-                    maxHealth = mc.player.getMaxHealth();
-                    changed = true;
-                }
-                if (changed)
-                {
-                    healthTime = HEALTH_TIME;
-                }
-                else if (healthTime > 0)
-                {
-                    healthTime--;
-                }
-                /*
-                 * Only makes a change if the player is healthy. Otherwise,
-                 * the bar is shown.
-                 */
-                if (health / maxHealth > CONST_BOUNDARY)
-                {
-                    RenderSystem.color4f(1.0F,
-                            1.0F,
-                            1.0F,
-                            RenderUtils.getAlpha(healthTime));
-                }
             }
-            /*
-             * Reset the transparency.
-             */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                resetAlpha();
             }
             break;
         case FOOD:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                /*
-                 * Skip satisfied bars that haven't updated in awhile.
-                 */
-                if (hungerTime == 0 && hunger > HUNGER_BOUNDARY)
+                if (drawHunger())
                 {
                     event.setCanceled(true);
                 }
-
-                if (hunger != mc.player.getFoodStats().getFoodLevel())
-                {
-                    hunger = mc.player.getFoodStats().getFoodLevel();
-                    changed = true;
-                }
-                if (isFoodPoisoned != mc.player.isPotionActive(Effects.HUNGER))
-                {
-                    isFoodPoisoned =
-                            mc.player.isPotionActive(Effects.HUNGER);
-                    changed = true;
-                }
-                if (hunger <= HUNGER_BOUNDARY)
-                {
-                    changed = true;
-                }
-                if (changed)
-                {
-                    hungerTime = HEALTH_TIME;
-                    RenderSystem.color4f(1.0F,
-                            1.0F,
-                            1.0F,
-                            RenderUtils.getAlpha(hungerTime));
-                }
-                else if (hungerTime > 0)
-                {
-                    hungerTime--;
-                }
-                /*
-                 * Only makes a change if the player is satisfied. Otherwise,
-                 * the bar is shown.
-                 */
             }
             /*
              * Reset the transparency.
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                resetAlpha();
             }
             break;
         case ARMOR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                /*
-                 * Renders armor along with health.
-                 */
-                if (healthTime > 0)
-                {
-                    RenderSystem.color4f(1.0F,
-                            1.0F,
-                            1.0F,
-                            RenderUtils.getAlpha(healthTime));
-                }
-                else
+                if (drawArmor())
                 {
                     event.setCanceled(true);
                 }
@@ -686,88 +894,42 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                resetAlpha();
             }
             break;
         case HEALTHMOUNT:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                Entity tmp = mc.player.getRidingEntity();
-                if (tmp == null)
+                if (drawMountHealth())
                 {
-                    mountHealth = -1;
-                    mountMaxHealth = -1;
+                    event.setCanceled(true);
                 }
-                else
-                {
-                    LivingEntity mount = (LivingEntity) tmp;
-                    if (mountHealth != mount.getHealth())
-                    {
-                        mountHealth = mount.getHealth();
-                        changed = true;
-                    }
-                    if (mountMaxHealth != mount.getMaxHealth())
-                    {
-                        mountMaxHealth = mount.getMaxHealth();
-                        changed = true;
-                    }
-                }
-                if (changed)
-                {
-                    mountTime = VISUAL_TIME;
-                }
-                else if (mountTime > 0)
-                {
-                    mountTime--;
-                }
-                /*
-                 * Renders it along with health.
-                 */
-                RenderSystem.color4f(1.0F,
-                        1.0F,
-                        1.0F,
-                        RenderUtils.getAlpha(mountTime));
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                resetAlpha();
             }
             break;
         case JUMPBAR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
                 event.setCanceled(true);
-                if (mc.player.getHorseJumpPower() > 0)
+                if (!drawJumpbar())
                 {
-                    jumpTime = VISUAL_TIME;
+                    RenderUtils.renderHorseJumpBar(mc, mc.ingameGUI,
+                            event.getMatrixStack(), jumpTime);
                 }
-                else if (jumpTime > 0)
-                {
-                    jumpTime--;
-                }
-                RenderUtils.renderHorseJumpBar(mc, mc.ingameGUI,
-                        event.getMatrixStack(), jumpTime);
             }
             break;
         case EXPERIENCE:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
                 event.setCanceled(true);
-                if (experienceProgress != mc.player.experience)
+                if (!drawExperience())
                 {
-                    experienceProgress = mc.player.experience;
-                    changed = true;
+                    RenderUtils.renderExperience(mc, mc.ingameGUI,
+                            event.getMatrixStack(), experienceTime);
                 }
-                if (changed)
-                {
-                    experienceTime = VISUAL_TIME;
-                }
-                else if (experienceTime > 0)
-                {
-                    experienceTime--;
-                }
-                RenderUtils.renderExperience(mc, mc.ingameGUI,
-                        event.getMatrixStack(), experienceTime);
             }
             break;
         }
