@@ -17,13 +17,8 @@
 package markil3.immersive_hud.mixin;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,11 +26,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import markil3.immersive_hud.EventBus;
+import markil3.immersive_hud.TimerUtils;
 
 /**
  * This mixin hooks into the client player class to check for when the hands
- * move. Note that most of the logic can be found in {@link EventBus}.
+ * move. Note that most of the logic can be found in {@link TimerUtils}.
  *
  * @author Markil 3
  * @version 0.1-1.16.4-fabric
@@ -54,7 +49,7 @@ public class ClientPlayerHook
     @Inject(method = "swingHand", at = @At(value = "TAIL"))
     public void swingHand(Hand hand, CallbackInfo callbackInfo)
     {
-        EventBus.onClick(hand, hand == null);
+        TimerUtils.onClick(hand, hand == null);
     }
 
     /**
@@ -68,7 +63,7 @@ public class ClientPlayerHook
     @Inject(method = "setCurrentHand", at = @At(value = "TAIL"))
     public void setCurrentHand(Hand hand, CallbackInfo callbackInfo)
     {
-        EventBus.onClick(hand, hand == null);
+        TimerUtils.onClick(hand, hand == null);
     }
 
     /**
@@ -83,7 +78,7 @@ public class ClientPlayerHook
     {
         if (MinecraftClient.getInstance().cameraEntity instanceof LivingEntity)
         {
-            EventBus.onClick(((LivingEntity) MinecraftClient.getInstance().cameraEntity)
+            TimerUtils.onClick(((LivingEntity) MinecraftClient.getInstance().cameraEntity)
                     .getActiveHand(), true);
         }
     }

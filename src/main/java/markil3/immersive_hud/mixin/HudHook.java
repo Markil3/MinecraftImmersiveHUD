@@ -16,22 +16,19 @@
  */
 package markil3.immersive_hud.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.profiler.DummyProfiler;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import markil3.immersive_hud.EventBus;
+import markil3.immersive_hud.TimerUtils;
 
 /**
  * This mixin hooks into the HUD class to modify most of the HUD elements. Note
- * that most of the logic can be found in {@link EventBus}.
+ * that most of the logic can be found in {@link TimerUtils}.
  *
  * @author Markil 3
  * @version 0.1-1.16.4-fabric
@@ -52,7 +49,7 @@ public class HudHook
             cancellable = true)
     public void startCrosshair(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (EventBus.drawCrosshair())
+        if (TimerUtils.drawCrosshair())
         {
             callbackInfo.cancel();
         }
@@ -73,7 +70,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        EventBus.resetAlpha();
+        TimerUtils.resetAlpha();
     }
 
     /**
@@ -92,7 +89,7 @@ public class HudHook
                              int x,
                              CallbackInfo callbackInfo)
     {
-        if (EventBus.drawJumpbar())
+        if (TimerUtils.drawJumpbar())
         {
             callbackInfo.cancel();
         }
@@ -115,7 +112,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        EventBus.resetAlpha();
+        TimerUtils.resetAlpha();
     }
 
     /**
@@ -133,7 +130,7 @@ public class HudHook
                                 int x,
                                 CallbackInfo callbackInfo)
     {
-        if (EventBus.drawExperience())
+        if (TimerUtils.drawExperience())
         {
             callbackInfo.cancel();
         }
@@ -156,7 +153,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        EventBus.resetAlpha();
+        TimerUtils.resetAlpha();
     }
 
     /**
@@ -173,7 +170,7 @@ public class HudHook
             true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (EventBus.drawMountHealth())
+        if (TimerUtils.drawMountHealth())
         {
             callbackInfo.cancel();
         }
@@ -194,7 +191,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        EventBus.resetAlpha();
+        TimerUtils.resetAlpha();
     }
 
     /**
@@ -213,7 +210,7 @@ public class HudHook
                             MatrixStack matrices,
                             CallbackInfo callbackInfo)
     {
-        if (EventBus.updateHotbar())
+        if (TimerUtils.updateHotbar())
         {
             callbackInfo.cancel();
         }
@@ -236,7 +233,7 @@ public class HudHook
                              MatrixStack matrices,
                              CallbackInfo callbackInfo)
     {
-        EventBus.recolorHotbar();
+        TimerUtils.recolorHotbar();
     }
 
     /**
@@ -257,6 +254,6 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        EventBus.resetAlpha();
+        TimerUtils.resetAlpha();
     }
 }

@@ -16,8 +16,6 @@
  */
 package markil3.immersive_hud.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.util.profiler.DummyProfiler;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,8 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import markil3.immersive_hud.EventBus;
-import markil3.immersive_hud.Main;
+import markil3.immersive_hud.TimerUtils;
 
 /**
  * This class hooks into the profiler to trigger color changes for the status
@@ -51,9 +48,9 @@ public class ProfilerHook
     {
         if (section.equals("armor"))
         {
-            if (EventBus.drawArmor())
+            if (TimerUtils.drawArmor())
             {
-                EventBus.setAlpha(0F);
+                TimerUtils.setAlpha(0F);
             }
         }
     }
@@ -76,27 +73,27 @@ public class ProfilerHook
             /*
              * Resets the transparency from the previous call.
              */
-            EventBus.setAlpha(1F);
-            if (EventBus.drawHealth())
+            TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawHealth())
             {
-                EventBus.setAlpha(0F);
+                TimerUtils.setAlpha(0F);
             }
             break;
         case "food":
             /*
              * Resets the transparency from the previous call.
              */
-            EventBus.setAlpha(1F);
-            if (EventBus.drawHunger())
+            TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawHunger())
             {
-                EventBus.setAlpha(0F);
+                TimerUtils.setAlpha(0F);
             }
             break;
         case "air":
             /*
              * Resets the color so that nothing else is bothered.
              */
-            EventBus.setAlpha(1F);
+            TimerUtils.setAlpha(1F);
             break;
         }
     }

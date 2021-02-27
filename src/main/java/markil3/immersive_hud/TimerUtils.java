@@ -54,7 +54,7 @@ import java.util.Optional;
  * @author Markil 3
  * @version 0.1-1.16.4-fabric
  */
-public class EventBus
+public class TimerUtils
 {
     /**
      * The number of ticks that the hand will be onscreen. Every tick is 1/20th
