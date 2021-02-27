@@ -601,11 +601,6 @@ public class TimerUtils
         final float HEALTH_BOUNDARY = 0.5F;
         Minecraft mc = Minecraft.getInstance();
         boolean changed = false;
-        /*
-         * Skip healthy bars that haven't updated in awhile.
-         */
-        boolean canceled =
-                healthTime == 0 && health / maxHealth > HEALTH_BOUNDARY;
 
         /*
          * Checks for a change in current or max health.
@@ -634,9 +629,14 @@ public class TimerUtils
          */
         if (health / maxHealth > HEALTH_BOUNDARY)
         {
-            setAlpha(Main.getAlpha(healthTime));
+            if (healthTime > 0)
+            {
+                setAlpha(Main.getAlpha(healthTime));
+                return false;
+            }
+            return true;
         }
-        return canceled;
+        return false;
     }
 
     /**
@@ -656,7 +656,6 @@ public class TimerUtils
          */
         final int HUNGER_BOUNDARY = 15;
         Minecraft mc = Minecraft.getInstance();
-        boolean canceled = hungerTime == 0 && hunger > HUNGER_BOUNDARY;
         boolean changed = false;
 
         if (hunger != mc.player.getFoodStats().getFoodLevel())
@@ -670,11 +669,8 @@ public class TimerUtils
                     mc.player.isPotionActive(Effects.HUNGER);
             changed = true;
         }
-        if (hunger <= HUNGER_BOUNDARY)
-        {
-            changed = true;
-        }
-        if (changed)
+
+        if (changed || hunger <= HUNGER_BOUNDARY)
         {
             hungerTime = HEALTH_TIME;
             setAlpha(Main.getAlpha(hungerTime));
@@ -684,10 +680,10 @@ public class TimerUtils
             hungerTime--;
         }
         /*
-         * Only makes a change if the player is satisfied. Otherwise,
+         * Only fade a change if the player is satisfied. Otherwise,
          * the bar is shown.
          */
-        return canceled;
+        return hungerTime == 0 && hunger > HUNGER_BOUNDARY;
     }
 
     /**

@@ -150,13 +150,6 @@ public class EventBus
                         event.getMatrixStack());
                 resetAlpha();
             }
-            /*
-             * Reset the transparency.
-             */
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                resetAlpha();
-            }
             break;
         case HOTBAR:
             if (event instanceof RenderGameOverlayEvent.Pre)
