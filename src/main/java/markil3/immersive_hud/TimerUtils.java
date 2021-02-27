@@ -178,6 +178,55 @@ public class TimerUtils
         setAlpha(1.0F);
     }
 
+    /**
+     * Obtains the offset from the bottom of the screen that the hotbar
+     * receives.
+     *
+     * @return The offset the hotbar uses.
+     */
+    public static int getHotbarTranslation()
+    {
+        return (int) (22F * Main.getAlpha(hotbarTime));
+    }
+
+
+    /**
+     * Obtains the offset from the bottom of the screen that the experience bar
+     * receives.
+     *
+     * @return The offset the experience bar uses.
+     */
+    public static int getExperienceTranslation()
+    {
+        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(
+                experienceTime)) - 3;
+    }
+
+
+    /**
+     * Obtains the offset from the bottom of the screen that the jump bar
+     * receives.
+     *
+     * @return The offset the jump bar uses.
+     */
+    public static int getJumpTranslation()
+    {
+        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime)) - 3;
+    }
+
+
+    /**
+     * Obtains the offset that the status bars (health, hunger, etc.) gets from
+     * their usual position.
+     *
+     * @return The offset.
+     */
+    public static float getHealthTranslation()
+    {
+        return 29 - Math.max(Math.max(getExperienceTranslation(),
+                getJumpTranslation()), getHotbarTranslation());
+    }
+
     public static void onClick(Hand hand, Item item)
     {
         crosshairTime = VISUAL_TIME;
@@ -327,13 +376,18 @@ public class TimerUtils
      */
     public static void updatePotions(ClientPlayerEntity player)
     {
+        ArrayList<Effect> toRemove = new ArrayList<>();
         for (Effect effect : Collections.checkedSet(effectTime.keySet(),
                 Effect.class))
         {
             if (!player.isPotionActive(effect))
             {
-                effectTime.remove(effect);
+                toRemove.add(effect);
             }
+        }
+        for (Effect effect : toRemove)
+        {
+            effectTime.remove(effect);
         }
     }
 
@@ -591,7 +645,7 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHealth()
+    public static boolean drawHealth(MatrixStack stack)
     {
         /*
          * When the health percentage falls to this level or below, the
@@ -631,11 +685,19 @@ public class TimerUtils
         {
             if (healthTime > 0)
             {
+                stack.push();
+                stack.translate(0F,
+                        getHealthTranslation(),
+                        0F);
                 setAlpha(Main.getAlpha(healthTime));
                 return false;
             }
             return true;
         }
+        stack.push();
+        stack.translate(0F,
+                getHealthTranslation(),
+                0F);
         return false;
     }
 
@@ -647,7 +709,7 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHunger()
+    public static boolean drawHunger(MatrixStack stack)
     {
         /*
          * When hunger falls to this level or below, the hunger bar won't
@@ -673,7 +735,6 @@ public class TimerUtils
         if (changed || hunger <= HUNGER_BOUNDARY)
         {
             hungerTime = HEALTH_TIME;
-            setAlpha(Main.getAlpha(hungerTime));
         }
         else if (hungerTime > 0)
         {
@@ -683,18 +744,32 @@ public class TimerUtils
          * Only fade a change if the player is satisfied. Otherwise,
          * the bar is shown.
          */
-        return hungerTime == 0 && hunger > HUNGER_BOUNDARY;
+        if (hungerTime == 0 && hunger > HUNGER_BOUNDARY)
+        {
+            return true;
+        }
+        else
+        {
+            setAlpha(Main.getAlpha(hungerTime));
+            stack.push();
+            stack.translate(0F,
+                    getHealthTranslation(),
+                    0F);
+            return false;
+        }
     }
 
     /**
      * Determines whether or not to draw the armor bar, adjusting the alpha as
      * needed.
      *
+     * @param stack
+     *
      * @return If true, then cancel drawing the armor bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawArmor()
+    public static boolean drawArmor(MatrixStack stack)
     {
         /*
          * Renders armor along with health.
@@ -702,20 +777,44 @@ public class TimerUtils
         if (healthTime > 0)
         {
             setAlpha(Main.getAlpha(healthTime));
+            stack.push();
+            stack.translate(0F,
+                    getHealthTranslation(),
+                    0F);
             return false;
         }
         return true;
     }
 
     /**
+     * Repositions the oxygen bar.
+     *
+     * @param stack
+     *
+     * @return If true, then cancel drawing the oxygen bar.
+     *
+     * @since 0.2-1.16.4-forge
+     */
+    public static boolean drawAir(MatrixStack stack)
+    {
+        stack.push();
+        stack.translate(0F,
+                getHealthTranslation(),
+                0F);
+        return false;
+    }
+
+    /**
      * Determines whether or not to draw the mount's health, adjusting the alpha
      * as needed.
+     *
+     * @param stack
      *
      * @return If true, then cancel drawing the mount health bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawMountHealth()
+    public static boolean drawMountHealth(MatrixStack stack)
     {
         Minecraft mc = Minecraft.getInstance();
         Entity tmp = mc.player.getRidingEntity();
@@ -750,6 +849,10 @@ public class TimerUtils
 
         if (mountTime > 0)
         {
+            stack.push();
+            stack.translate(0F,
+                    getHealthTranslation(),
+                    0F);
             setAlpha(Main.getAlpha(mountTime));
             return false;
         }

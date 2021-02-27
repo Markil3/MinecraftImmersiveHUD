@@ -189,7 +189,7 @@ public class RenderUtils
         float f = mc.player.getHorseJumpPower();
         int i = 182;
         int j = (int) (f * 183.0F);
-        int k = scaledHeight - 32 + 3;
+        int k = scaledHeight - TimerUtils.getJumpTranslation();
         gui.blit(matrixStack, xPosition, k, 0, 84, 182, 5);
         if (j > 0)
         {
@@ -239,7 +239,7 @@ public class RenderUtils
             {
                 int j = 182;
                 int k = (int) (mc.player.experience * 183.0F);
-                int l = scaledHeight - 32 + 3;
+                int l = scaledHeight - TimerUtils.getExperienceTranslation();
                 gui.blit(matrixStack, x, l, 0, 64, 182, 5);
                 if (k > 0)
                 {
@@ -256,7 +256,7 @@ public class RenderUtils
                 String s = "" + mc.player.experienceLevel;
                 int i1 = (scaledWidth - gui.getFontRenderer()
                         .getStringWidth(s)) / 2;
-                int j1 = scaledHeight - 31 - 4;
+                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime) + 9F) * alpha) - (int) (4F * alpha);
                 gui.getFontRenderer()
                         .drawString(matrixStack,
                                 s,
@@ -335,10 +335,10 @@ public class RenderUtils
             int k = 182;
             int l = 91;
             gui.setBlitOffset(-90);
-            gui.blit(matrixStack, i - 91, scaledHeight - 22, 0, 0, 182, 22);
+            gui.blit(matrixStack, i - 91, scaledHeight - TimerUtils.getHotbarTranslation(), 0, 0, 182, 22);
             gui.blit(matrixStack,
                     i - 91 - 1 + playerentity.inventory.currentItem * 20,
-                    scaledHeight - 22 - 1,
+                    scaledHeight - (int) (22F * alpha) - 1,
                     0,
                     22,
                     24,
@@ -349,7 +349,7 @@ public class RenderUtils
                 {
                     gui.blit(matrixStack,
                             i - 91 - 29,
-                            scaledHeight - 23,
+                            scaledHeight - (int) (23F * alpha),
                             24,
                             22,
                             29,
@@ -359,7 +359,7 @@ public class RenderUtils
                 {
                     gui.blit(matrixStack,
                             i + 91,
-                            scaledHeight - 23,
+                            scaledHeight - (int) (23F * alpha),
                             53,
                             22,
                             29,
@@ -375,7 +375,7 @@ public class RenderUtils
             for (int i1 = 0; i1 < 9; ++i1)
             {
                 int j1 = i - 90 + i1 * 20 + 2;
-                int k1 = scaledHeight - 16 - 3;
+                int k1 = scaledHeight - (int) (16F * alpha) - 3;
                 renderHotbarItem(mc, alpha, j1,
                         k1,
                         partialTicks,
@@ -385,7 +385,7 @@ public class RenderUtils
 
             if (!itemstack.isEmpty())
             {
-                int i2 = scaledHeight - 16 - 3;
+                int i2 = scaledHeight - (int) (16F * alpha) - 3;
                 if (handside == HandSide.LEFT)
                 {
                     renderHotbarItem(mc, alpha, i - 91 - 26,

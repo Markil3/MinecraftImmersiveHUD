@@ -166,20 +166,21 @@ public class EventBus
         case HEALTH:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawHealth())
+                if (TimerUtils.drawHealth(event.getMatrixStack()))
                 {
                     event.setCanceled(true);
                 }
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
+                event.getMatrixStack().pop();
                 resetAlpha();
             }
             break;
         case FOOD:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawHunger())
+                if (TimerUtils.drawHunger(event.getMatrixStack()))
                 {
                     event.setCanceled(true);
                 }
@@ -189,13 +190,14 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
+                event.getMatrixStack().pop();
                 resetAlpha();
             }
             break;
         case ARMOR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawArmor())
+                if (TimerUtils.drawArmor(event.getMatrixStack()))
                 {
                     event.setCanceled(true);
                 }
@@ -205,19 +207,38 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
+                event.getMatrixStack().pop();
+                resetAlpha();
+            }
+            break;
+        case AIR:
+            if (event instanceof RenderGameOverlayEvent.Pre)
+            {
+                if (TimerUtils.drawAir(event.getMatrixStack()))
+                {
+                    event.setCanceled(true);
+                }
+            }
+            /*
+             * Reset the transparency.
+             */
+            else if (event instanceof RenderGameOverlayEvent.Post)
+            {
+                event.getMatrixStack().pop();
                 resetAlpha();
             }
             break;
         case HEALTHMOUNT:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawMountHealth())
+                if (TimerUtils.drawMountHealth(event.getMatrixStack()))
                 {
                     event.setCanceled(true);
                 }
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
+                event.getMatrixStack().pop();
                 resetAlpha();
             }
             break;
