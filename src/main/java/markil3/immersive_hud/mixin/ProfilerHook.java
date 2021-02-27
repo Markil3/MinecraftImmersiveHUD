@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import markil3.immersive_hud.EventBus;
+import markil3.immersive_hud.Main;
 
 /**
  * This class hooks into the profiler to trigger color changes for the status
@@ -50,7 +51,10 @@ public class ProfilerHook
     {
         if (section.equals("armor"))
         {
-            EventBus.drawArmor();
+            if (EventBus.drawArmor())
+            {
+                EventBus.setAlpha(0F);
+            }
         }
     }
 
@@ -69,16 +73,30 @@ public class ProfilerHook
         switch (section)
         {
         case "health":
-            EventBus.drawHealth();
+            /*
+             * Resets the transparency from the previous call.
+             */
+            EventBus.setAlpha(1F);
+            if (EventBus.drawHealth())
+            {
+                EventBus.setAlpha(0F);
+            }
             break;
         case "food":
-            EventBus.drawHunger();
+            /*
+             * Resets the transparency from the previous call.
+             */
+            EventBus.setAlpha(1F);
+            if (EventBus.drawHunger())
+            {
+                EventBus.setAlpha(0F);
+            }
             break;
         case "air":
             /*
              * Resets the color so that nothing else is bothered.
              */
-            RenderSystem.color4f(1, 1, 1, 1F);
+            EventBus.setAlpha(1F);
             break;
         }
     }

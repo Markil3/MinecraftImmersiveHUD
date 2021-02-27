@@ -179,6 +179,26 @@ public class EventBus
     private static float experienceProgress = -1;
 
     /**
+     * Sets the transparency level of the next drawn element.
+     *
+     * @param alpha - The transparency, from 0 to 1.
+     */
+    public static void setAlpha(float alpha)
+    {
+        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+    }
+
+    /**
+     * Resets the transparency level.
+     *
+     * @see #setAlpha(float)
+     */
+    public static void resetAlpha()
+    {
+        setAlpha(1.0F);
+    }
+
+    /**
      * Run whenever the player clicks a mouse button. This brings the hands into
      * view, and briefly brings the health and hunger into view if the held item
      * is food.
@@ -314,6 +334,8 @@ public class EventBus
         MinecraftClient mc = MinecraftClient.getInstance();
         Entity entity = mc.getCameraEntity();
         boolean changed = false;
+        boolean canceled = false;
+
         if (mc.crosshairTarget != null && mc.crosshairTarget
                 .getType() != HitResult.Type.MISS)
         {
@@ -334,25 +356,19 @@ public class EventBus
         if (changed || mainHandLock || offHandLock || crosshairTime
                 > 0)
         {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    Main.getAlpha(crosshairTime > 0 ?
-                                  crosshairTime :
-                                  VISUAL_TIME));
+            setAlpha(Main.getAlpha(crosshairTime > 0 ?
+                                   crosshairTime :
+                                   VISUAL_TIME));
         }
         else
         {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    0F);
+            canceled = true;
         }
         if (crosshairTime > 0)
         {
             crosshairTime--;
         }
-        return false;
+        return canceled;
     }
 
     /**
@@ -405,15 +421,10 @@ public class EventBus
         {
             mountTime--;
         }
+
         if (mountTime > 0)
         {
-            /*
-             * Renders it along with health.
-             */
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    Main.getAlpha(mountTime));
+            setAlpha(Main.getAlpha(mountTime));
             return false;
         }
         return true;
@@ -436,19 +447,10 @@ public class EventBus
          */
         if (healthTime > 0)
         {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    Main.getAlpha(healthTime));
+            setAlpha(Main.getAlpha(healthTime));
+            return false;
         }
-        else
-        {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    0.0F);
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -466,7 +468,7 @@ public class EventBus
          * health bar won't disappear, allowing the player to be constantly
          * reminded of their low health.
          */
-        final float CONST_BOUNDARY = 0.5F;
+        final float HEALTH_BOUNDARY = 0.5F;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         LivingEntity entity;
@@ -479,14 +481,8 @@ public class EventBus
             return true;
         }
         boolean changed = false;
-
-        /*
-         * Resets the transparency from the armor call.
-         */
-        RenderSystem.color4f(1.0F,
-                1.0F,
-                1.0F,
-                1F);
+        boolean canceled =
+                healthTime == 0 && health / maxHealth > HEALTH_BOUNDARY;
 
         /**
          * Checks for a change in current or max health.
@@ -513,14 +509,11 @@ public class EventBus
          * Only makes a change if the player is healthy. Otherwise,
          * the bar is shown.
          */
-        if (health / maxHealth > CONST_BOUNDARY)
+        if (health / maxHealth > HEALTH_BOUNDARY)
         {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    Main.getAlpha(healthTime));
+            setAlpha(Main.getAlpha(healthTime));
         }
-        return false;
+        return canceled;
     }
 
     /**
@@ -542,15 +535,9 @@ public class EventBus
 
         MinecraftClient mc = MinecraftClient.getInstance();
         PlayerEntity entity;
+        boolean canceled;
         boolean changed = false;
 
-        /*
-         * Resets the transparency from last time.
-         */
-        RenderSystem.color4f(1.0F,
-                1.0F,
-                1.0F,
-                1F);
         if (mc.getCameraEntity() instanceof PlayerEntity)
         {
             entity = (PlayerEntity) mc.getCameraEntity();
@@ -584,15 +571,13 @@ public class EventBus
         {
             hungerTime--;
         }
-        RenderSystem.color4f(1.0F,
-                1.0F,
-                1.0F,
-                Main.getAlpha(hungerTime));
-        /*
-         * Only makes a change if the player is satisfied. Otherwise,
-         * the bar is shown.
-         */
-        return false;
+
+        canceled = hungerTime == 0 && hunger > HUNGER_BOUNDARY;
+        if (!canceled)
+        {
+            setAlpha(Main.getAlpha(hungerTime));
+        }
+        return canceled;
     }
 
     /**
@@ -607,8 +592,6 @@ public class EventBus
     {
         MinecraftClient mc = MinecraftClient.getInstance();
         ClientPlayerEntity entity;
-        boolean changed = false;
-
         if (mc.getCameraEntity() instanceof ClientPlayerEntity)
         {
             entity = (ClientPlayerEntity) mc.getCameraEntity();
@@ -626,12 +609,9 @@ public class EventBus
         {
             jumpTime--;
         }
-        if (experienceTime > 0)
+        if (jumpTime > 0)
         {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    Main.getAlpha(jumpTime));
+            setAlpha(Main.getAlpha(jumpTime));
             return false;
         }
         return true;
@@ -675,10 +655,7 @@ public class EventBus
         }
         if (experienceTime > 0)
         {
-            RenderSystem.color4f(1.0F,
-                    1.0F,
-                    1.0F,
-                    Main.getAlpha(experienceTime));
+            setAlpha(Main.getAlpha(experienceTime));
             return false;
         }
         return true;
@@ -902,9 +879,6 @@ public class EventBus
      */
     public static void recolorHotbar()
     {
-        RenderSystem.color4f(1.0F,
-                1.0F,
-                1.0F,
-                Main.getAlpha(hotbarTime));
+        setAlpha(Main.getAlpha(hotbarTime));
     }
 }

@@ -45,12 +45,17 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
-    @Inject(method = "renderCrosshair", at = @At(value = "HEAD"))
+    @Inject(method = "renderCrosshair", at = @At(value = "HEAD"),
+            cancellable = true)
     public void startCrosshair(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        EventBus.drawCrosshair();
+        if (EventBus.drawCrosshair())
+        {
+            callbackInfo.cancel();
+        }
     }
 
     /**
@@ -59,6 +64,7 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderCrosshair", at = @At(value = "TAIL"))
@@ -67,7 +73,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        RenderSystem.color4f(1, 1, 1, 1F);
+        EventBus.resetAlpha();
     }
 
     /**
@@ -76,14 +82,20 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
-    @Inject(method = "renderMountJumpBar", at = @At(value = "HEAD"))
+    @Inject(method = "renderMountJumpBar", at = @At(value = "HEAD"),
+            cancellable =
+            true)
     public void startJumpbar(MatrixStack stack,
                              int x,
                              CallbackInfo callbackInfo)
     {
-        EventBus.drawJumpbar();
+        if (EventBus.drawJumpbar())
+        {
+            callbackInfo.cancel();
+        }
     }
 
     /**
@@ -92,6 +104,7 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderMountJumpBar", at = @At(value = "TAIL"))
@@ -102,7 +115,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        RenderSystem.color4f(1, 1, 1, 1F);
+        EventBus.resetAlpha();
     }
 
     /**
@@ -111,6 +124,7 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderExperienceBar", at = @At(value = "HEAD"),
@@ -131,6 +145,7 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderExperienceBar", at = @At(value = "TAIL"))
@@ -141,7 +156,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        RenderSystem.color4f(1, 1, 1, 1F);
+        EventBus.resetAlpha();
     }
 
     /**
@@ -150,12 +165,18 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
-    @Inject(method = "renderMountHealth", at = @At(value = "HEAD"))
+    @Inject(method = "renderMountHealth", at = @At(value = "HEAD"),
+            cancellable =
+            true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        EventBus.drawMountHealth();
+        if (EventBus.drawMountHealth())
+        {
+            callbackInfo.cancel();
+        }
     }
 
     /**
@@ -164,6 +185,7 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderMountHealth", at = @At(value = "TAIL"))
@@ -172,7 +194,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        RenderSystem.color4f(1, 1, 1, 1F);
+        EventBus.resetAlpha();
     }
 
     /**
@@ -182,6 +204,7 @@ public class HudHook
      * @param matrices - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderHotbar", at = @At(value = "HEAD"), cancellable =
@@ -203,6 +226,7 @@ public class HudHook
      * @param matrices - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderHotbar", at = @At(value = "INVOKE", target =
@@ -222,6 +246,7 @@ public class HudHook
      * @param matrices - The matrix drawing stack.
      * @param callbackInfo
      *
+     * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderHotbar", at = @At(value = "TAIL"))
@@ -232,6 +257,6 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        RenderSystem.color4f(1, 1, 1, 1F);
+        EventBus.resetAlpha();
     }
 }
