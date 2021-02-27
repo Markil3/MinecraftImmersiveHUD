@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static markil3.immersive_hud.Main.FADE_IN_TIME;
+
 public class TimerUtils
 {
     /**
@@ -186,7 +188,7 @@ public class TimerUtils
      */
     public static int getHotbarTranslation()
     {
-        return (int) (22F * Main.getAlpha(hotbarTime));
+        return (int) (22F * Main.getAlpha(hotbarTime, VISUAL_TIME));
     }
 
 
@@ -199,7 +201,7 @@ public class TimerUtils
     public static int getExperienceTranslation()
     {
         return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(
-                experienceTime)) - 3;
+                experienceTime, VISUAL_TIME)) - 3;
     }
 
 
@@ -211,7 +213,7 @@ public class TimerUtils
      */
     public static int getJumpTranslation()
     {
-        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime)) - 3;
+        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime, VISUAL_TIME)) - 3;
     }
 
 
@@ -319,6 +321,7 @@ public class TimerUtils
     public static void resetMountHealth()
     {
         mountTime = VISUAL_TIME;
+        jumpTime = 0;
     }
 
     /**
@@ -354,7 +357,7 @@ public class TimerUtils
         {
             setAlpha(Main.getAlpha(crosshairTime > 0 ?
                                    crosshairTime :
-                                   VISUAL_TIME));
+                                   VISUAL_TIME - FADE_IN_TIME, VISUAL_TIME));
         }
         else
         {
@@ -405,6 +408,7 @@ public class TimerUtils
         final int BLINK_TIME = 200;
         float effectAlpha = 0.0F;
         Integer time = effectTime.get(effectinstance.getPotion());
+
         if (time == null)
         {
             effectTime.put(effectinstance.getPotion(), (time = VISUAL_TIME));
@@ -425,7 +429,7 @@ public class TimerUtils
         }
         else
         {
-            effectAlpha = Main.getAlpha(time);
+            effectAlpha = Main.getAlpha(time, VISUAL_TIME);
         }
         return effectAlpha;
     }
@@ -627,7 +631,7 @@ public class TimerUtils
 
         if (changed)
         {
-            hotbarTime = VISUAL_TIME;
+            hotbarTime = VISUAL_TIME - (hotbarTime > 0 ? FADE_IN_TIME : 0);
         }
         else if (hotbarTime > 0)
         {
@@ -671,7 +675,7 @@ public class TimerUtils
         }
         if (changed)
         {
-            healthTime = HEALTH_TIME;
+            healthTime = HEALTH_TIME - (healthTime > 0 ? FADE_IN_TIME : 0);
         }
         else if (healthTime > 0)
         {
@@ -689,7 +693,7 @@ public class TimerUtils
                 stack.translate(0F,
                         getHealthTranslation(),
                         0F);
-                setAlpha(Main.getAlpha(healthTime));
+                setAlpha(Main.getAlpha(healthTime, HEALTH_TIME));
                 return false;
             }
             return true;
@@ -734,7 +738,7 @@ public class TimerUtils
 
         if (changed || hunger <= HUNGER_BOUNDARY)
         {
-            hungerTime = HEALTH_TIME;
+            hungerTime = HEALTH_TIME - hungerTime == 0 ? FADE_IN_TIME : 0;
         }
         else if (hungerTime > 0)
         {
@@ -750,7 +754,7 @@ public class TimerUtils
         }
         else
         {
-            setAlpha(Main.getAlpha(hungerTime));
+            setAlpha(Main.getAlpha(hungerTime, HEALTH_TIME));
             stack.push();
             stack.translate(0F,
                     getHealthTranslation(),
@@ -776,7 +780,7 @@ public class TimerUtils
          */
         if (healthTime > 0)
         {
-            setAlpha(Main.getAlpha(healthTime));
+            setAlpha(Main.getAlpha(healthTime, HEALTH_TIME));
             stack.push();
             stack.translate(0F,
                     getHealthTranslation(),
@@ -819,6 +823,7 @@ public class TimerUtils
         Minecraft mc = Minecraft.getInstance();
         Entity tmp = mc.player.getRidingEntity();
         boolean changed = false;
+
         if (tmp == null)
         {
             mountHealth = -1;
@@ -838,9 +843,10 @@ public class TimerUtils
                 changed = true;
             }
         }
+
         if (changed)
         {
-            mountTime = VISUAL_TIME;
+            mountTime = VISUAL_TIME - (mountTime > 0 ? FADE_IN_TIME : 0);
         }
         else if (mountTime > 0)
         {
@@ -853,7 +859,7 @@ public class TimerUtils
             stack.translate(0F,
                     getHealthTranslation(),
                     0F);
-            setAlpha(Main.getAlpha(mountTime));
+            setAlpha(Main.getAlpha(mountTime, VISUAL_TIME));
             return false;
         }
         return true;
@@ -872,7 +878,7 @@ public class TimerUtils
         Minecraft mc = Minecraft.getInstance();
         if (mc.player.getHorseJumpPower() > 0)
         {
-            jumpTime = VISUAL_TIME;
+            jumpTime = VISUAL_TIME - (jumpTime > 0 ? FADE_IN_TIME : 0);
         }
         else if (jumpTime > 0)
         {
@@ -901,7 +907,7 @@ public class TimerUtils
         }
         if (changed)
         {
-            experienceTime = VISUAL_TIME;
+            experienceTime = VISUAL_TIME - (experienceTime > 0 ? FADE_IN_TIME : 0);
         }
         else if (experienceTime > 0)
         {

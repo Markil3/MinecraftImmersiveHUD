@@ -35,6 +35,8 @@ import org.apache.logging.log4j.Logger;
 @Mod("immersive_hud")
 public class Main
 {
+    public static final int FADE_IN_TIME = 5;
+    public static final int FADE_OUT_TIME = 20;
     /**
      * Class logger.
      */
@@ -56,12 +58,20 @@ public class Main
      *
      * @param renderTime - How many ticks until the element entirely
      * disappears.
+     * @param maxTime - How many ticks the element can appear.
      *
      * @return The proper transparency to render something.
      */
-    static float getAlpha(int renderTime)
+    static float getAlpha(int renderTime, int maxTime)
     {
-        return Math.min(renderTime / 20.0F,
-                1.0F);
+        if (renderTime <= FADE_OUT_TIME)
+        {
+            return renderTime / (float) FADE_OUT_TIME;
+        }
+        else if (renderTime > maxTime - FADE_IN_TIME)
+        {
+            return (maxTime - renderTime) / (float) FADE_IN_TIME;
+        }
+        return 1F;
     }
 }

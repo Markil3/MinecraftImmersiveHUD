@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
+import static markil3.immersive_hud.TimerUtils.VISUAL_TIME;
 import static markil3.immersive_hud.TimerUtils.resetAlpha;
 
 /**
@@ -122,6 +123,8 @@ public class EventBus
     public static void onGUIDraw(final RenderGameOverlayEvent event)
     {
         Minecraft mc = Minecraft.getInstance();
+        boolean fadeIn = false;
+
         switch (event.getType())
         {
         case CROSSHAIRS:
@@ -159,7 +162,7 @@ public class EventBus
                 {
                     RenderUtils.renderHotbar(mc, mc.ingameGUI,
                             event.getMatrixStack(),
-                            event.getPartialTicks(), TimerUtils.hotbarTime);
+                            event.getPartialTicks(), TimerUtils.hotbarTime, VISUAL_TIME);
                 }
             }
             break;
@@ -249,7 +252,7 @@ public class EventBus
                 if (!TimerUtils.drawJumpbar())
                 {
                     RenderUtils.renderHorseJumpBar(mc, mc.ingameGUI,
-                            event.getMatrixStack(), TimerUtils.jumpTime);
+                            event.getMatrixStack(), TimerUtils.jumpTime, VISUAL_TIME);
                 }
             }
             break;
@@ -260,7 +263,7 @@ public class EventBus
                 if (!TimerUtils.drawExperience())
                 {
                     RenderUtils.renderExperience(mc, mc.ingameGUI,
-                            event.getMatrixStack(), TimerUtils.experienceTime);
+                            event.getMatrixStack(), TimerUtils.experienceTime, VISUAL_TIME);
                 }
             }
             break;

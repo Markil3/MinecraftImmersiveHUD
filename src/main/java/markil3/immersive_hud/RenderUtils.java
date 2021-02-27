@@ -170,14 +170,14 @@ public class RenderUtils
     public static void renderHorseJumpBar(Minecraft mc,
                                           IngameGui gui,
                                           MatrixStack matrixStack,
-                                          int renderTime)
+                                          int renderTime, int maxRenderTime)
     {
         if (renderTime == 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime);
+        float alpha = Main.getAlpha(renderTime, maxRenderTime);
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
@@ -215,14 +215,14 @@ public class RenderUtils
     public static void renderExperience(Minecraft mc,
                                         IngameGui gui,
                                         MatrixStack matrixStack,
-                                        int renderTime)
+                                        int renderTime, int maxRenderTime)
     {
         if (renderTime == 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime);
+        float alpha = Main.getAlpha(renderTime, maxRenderTime);
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
@@ -256,7 +256,7 @@ public class RenderUtils
                 String s = "" + mc.player.experienceLevel;
                 int i1 = (scaledWidth - gui.getFontRenderer()
                         .getStringWidth(s)) / 2;
-                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime) + 9F) * alpha) - (int) (4F * alpha);
+                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime, maxRenderTime) + 9F) * alpha) - (int) (4F * alpha);
                 gui.getFontRenderer()
                         .drawString(matrixStack,
                                 s,
@@ -309,7 +309,7 @@ public class RenderUtils
      */
     public static void renderHotbar(Minecraft mc, IngameGui gui,
                                     MatrixStack matrixStack,
-                                    float partialTicks, int renderTime)
+                                    float partialTicks, int renderTime, int maxRenderTime)
     {
         final ResourceLocation WIDGETS_TEX_PATH =
                 new ResourceLocation("textures/gui/widgets.png");
@@ -320,7 +320,7 @@ public class RenderUtils
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime);
+        float alpha = Main.getAlpha(renderTime, maxRenderTime);
 
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();
