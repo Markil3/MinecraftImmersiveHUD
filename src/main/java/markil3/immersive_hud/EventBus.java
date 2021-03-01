@@ -33,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 
-import static markil3.immersive_hud.TimerUtils.VISUAL_TIME;
 import static markil3.immersive_hud.TimerUtils.resetAlpha;
 
 /**
@@ -107,7 +106,7 @@ public class EventBus
     @SubscribeEvent
     public static void onRenderHand(final RenderHandEvent event)
     {
-        if (TimerUtils.onRenderHand(event.getHand(), event.getMatrixStack()))
+        if (TimerUtils.onRenderHand(event.getHand(), event.getMatrixStack(), event.getPartialTicks()))
         {
             event.setCanceled(true);
         }
@@ -130,7 +129,7 @@ public class EventBus
         case CROSSHAIRS:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawCrosshair())
+                if (TimerUtils.drawCrosshair(event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -150,7 +149,7 @@ public class EventBus
                 event.setCanceled(true);
                 RenderUtils.renderPotionIcons(mc,
                         mc.ingameGUI,
-                        event.getMatrixStack());
+                        event.getMatrixStack(), event.getPartialTicks());
                 resetAlpha();
             }
             break;
@@ -158,18 +157,18 @@ public class EventBus
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
                 event.setCanceled(true);
-                if (!TimerUtils.drawHotbar())
+                if (!TimerUtils.drawHotbar(event.getPartialTicks()))
                 {
                     RenderUtils.renderHotbar(mc, mc.ingameGUI,
                             event.getMatrixStack(),
-                            event.getPartialTicks(), TimerUtils.hotbarTime, VISUAL_TIME);
+                            event.getPartialTicks(), TimerUtils.hotbarTime);
                 }
             }
             break;
         case HEALTH:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawHealth(event.getMatrixStack()))
+                if (TimerUtils.drawHealth(event.getMatrixStack(), event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -183,7 +182,7 @@ public class EventBus
         case FOOD:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawHunger(event.getMatrixStack()))
+                if (TimerUtils.drawHunger(event.getMatrixStack(), event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -200,7 +199,7 @@ public class EventBus
         case ARMOR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawArmor(event.getMatrixStack()))
+                if (TimerUtils.drawArmor(event.getMatrixStack(), event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -217,7 +216,7 @@ public class EventBus
         case AIR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawAir(event.getMatrixStack()))
+                if (TimerUtils.drawAir(event.getMatrixStack(), event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -234,7 +233,7 @@ public class EventBus
         case HEALTHMOUNT:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawMountHealth(event.getMatrixStack()))
+                if (TimerUtils.drawMountHealth(event.getMatrixStack(), event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -249,10 +248,10 @@ public class EventBus
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
                 event.setCanceled(true);
-                if (!TimerUtils.drawJumpbar())
+                if (!TimerUtils.drawJumpbar(event.getPartialTicks()))
                 {
                     RenderUtils.renderHorseJumpBar(mc, mc.ingameGUI,
-                            event.getMatrixStack(), TimerUtils.jumpTime, VISUAL_TIME);
+                            event.getMatrixStack(), event.getPartialTicks(), TimerUtils.jumpTime);
                 }
             }
             break;
@@ -260,10 +259,10 @@ public class EventBus
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
                 event.setCanceled(true);
-                if (!TimerUtils.drawExperience())
+                if (!TimerUtils.drawExperience(event.getPartialTicks()))
                 {
                     RenderUtils.renderExperience(mc, mc.ingameGUI,
-                            event.getMatrixStack(), TimerUtils.experienceTime, VISUAL_TIME);
+                            event.getMatrixStack(), event.getPartialTicks(), TimerUtils.experienceTime);
                 }
             }
             break;

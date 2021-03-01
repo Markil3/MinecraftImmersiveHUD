@@ -49,9 +49,6 @@ import net.minecraft.world.World;
 import java.util.Collection;
 import java.util.List;
 
-import static markil3.immersive_hud.TimerUtils.FADE_IN_TIME;
-import static markil3.immersive_hud.TimerUtils.FADE_OUT_TIME;
-
 /**
  * Contains methods for rendering various HUD elements. Most of these methods
  * come from {@link IngameGui} and
@@ -64,8 +61,8 @@ import static markil3.immersive_hud.TimerUtils.FADE_OUT_TIME;
 public class RenderUtils
 {
     public static void renderPotionIcons(Minecraft mc,
-                                     IngameGui gui,
-                                     MatrixStack matrixStack)
+                                         IngameGui gui,
+                                         MatrixStack matrixStack, float ticks)
     {
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();
@@ -89,7 +86,7 @@ public class RenderUtils
                     .sortedCopy(collection))
             {
                 Effect effect = effectinstance.getPotion();
-                float effectAlpha = TimerUtils.getPotionAlpha(mc.player, effectinstance);
+                float effectAlpha = TimerUtils.getPotionAlpha(mc.player, effectinstance, ticks);
                 if (!effectinstance.shouldRenderHUD() || effectAlpha < 0.01F)
                 {
                     continue;
@@ -165,6 +162,7 @@ public class RenderUtils
      * @param mc - A Minecraft instance.
      * @param gui - The GUI.
      * @param matrixStack - The rendering transformation matrix stack.
+     * @param ticks
      * @param renderTime - How much time before this element becomes fully
      * transparent.
      *
@@ -173,14 +171,15 @@ public class RenderUtils
     public static void renderHorseJumpBar(Minecraft mc,
                                           IngameGui gui,
                                           MatrixStack matrixStack,
-                                          int renderTime, int maxRenderTime)
+                                          float ticks, double renderTime)
     {
-        if (renderTime == 0)
+        ConfigManager.TimeValues jump = ConfigManager.getInstance().getJumpTime();
+        if (renderTime <= 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME);
+        float alpha = Main.getAlpha(renderTime, jump.getMaxTime(), jump.getFadeInTime(), jump.getFadeOutTime());
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
@@ -210,6 +209,7 @@ public class RenderUtils
      * @param mc - A Minecraft instance.
      * @param gui - The GUI.
      * @param matrixStack - The rendering transformation matrix stack.
+     * @param ticks
      * @param renderTime - How much time before this element becomes fully
      * transparent.
      *
@@ -218,14 +218,16 @@ public class RenderUtils
     public static void renderExperience(Minecraft mc,
                                         IngameGui gui,
                                         MatrixStack matrixStack,
-                                        int renderTime, int maxRenderTime)
+                                        float ticks, double renderTime)
     {
-        if (renderTime == 0)
+        ConfigManager.TimeValues experience = ConfigManager.getInstance().getHealthTime();
+        ConfigManager.TimeValues hotbar = ConfigManager.getInstance().getHotbarTime();
+        if (renderTime <= 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME);
+        float alpha = Main.getAlpha(renderTime, experience.getMaxTime(), experience.getFadeInTime(), experience.getFadeOutTime());
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
@@ -259,7 +261,7 @@ public class RenderUtils
                 String s = "" + mc.player.experienceLevel;
                 int i1 = (scaledWidth - gui.getFontRenderer()
                         .getStringWidth(s)) / 2;
-                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME) + 9F) * alpha) - (int) (4F * alpha);
+                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime, hotbar.getMaxTime(), hotbar.getFadeInTime(), hotbar.getFadeOutTime()) + 9F) * alpha) - (int) (4F * alpha);
                 gui.getFontRenderer()
                         .drawString(matrixStack,
                                 s,
@@ -310,20 +312,23 @@ public class RenderUtils
      *
      * @see IngameGui#renderHotbar(float, MatrixStack)
      */
-    public static void renderHotbar(Minecraft mc, IngameGui gui,
+    public static void renderHotbar(Minecraft mc,
+                                    IngameGui gui,
                                     MatrixStack matrixStack,
-                                    float partialTicks, int renderTime, int maxRenderTime)
+                                    float partialTicks,
+                                    double renderTime)
     {
+        ConfigManager.TimeValues hotbar = ConfigManager.getInstance().getHotbarTime();
         final ResourceLocation WIDGETS_TEX_PATH =
                 new ResourceLocation("textures/gui/widgets.png");
         PlayerEntity playerentity = mc.player;
 
-        if (renderTime == 0)
+        if (renderTime <= 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, maxRenderTime, FADE_IN_TIME, FADE_OUT_TIME);
+        float alpha = Main.getAlpha(renderTime, hotbar.getMaxTime(), hotbar.getFadeInTime(), hotbar.getFadeOutTime());
 
         int scaledWidth = mc.getMainWindow().getScaledWidth();
         int scaledHeight = mc.getMainWindow().getScaledHeight();

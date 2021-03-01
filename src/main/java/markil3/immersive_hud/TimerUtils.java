@@ -24,6 +24,7 @@ import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
@@ -34,35 +35,37 @@ import java.util.Optional;
 
 public class TimerUtils
 {
-    /**
-     * The number of ticks that the hand will be onscreen. Every tick is 1/20th
-     * of a second.
-     */
-    private static final int HAND_TIME = 10 * 20;
-    /**
-     * The number of ticks most elements will be onscreen. Every tick is 1/20th
-     * of a second.
-     */
-    static final int VISUAL_TIME = 6 * 20;
-    /**
-     * The number of ticks that the health and hunger bars will be onscreen.
-     * Every tick is 1/20th of a second.
-     */
-    private static final int HEALTH_TIME = (int) ((float) VISUAL_TIME * 2.5);
-    public static final int FADE_IN_TIME = 5;
-    public static final int FADE_OUT_TIME = 20;
+//    /**
+//     * The number of ticks that the hand will be onscreen. Every tick is
+//     1/20th
+//     * of a second.
+//     */
+//    private static final int HAND_TIME = 10 * 20;
+//    /**
+//     * The number of ticks most elements will be onscreen. Every tick is
+//     1/20th
+//     * of a second.
+//     */
+//    static final int VISUAL_TIME = 6 * 20;
+//    /**
+//     * The number of ticks that the health and hunger bars will be onscreen.
+//     * Every tick is 1/20th of a second.
+//     */
+//    private static final int HEALTH_TIME = (int) ((float) VISUAL_TIME * 2.5);
+//    public static final int FADE_IN_TIME = 5;
+//    public static final int FADE_OUT_TIME = 20;
 
     /**
      * How many more ticks the hand will be onscreen. Every tick is 1/20th of a
      * second.
      */
-    private static int mainHandTime, offHandTime;
+    private static double mainHandTime, offHandTime;
 
     /**
      * How many more ticks the crosshair will be onscreen. Every tick is 1/20th
      * of a second.
      */
-    private static int crosshairTime;
+    private static double crosshairTime;
     /**
      * If true, then the hand (and crosshairs) will be locked onto the screen
      * without disappearing until this flag is updated.
@@ -75,13 +78,13 @@ public class TimerUtils
      */
     private static int mapLock;
 
-    private static HashMap<Effect, Integer> effectTime = new HashMap<>();
+    private static HashMap<Effect, Double> effectTime = new HashMap<>();
 
     /**
      * How many more ticks the hotbar will be onscreen. Every tick is 1/20th of
      * a second.
      */
-    static int hotbarTime;
+    static double hotbarTime;
     /**
      * The last hotbar slot that was selected. This is used to check for a
      * change in the hotbar slot.
@@ -97,7 +100,7 @@ public class TimerUtils
      * How many more ticks the health bar will be onscreen. Every tick is 1/20th
      * of a second.
      */
-    private static int healthTime;
+    private static double healthTime;
     /**
      * Records what the health was previously. Used to check for a change in the
      * health.
@@ -115,7 +118,7 @@ public class TimerUtils
      * How many more ticks the hunger bar will be onscreen. Every tick is 1/20th
      * of a second.
      */
-    private static int hungerTime;
+    private static double hungerTime;
     /**
      * Records what the hunger level was previously. Used to check for a change
      * in hunger.
@@ -131,7 +134,7 @@ public class TimerUtils
      * How many more ticks the mount's health bar will be onscreen. Every tick
      * is 1/20th of a second.
      */
-    private static int mountTime;
+    private static double mountTime;
     /**
      * Records what the health of the mount was previously. Used to check for a
      * change in the health.
@@ -147,13 +150,13 @@ public class TimerUtils
      * How many more ticks the mount's jump bar will be onscreen. Every tick is
      * 1/20th of a second.
      */
-    static int jumpTime;
+    static double jumpTime;
 
     /**
      * How many more ticks the experience bar will be onscreen. Every tick is
      * 1/20th of a second.
      */
-    static int experienceTime;
+    static double experienceTime;
     /**
      * Records what the experience was previously. Used to check for a change in
      * the health.
@@ -188,7 +191,12 @@ public class TimerUtils
      */
     public static int getHotbarTranslation()
     {
-        return (int) (22F * Main.getAlpha(hotbarTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME));
+        ConfigManager.TimeValues hotbar =
+                ConfigManager.getInstance().getHotbarTime();
+        return (int) (22F * Main.getAlpha(hotbarTime,
+                hotbar.getMaxTime(),
+                hotbar.getFadeInTime(),
+                hotbar.getFadeOutTime()));
     }
 
 
@@ -200,8 +208,13 @@ public class TimerUtils
      */
     public static int getExperienceTranslation()
     {
+        ConfigManager.TimeValues experience =
+                ConfigManager.getInstance().getExperenceTime();
         return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(
-                experienceTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME)) - 3;
+                experienceTime,
+                experience.getMaxTime(),
+                experience.getFadeInTime(),
+                experience.getFadeOutTime())) - 3;
     }
 
 
@@ -213,7 +226,12 @@ public class TimerUtils
      */
     public static int getJumpTranslation()
     {
-        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME)) - 3;
+        ConfigManager.TimeValues jump =
+                ConfigManager.getInstance().getJumpTime();
+        return (int) ((getHotbarTranslation() + 10F) * Main.getAlpha(jumpTime,
+                jump.getMaxTime(),
+                jump.getFadeInTime(),
+                jump.getFadeOutTime())) - 3;
     }
 
 
@@ -231,21 +249,32 @@ public class TimerUtils
 
     public static void onClick(Hand hand, Item item)
     {
-        crosshairTime = VISUAL_TIME;
+        ConfigManager.TimeValues health =
+                ConfigManager.getInstance().getHealthTime();
+        ConfigManager.TimeValues hunger =
+                ConfigManager.getInstance().getHungerTime();
+        double handTime = ConfigManager.getInstance().getHandTime();
+
+        crosshairTime = ConfigManager.getInstance().getCrosshairTime();
+
         if (hand == Hand.MAIN_HAND)
         {
-            mainHandTime = HAND_TIME;
+            mainHandTime = handTime;
         }
         else
         {
-            offHandTime = HAND_TIME;
+            offHandTime = handTime;
         }
         if (item != null)
         {
             if (item.isFood())
             {
-                healthTime = HEALTH_TIME;
-                hungerTime = HEALTH_TIME;
+                healthTime = health.getMaxTime() - (healthTime > 0 ?
+                             health.getFadeInTime() :
+                             0);
+                hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
+                             hunger.getFadeInTime() :
+                             0);
             }
         }
     }
@@ -256,14 +285,17 @@ public class TimerUtils
      *
      * @param hand - The hand being rendered.
      * @param matrixStack - The rendering stack.
+     * @param ticks
      *
      * @return If true, then don't render this hand at all.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean onRenderHand(Hand hand, MatrixStack matrixStack)
+    public static boolean onRenderHand(Hand hand,
+                                       MatrixStack matrixStack,
+                                       float ticks)
     {
-        final int HAND_UP_TIME = 20;
+        float HAND_UP_TIME = 1F;
 
         switch (hand)
         {
@@ -284,7 +316,10 @@ public class TimerUtils
             }
             else if (!offHandLock && (mapLock & 0b01) == 0)
             {
-                offHandTime--;
+                if (offHandTime > 0)
+                {
+                    offHandTime -= ticks;
+                }
                 if (offHandTime < HAND_UP_TIME)
                 {
                     matrixStack
@@ -301,7 +336,10 @@ public class TimerUtils
             }
             else if (!mainHandLock && (mapLock & 0b10) == 0)
             {
-                mainHandTime--;
+                if (mainHandTime > 0)
+                {
+                    mainHandTime -= ticks;
+                }
                 if (mainHandTime < HAND_UP_TIME)
                 {
                     matrixStack
@@ -320,7 +358,11 @@ public class TimerUtils
      */
     public static void resetMountHealth()
     {
-        mountTime = VISUAL_TIME;
+        ConfigManager.TimeValues health =
+                ConfigManager.getInstance().getHealthTime();
+        mountTime = health.getMaxTime() - (mountTime > 0 ?
+                    health.getFadeInTime() :
+                    0);
         jumpTime = 0;
     }
 
@@ -328,12 +370,16 @@ public class TimerUtils
      * Determines whether or not to draw the crosshair, adjusting the alpha as
      * needed.
      *
+     * @param ticks
+     *
      * @return If true, then cancel drawing the crosshair.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawCrosshair()
+    public static boolean drawCrosshair(float ticks)
     {
+        double CROSSHAIR_TIME = ConfigManager.getInstance().getCrosshairTime();
+
         Minecraft mc = Minecraft.getInstance();
         boolean changed = false;
         boolean canceled = false;
@@ -357,7 +403,7 @@ public class TimerUtils
         {
             setAlpha(Main.getAlpha(crosshairTime > 0 ?
                                    crosshairTime :
-                                   VISUAL_TIME, VISUAL_TIME, 0, 0));
+                                   CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
         }
         else
         {
@@ -365,7 +411,7 @@ public class TimerUtils
         }
         if (crosshairTime > 0)
         {
-            crosshairTime--;
+            crosshairTime -= ticks;
         }
 
         return canceled;
@@ -403,33 +449,40 @@ public class TimerUtils
      * @return
      */
     public static float getPotionAlpha(ClientPlayerEntity player,
-                                       EffectInstance effectinstance)
+                                       EffectInstance effectinstance,
+                                       float ticks)
     {
+        ConfigManager.TimeValues potion =
+                ConfigManager.getInstance().getPotionTime();
         final int BLINK_TIME = 200;
         float effectAlpha = 0.0F;
-        Integer time = effectTime.get(effectinstance.getPotion());
+        Double time = effectTime.get(effectinstance.getPotion());
 
         if (time == null)
         {
-            effectTime.put(effectinstance.getPotion(), (time = VISUAL_TIME));
+            effectTime.put(effectinstance.getPotion(),
+                    (time = (double) potion.getMaxTime()));
         }
         else
         {
-            effectTime.put(effectinstance.getPotion(), (time -= 1));
+            effectTime.put(effectinstance.getPotion(), (time -= ticks));
         }
-        if (effectinstance.getDuration() <= BLINK_TIME)
+        if (effectinstance.getDuration() <= potion.getFadeOutTime())
         {
             effectAlpha =
                     MathHelper.sin(7000F / (effectinstance.getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
                             .getDuration() + 100F) + 0.5F;
         }
-        else if (effectinstance.getDuration() <= BLINK_TIME + 10)
+        else if (effectinstance.getDuration() <= potion.getFadeOutTime() + 10)
         {
             effectAlpha = -(effectinstance.getDuration() - 200) / 22F + 0.454F;
         }
         else
         {
-            effectAlpha = Main.getAlpha(time, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME);
+            effectAlpha = Main.getAlpha(time,
+                    potion.getMaxTime(),
+                    potion.getFadeInTime(),
+                    potion.getFadeOutTime());
         }
         return effectAlpha;
     }
@@ -440,11 +493,17 @@ public class TimerUtils
      *
      * @return If true, then there have been changes in the hotbar.
      *
-     * @see #drawHotbar()
+     * @see #drawHotbar(float)
      * @since 0.2-1.16.4-forge
      */
     private static boolean updateHotbar()
     {
+        ConfigManager.TimeValues health =
+                ConfigManager.getInstance().getHealthTime();
+        ConfigManager.TimeValues hunger =
+                ConfigManager.getInstance().getHungerTime();
+        double handTime = ConfigManager.getInstance().getHandTime();
+
         Minecraft mc = Minecraft.getInstance();
         Item item, handItem;
         boolean changed = false;
@@ -586,18 +645,22 @@ public class TimerUtils
                  */
                 if (item.isFood())
                 {
-                    healthTime = HEALTH_TIME;
-                    hungerTime = HEALTH_TIME;
+                    healthTime = health.getMaxTime() - (healthTime > 0 ?
+                                 health.getFadeInTime() :
+                                 0);
+                    hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
+                                 hunger.getFadeInTime() :
+                                 0);
                 }
                 if (i == 0)
                 {
                     mainHandItem = item;
-                    mainHandTime = HAND_TIME;
+                    mainHandTime = handTime;
                 }
                 else if (i == 1)
                 {
                     offHandItem = item;
-                    offHandTime = HAND_TIME;
+                    offHandTime = handTime;
                 }
             }
         }
@@ -612,8 +675,11 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHotbar()
+    public static boolean drawHotbar(float ticks)
     {
+        ConfigManager.TimeValues hotbar =
+                ConfigManager.getInstance().getHotbarTime();
+        double handTime = ConfigManager.getInstance().getHandTime();
         Minecraft mc = Minecraft.getInstance();
         int hotbarSlot;
 
@@ -625,17 +691,19 @@ public class TimerUtils
         if (selectedHotbarSlot != hotbarSlot)
         {
             selectedHotbarSlot = hotbarSlot;
-            mainHandTime = HAND_TIME;
+            mainHandTime = handTime;
             changed = true;
         }
 
         if (changed)
         {
-            hotbarTime = VISUAL_TIME - (hotbarTime > 0 ? FADE_IN_TIME : 0);
+            hotbarTime = hotbar.getMaxTime() - (hotbarTime > 0 ?
+                                                hotbar.getFadeInTime() :
+                                                0);
         }
         else if (hotbarTime > 0)
         {
-            hotbarTime--;
+            hotbarTime -= ticks;
         }
 
         return hotbarTime == 0;
@@ -649,14 +717,17 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHealth(MatrixStack stack)
+    public static boolean drawHealth(MatrixStack stack, float ticks)
     {
         /*
          * When the health percentage falls to this level or below, the
          * health bar won't disappear, allowing the player to be constantly
          * reminded of their low health.
          */
-        final float HEALTH_BOUNDARY = 0.5F;
+        final double HEALTH_BOUNDARY =
+                ConfigManager.getInstance().getMinHealth();
+        ConfigManager.TimeValues healthTimes =
+                ConfigManager.getInstance().getHealthTime();
         Minecraft mc = Minecraft.getInstance();
         boolean changed = false;
 
@@ -675,11 +746,13 @@ public class TimerUtils
         }
         if (changed)
         {
-            healthTime = HEALTH_TIME - (healthTime > 0 ? FADE_IN_TIME : 0);
+            healthTime = healthTimes.getMaxTime() - (healthTime > 0 ?
+                                                     healthTimes.getFadeInTime() :
+                                                     0);
         }
         else if (healthTime > 0)
         {
-            healthTime--;
+            healthTime -= ticks;
         }
         /*
          * Only makes a change if the player is healthy. Otherwise,
@@ -693,7 +766,10 @@ public class TimerUtils
                 stack.translate(0F,
                         getHealthTranslation(),
                         0F);
-                setAlpha(Main.getAlpha(healthTime, HEALTH_TIME, FADE_IN_TIME, FADE_OUT_TIME));
+                setAlpha(Main.getAlpha(healthTime,
+                        healthTimes.getMaxTime(),
+                        healthTimes.getFadeInTime(),
+                        healthTimes.getFadeOutTime()));
                 return false;
             }
             return true;
@@ -713,14 +789,16 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHunger(MatrixStack stack)
+    public static boolean drawHunger(MatrixStack stack, float ticks)
     {
         /*
          * When hunger falls to this level or below, the hunger bar won't
          * disappear, allowing the player to be constantly reminded of their
          * low hunger.
          */
-        final int HUNGER_BOUNDARY = 15;
+        final int HUNGER_BOUNDARY = ConfigManager.getInstance().getMinHunger();
+        ConfigManager.TimeValues hungerTimes =
+                ConfigManager.getInstance().getHungerTime();
         Minecraft mc = Minecraft.getInstance();
         boolean changed = false;
 
@@ -738,23 +816,28 @@ public class TimerUtils
 
         if (changed || hunger <= HUNGER_BOUNDARY)
         {
-            hungerTime = HEALTH_TIME - hungerTime == 0 ? FADE_IN_TIME : 0;
+            hungerTime = hungerTimes.getMaxTime() - (hungerTime > 0 ?
+                         hungerTimes.getFadeInTime() :
+                         0);
         }
         else if (hungerTime > 0)
         {
-            hungerTime--;
+            hungerTime -= ticks;
         }
         /*
          * Only fade a change if the player is satisfied. Otherwise,
          * the bar is shown.
          */
-        if (hungerTime == 0 && hunger > HUNGER_BOUNDARY)
+        if (hungerTime <= 0 && hunger > HUNGER_BOUNDARY)
         {
             return true;
         }
         else
         {
-            setAlpha(Main.getAlpha(hungerTime, HEALTH_TIME, FADE_IN_TIME, FADE_OUT_TIME));
+            setAlpha(Main.getAlpha(hungerTime,
+                    hungerTimes.getMaxTime(),
+                    hungerTimes.getFadeInTime(),
+                    hungerTimes.getFadeOutTime()));
             stack.push();
             stack.translate(0F,
                     getHealthTranslation(),
@@ -768,19 +851,25 @@ public class TimerUtils
      * needed.
      *
      * @param stack
+     * @param ticks
      *
      * @return If true, then cancel drawing the armor bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawArmor(MatrixStack stack)
+    public static boolean drawArmor(MatrixStack stack, float ticks)
     {
+        ConfigManager.TimeValues healthTimes;
         /*
          * Renders armor along with health.
          */
-        if (healthTime > 0)
+        if (ConfigManager.getInstance().shouldShowArmor() && healthTime > 0)
         {
-            setAlpha(Main.getAlpha(healthTime, HEALTH_TIME, FADE_IN_TIME, FADE_OUT_TIME));
+            healthTimes = ConfigManager.getInstance().getHealthTime();
+            setAlpha(Main.getAlpha(healthTime,
+                    healthTimes.getMaxTime(),
+                    healthTimes.getFadeInTime(),
+                    healthTimes.getFadeOutTime()));
             stack.push();
             stack.translate(0F,
                     getHealthTranslation(),
@@ -794,12 +883,13 @@ public class TimerUtils
      * Repositions the oxygen bar.
      *
      * @param stack
+     * @param ticks
      *
      * @return If true, then cancel drawing the oxygen bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawAir(MatrixStack stack)
+    public static boolean drawAir(MatrixStack stack, float ticks)
     {
         stack.push();
         stack.translate(0F,
@@ -813,13 +903,24 @@ public class TimerUtils
      * as needed.
      *
      * @param stack
+     * @param ticks
      *
      * @return If true, then cancel drawing the mount health bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawMountHealth(MatrixStack stack)
+    public static boolean drawMountHealth(MatrixStack stack, float ticks)
     {
+        /*
+         * When the health percentage falls to this level or below, the
+         * health bar won't disappear, allowing the player to be constantly
+         * reminded of their low health.
+         */
+        final double HEALTH_BOUNDARY =
+                ConfigManager.getInstance().getMinHealth();
+
+        ConfigManager.TimeValues healthTimes =
+                ConfigManager.getInstance().getHealthTime();
         Minecraft mc = Minecraft.getInstance();
         Entity tmp = mc.player.getRidingEntity();
         boolean changed = false;
@@ -846,43 +947,66 @@ public class TimerUtils
 
         if (changed)
         {
-            mountTime = VISUAL_TIME - (mountTime > 0 ? FADE_IN_TIME : 0);
+            mountTime = healthTimes.getMaxTime() - (mountTime > 0 ?
+                                                    healthTimes.getFadeInTime() :
+                                                    0);
         }
         else if (mountTime > 0)
         {
-            mountTime--;
+            mountTime -= ticks;
         }
 
-        if (mountTime > 0)
+        /*
+         * Only makes a change if the player is healthy. Otherwise,
+         * the bar is shown.
+         */
+        if (mountHealth / mountMaxHealth > HEALTH_BOUNDARY)
         {
-            stack.push();
-            stack.translate(0F,
-                    getHealthTranslation(),
-                    0F);
-            setAlpha(Main.getAlpha(mountTime, VISUAL_TIME, FADE_IN_TIME, FADE_OUT_TIME));
-            return false;
+            if (mountTime > 0)
+            {
+                stack.push();
+                stack.translate(0F,
+                        getHealthTranslation(),
+                        0F);
+                setAlpha(Main.getAlpha(mountTime,
+                        healthTimes.getMaxTime(),
+                        healthTimes.getFadeInTime(),
+                        healthTimes.getFadeOutTime()));
+                return false;
+            }
+            return true;
         }
-        return true;
+        stack.push();
+        stack.translate(0F,
+                getHealthTranslation(),
+                0F);
+        return false;
     }
 
     /**
      * Determines whether or not to draw the horse jump bar, adjusting the alpha
      * as needed.
      *
+     * @param ticks
+     *
      * @return If true, then cancel drawing the jump bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawJumpbar()
+    public static boolean drawJumpbar(float ticks)
     {
+        ConfigManager.TimeValues jump =
+                ConfigManager.getInstance().getJumpTime();
         Minecraft mc = Minecraft.getInstance();
         if (mc.player.getHorseJumpPower() > 0)
         {
-            jumpTime = VISUAL_TIME - (jumpTime > 0 ? FADE_IN_TIME : 0);
+            jumpTime = jump.getMaxTime() - (jumpTime > 0 ?
+                                            jump.getFadeInTime() :
+                                            0);
         }
         else if (jumpTime > 0)
         {
-            jumpTime--;
+            jumpTime -= ticks;
         }
         return jumpTime == 0;
     }
@@ -891,12 +1015,16 @@ public class TimerUtils
      * Determines whether or not to draw the experience bar, adjusting the alpha
      * as needed.
      *
+     * @param ticks
+     *
      * @return If true, then cancel drawing the experience bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawExperience()
+    public static boolean drawExperience(float ticks)
     {
+        ConfigManager.TimeValues experience =
+                ConfigManager.getInstance().getExperenceTime();
         Minecraft mc = Minecraft.getInstance();
         boolean changed = false;
 
@@ -907,11 +1035,13 @@ public class TimerUtils
         }
         if (changed)
         {
-            experienceTime = VISUAL_TIME - (experienceTime > 0 ? FADE_IN_TIME : 0);
+            experienceTime = experience.getMaxTime() - (experienceTime > 0 ?
+                                                        experience.getFadeInTime() :
+                                                        0);
         }
         else if (experienceTime > 0)
         {
-            experienceTime--;
+            experienceTime -= ticks;
         }
         return experienceProgress == 0;
     }
