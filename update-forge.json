@@ -1,0 +1,12 @@
+{
+  "homepage": "https://www.planetminecraft.com/mod/immersive-hud/",
+  "1.16.4": {
+    "0.1-1.16.4-forge": "Initial release",
+    "1.0-1.16.4-forge": "Causes potion effects to fade, adds sliding animations to the hotbar, experience, and jump bars, and adds support for configuring the timings."
+  },
+  ...
+  "promos": {
+    "<mcversion>-latest": "1.0-1.16.4-forge"
+    "<mcversion>-recommended": "0.1-1.16.4-forge"
+  }
+}
