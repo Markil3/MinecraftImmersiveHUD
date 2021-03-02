@@ -29,23 +29,9 @@ public class ConfigManager implements ConfigData
         private static final int FADE_IN = TICKS_PER_SECOND / 2;
         private static final int FADE_OUT = TICKS_PER_SECOND;
 
-        @ConfigEntry.Gui.Excluded
-        private final String name;
         private int maxTime = SHOW_TIME;
         private int fadeIn = FADE_IN;
         private int fadeOut = FADE_OUT;
-
-        TimeValues(String name)
-        {
-            final int MAX_TIME = 10 * 60 * TICKS_PER_SECOND;
-
-            this.name = name;
-        }
-
-        public String getName()
-        {
-            return this.name;
-        }
 
         /**
          * Obtains the maximum time that the hotbar can be on the screen,
@@ -94,44 +80,16 @@ public class ConfigManager implements ConfigData
         }
     }
 
-    @ConfigEntry.Gui.TransitiveObject
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
-    private TimeValues hotbarTime = new TimeValues("hotbar");
-    @ConfigEntry.Gui.TransitiveObject
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
-    private TimeValues experienceTime = new TimeValues("experience");
-    @ConfigEntry.Gui.TransitiveObject
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
-    private TimeValues jumpTime = new TimeValues("jump");
-    @ConfigEntry.Gui.TransitiveObject
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
-    private TimeValues healthTime = new TimeValues("health");
-    @ConfigEntry.Gui.TransitiveObject
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
-    private TimeValues hungerTime = new TimeValues("hunger");
-    @ConfigEntry.Gui.TransitiveObject
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
-    private TimeValues effectTime = new TimeValues("effect");
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
+    private TimeValues hotbarTime = new TimeValues();
+    private TimeValues experienceTime = new TimeValues();
+    private TimeValues jumpTime = new TimeValues();
+    private TimeValues healthTime = new TimeValues();
+    private TimeValues hungerTime = new TimeValues();
+    private TimeValues effectTime = new TimeValues();
     private int crosshairTime = 6 * TICKS_PER_SECOND;
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
     private int handTime = 30 * TICKS_PER_SECOND;
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
     private boolean showArmor = true;
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
     private double minHealth = 0.5;
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
     @ConfigEntry.BoundedDiscrete(max = 20)
     private int minHunger = 17;
 

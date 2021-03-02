@@ -46,7 +46,7 @@ public class Main implements ModInitializer, ModMenuApi
         AutoConfig.register(ConfigManager.class, Toml4jConfigSerializer::new);
     }
 
-    private void startTimeField(ConfigEntryBuilder entryBuilder,
+    private void startTimeField(String name, ConfigEntryBuilder entryBuilder,
                                 ConfigCategory cat,
                                 ConfigManager.TimeValues value)
     {
@@ -56,42 +56,42 @@ public class Main implements ModInitializer, ModMenuApi
 
         DoubleListEntry maxTime =
                 entryBuilder.startDoubleField(new TranslatableText(
-                                "option.immersive_hud." + value.getName() +
+                                "option.immersive_hud." + name +
                                         "MaxTime"),
                         (float) value.getMaxTime() / TICKS_PER_SECOND)
                         .setDefaultValue(SHOW_TIME)
                         .setMin(0)
                         .setMax(10 * 60 * TICKS_PER_SECOND) // 10 Minutes
                         .setTooltip(new TranslatableText(
-                                "tooltip.immersive_hud." + value.getName() +
+                                "tooltip.immersive_hud." + name +
                                         "MaxTime"))
                         .setSaveConsumer(val -> value.setMaxTime((int) (val * TICKS_PER_SECOND)))
                         .build();
 
         DoubleListEntry fadeIn =
                 entryBuilder.startDoubleField(new TranslatableText(
-                                "option.immersive_hud." + value.getName() +
+                                "option.immersive_hud." + name +
                                         "FadeIn"),
                         (float) value.getFadeInTime() / TICKS_PER_SECOND)
                         .setDefaultValue(FADE_IN)
                         .setMin(0)
                         .setMax(10 * 60 * TICKS_PER_SECOND)
                         .setTooltip(new TranslatableText(
-                                "tooltip.immersive_hud." + value.getName() +
+                                "tooltip.immersive_hud." + name +
                                         "FadeIn"))
                         .setSaveConsumer(val -> value.setFadeInTime((int) (val * TICKS_PER_SECOND)))
                         .build();
 
         DoubleListEntry fadeOut =
                 entryBuilder.startDoubleField(new TranslatableText(
-                                "option.immersive_hud." + value.getName() +
+                                "option.immersive_hud." + name +
                                         "FadeOut"),
                         (float) value.getFadeOutTime() / TICKS_PER_SECOND)
                         .setDefaultValue(FADE_OUT)
                         .setMin(0)
                         .setMax(10 * 60 * TICKS_PER_SECOND)
                         .setTooltip(new TranslatableText(
-                                "tooltip.immersive_hud." + value.getName() +
+                                "tooltip.immersive_hud." + name +
                                         "FadeOut"))
                         .setSaveConsumer(val -> value.setFadeOutTime((int) (val * TICKS_PER_SECOND)))
                         .build();
@@ -120,22 +120,22 @@ public class Main implements ModInitializer, ModMenuApi
                             "category.immersive_hud.general"));
             entryBuilder = builder.entryBuilder();
 
-            startTimeField(entryBuilder,
+            startTimeField("hotbar", entryBuilder,
                     general,
                     instance.getHotbarTime());
-            startTimeField(entryBuilder,
+            startTimeField("experience", entryBuilder,
                     general,
                     instance.getExperienceTime());
-            startTimeField(entryBuilder,
+            startTimeField("jump", entryBuilder,
                     general,
                     instance.getJumpTime());
-            startTimeField(entryBuilder,
+            startTimeField("jump", entryBuilder,
                     general,
                     instance.getHealthTime());
-            startTimeField(entryBuilder,
+            startTimeField("hunger", entryBuilder,
                     general,
                     instance.getHungerTime());
-            startTimeField(entryBuilder,
+            startTimeField("effect", entryBuilder,
                     general,
                     instance.getPotionTime());
 
