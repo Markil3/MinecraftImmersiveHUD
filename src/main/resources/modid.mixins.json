@@ -8,8 +8,7 @@
   "client": [
     "ClientPlayerHook",
     "HeldItemHook",
-    "HudHook",
-    "ProfilerHook"
+    "HudHook"
   ],
   "injectors": {
     "defaultRequire": 1

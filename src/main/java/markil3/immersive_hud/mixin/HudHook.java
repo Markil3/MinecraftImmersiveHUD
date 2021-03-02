@@ -58,7 +58,8 @@ public class HudHook
             cancellable = true)
     public void startCrosshair(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawCrosshair(MinecraftClient.getInstance().getTickDelta()))
+        if (TimerUtils.drawCrosshair(MinecraftClient.getInstance()
+                .getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -97,7 +98,8 @@ public class HudHook
                              int x,
                              CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawJumpbar(stack, MinecraftClient.getInstance().getTickDelta()))
+        if (TimerUtils.drawJumpbar(stack,
+                MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -139,7 +141,8 @@ public class HudHook
                                 int x,
                                 CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawExperience(stack, MinecraftClient.getInstance().getTickDelta()))
+        if (TimerUtils.drawExperience(stack,
+                MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -183,6 +186,85 @@ public class HudHook
         return stack;
     }
 
+    /**
+     * Adjusts the armor GUI.
+     *
+     * @param matrices
+     * @param callbackInfo
+     */
+    @Inject(method = "renderStatusBars(Lnet/minecraft/client/util" +
+            "/math/MatrixStack;)V", at = @At(value = "INVOKE", target = "Lnet" +
+            "/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
+    public void renderArmor(MatrixStack matrices, CallbackInfo callbackInfo)
+    {
+        if (TimerUtils.drawArmor())
+        {
+            TimerUtils.setAlpha(0F);
+        }
+    }
+
+    /**
+     * Adjusts the health GUI.
+     *
+     * @param matrices
+     * @param callbackInfo
+     */
+    @Inject(method = "renderStatusBars(Lnet/minecraft/client/util" +
+            "/math/MatrixStack;)V", at = @At(value = "INVOKE", target = "Lnet" +
+            "/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+            ordinal = 0))
+    public void renderHealth(MatrixStack matrices, CallbackInfo callbackInfo)
+    {
+        /*
+         * Resets the transparency from the previous call.
+         */
+        TimerUtils.setAlpha(1F);
+        if (TimerUtils.drawHealth(MinecraftClient.getInstance().getTickDelta()))
+        {
+            TimerUtils.setAlpha(0F);
+        }
+    }
+
+    /**
+     * Adjusts the food GUI.
+     *
+     * @param matrices
+     * @param callbackInfo
+     */
+    @Inject(method = "renderStatusBars(Lnet/minecraft/client/util" +
+            "/math/MatrixStack;)V", at = @At(value = "INVOKE", target = "Lnet" +
+            "/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+            ordinal = 1))
+    public void renderFood(MatrixStack matrices, CallbackInfo callbackInfo)
+    {
+        /*
+         * Resets the transparency from the previous call.
+         */
+        TimerUtils.setAlpha(1F);
+        if (TimerUtils.drawHunger(MinecraftClient.getInstance().getTickDelta()))
+        {
+            TimerUtils.setAlpha(0F);
+        }
+    }
+
+    /**
+     * Resets the air GUI.
+     *
+     * @param matrices
+     * @param callbackInfo
+     */
+    @Inject(method = "renderStatusBars(Lnet/minecraft/client/util" +
+            "/math/MatrixStack;)V", at = @At(value = "INVOKE", target = "Lnet" +
+            "/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+            ordinal = 2))
+    public void renderAir(MatrixStack matrices, CallbackInfo callbackInfo)
+    {
+        /*
+         * Resets the color so that nothing else is bothered.
+         */
+        TimerUtils.setAlpha(1F);
+    }
+
     @ModifyVariable(method = "renderStatusBars(Lnet/minecraft/client/util" +
             "/math/MatrixStack;)V", at = @At("TAIL"))
     public MatrixStack finishStatus(MatrixStack stack)
@@ -204,7 +286,8 @@ public class HudHook
             cancellable = true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawMountHealth(stack, MinecraftClient.getInstance().getTickDelta()))
+        if (TimerUtils.drawMountHealth(stack,
+                MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -260,7 +343,8 @@ public class HudHook
     public boolean shouldRenderPotion(StatusEffectInstance effect)
     {
         currentEffect = effect;
-        return TimerUtils.updatePotion(effect, MinecraftClient.getInstance().getTickDelta());
+        return TimerUtils.updatePotion(effect,
+                MinecraftClient.getInstance().getTickDelta());
     }
 
     /**
