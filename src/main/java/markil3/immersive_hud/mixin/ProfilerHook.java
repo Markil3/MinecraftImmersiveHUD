@@ -16,6 +16,7 @@
  */
 package markil3.immersive_hud.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.profiler.DummyProfiler;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -74,7 +75,7 @@ public class ProfilerHook
              * Resets the transparency from the previous call.
              */
             TimerUtils.setAlpha(1F);
-            if (TimerUtils.drawHealth())
+            if (TimerUtils.drawHealth(MinecraftClient.getInstance().getTickDelta()))
             {
                 TimerUtils.setAlpha(0F);
             }
@@ -84,7 +85,7 @@ public class ProfilerHook
              * Resets the transparency from the previous call.
              */
             TimerUtils.setAlpha(1F);
-            if (TimerUtils.drawHunger())
+            if (TimerUtils.drawHunger(MinecraftClient.getInstance().getTickDelta()))
             {
                 TimerUtils.setAlpha(0F);
             }

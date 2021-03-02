@@ -72,7 +72,7 @@ public class HeldItemHook
                            int light,
                            CallbackInfo callbackInfo)
     {
-        if (TimerUtils.onRenderHand(hand, matrices))
+        if (TimerUtils.onRenderHand(hand, matrices, tickDelta))
         {
             callbackInfo.cancel();
         }

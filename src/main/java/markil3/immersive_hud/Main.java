@@ -17,9 +17,18 @@
  */
 package markil3.immersive_hud;
 
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
+
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.TranslatableText;
+
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
+import me.shedaniel.clothconfig2.api.ConfigCategory;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
+import me.shedaniel.clothconfig2.gui.entries.DoubleListEntry;
 
 /**
  * The main entry point for the Immersive HUD mod.
@@ -27,11 +36,158 @@ import net.minecraft.client.util.math.MatrixStack;
  * @author Markil 3
  * @version 0.1-1.16.4-fabric
  */
-public class Main implements ModInitializer
+public class Main implements ModInitializer, ModMenuApi
 {
+    public static final int TICKS_PER_SECOND = 20;
+
     @Override
     public void onInitialize()
     {
+        AutoConfig.register(ConfigManager.class, Toml4jConfigSerializer::new);
+    }
+
+    private void startTimeField(ConfigEntryBuilder entryBuilder,
+                                ConfigCategory cat,
+                                ConfigManager.TimeValues value)
+    {
+        final float SHOW_TIME = 6;
+        final float FADE_IN = 0.25F;
+        final float FADE_OUT = 0.5F;
+
+        DoubleListEntry maxTime =
+                entryBuilder.startDoubleField(new TranslatableText(
+                                "option.immersive_hud." + value.getName() +
+                                        "MaxTime"),
+                        (float) value.getMaxTime() / TICKS_PER_SECOND)
+                        .setDefaultValue(SHOW_TIME)
+                        .setMin(0)
+                        .setMax(10 * 60 * TICKS_PER_SECOND) // 10 Minutes
+                        .setTooltip(new TranslatableText(
+                                "tooltip.immersive_hud." + value.getName() +
+                                        "MaxTime"))
+                        .setSaveConsumer(val -> value.setMaxTime((int) (val * TICKS_PER_SECOND)))
+                        .build();
+
+        DoubleListEntry fadeIn =
+                entryBuilder.startDoubleField(new TranslatableText(
+                                "option.immersive_hud." + value.getName() +
+                                        "FadeIn"),
+                        (float) value.getFadeInTime() / TICKS_PER_SECOND)
+                        .setDefaultValue(FADE_IN)
+                        .setMin(0)
+                        .setMax(10 * 60 * TICKS_PER_SECOND)
+                        .setTooltip(new TranslatableText(
+                                "tooltip.immersive_hud." + value.getName() +
+                                        "FadeIn"))
+                        .setSaveConsumer(val -> value.setFadeInTime((int) (val * TICKS_PER_SECOND)))
+                        .build();
+
+        DoubleListEntry fadeOut =
+                entryBuilder.startDoubleField(new TranslatableText(
+                                "option.immersive_hud." + value.getName() +
+                                        "FadeOut"),
+                        (float) value.getFadeOutTime() / TICKS_PER_SECOND)
+                        .setDefaultValue(FADE_OUT)
+                        .setMin(0)
+                        .setMax(10 * 60 * TICKS_PER_SECOND)
+                        .setTooltip(new TranslatableText(
+                                "tooltip.immersive_hud." + value.getName() +
+                                        "FadeOut"))
+                        .setSaveConsumer(val -> value.setFadeOutTime((int) (val * TICKS_PER_SECOND)))
+                        .build();
+
+        cat.addEntry(maxTime);
+        cat.addEntry(fadeIn);
+        cat.addEntry(fadeOut);
+    }
+
+    @Override
+    public ConfigScreenFactory<?> getModConfigScreenFactory()
+    {
+        return screen -> {
+            ConfigCategory general;
+            ConfigEntryBuilder entryBuilder;
+            ConfigManager instance = ConfigManager.getInstance();
+            final ConfigBuilder builder = ConfigBuilder.create()
+                    .setParentScreen(screen)
+                    .setTitle(new TranslatableText(
+                            "immersive_hud.configGui.title"))
+                    .setSavingRunnable(() -> {
+                        AutoConfig.getConfigHolder(ConfigManager.class).save();
+                    });
+            general =
+                    builder.getOrCreateCategory(new TranslatableText(
+                            "category.immersive_hud.general"));
+            entryBuilder = builder.entryBuilder();
+
+            startTimeField(entryBuilder,
+                    general,
+                    instance.getHotbarTime());
+            startTimeField(entryBuilder,
+                    general,
+                    instance.getExperienceTime());
+            startTimeField(entryBuilder,
+                    general,
+                    instance.getJumpTime());
+            startTimeField(entryBuilder,
+                    general,
+                    instance.getHealthTime());
+            startTimeField(entryBuilder,
+                    general,
+                    instance.getHungerTime());
+            startTimeField(entryBuilder,
+                    general,
+                    instance.getPotionTime());
+
+            general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
+                            "option.immersive_hud" +
+                                    ".crosshairTime"),
+                    (float) instance.getCrosshairTime() / TICKS_PER_SECOND)
+                    .setDefaultValue(6)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud" +
+                                    ".crosshairTime"))
+                    .setSaveConsumer(val -> instance.setCrosshairTime((int) (val * TICKS_PER_SECOND)))
+                    .build());
+
+            general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
+                            "option.immersive_hud.handTime"),
+                    (float) instance.getHandTime() / TICKS_PER_SECOND)
+                    .setDefaultValue(30)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.handTime"))
+                    .setSaveConsumer(val -> instance.setHandTime((int) (val * TICKS_PER_SECOND)))
+                    .build());
+
+            general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
+                            "option.immersive_hud.minHealth"),
+                    instance.getMinHealth())
+                    .setDefaultValue(0.5)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.minHealth"))
+                    .setSaveConsumer(val -> instance.setMinHealth(val))
+                    .build());
+
+            general.addEntry(entryBuilder.startIntField(new TranslatableText(
+                            "option.immersive_hud.minHunger"),
+                    instance.getMinHunger())
+                    .setDefaultValue(17)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.minHunger"))
+                    .setSaveConsumer(val -> instance.setMinHunger(val))
+                    .build());
+
+            general.addEntry(entryBuilder.startBooleanToggle(new TranslatableText(
+                            "option.immersive_hud.showArmor"),
+                    instance.shouldShowArmor())
+                    .setDefaultValue(true)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.showArmor"))
+                    .setSaveConsumer(val -> instance.shouldShowArmor(val))
+                    .build());
+
+            return builder.build();
+        };
     }
 
     /**
@@ -45,9 +201,16 @@ public class Main implements ModInitializer
      *
      * @since 0.1-1.16.4-fabric
      */
-    static float getAlpha(int renderTime)
+    static float getAlpha(double renderTime, double maxTime, double fadeInTime, double fadeOutTime)
     {
-        return Math.min(renderTime / 20.0F,
-                1.0F);
+        if (renderTime <= fadeOutTime)
+        {
+            return (float) (renderTime / fadeOutTime);
+        }
+        else if (renderTime > maxTime - fadeInTime)
+        {
+            return (float) ((maxTime - renderTime) / fadeInTime);
+        }
+        return 1F;
     }
 }

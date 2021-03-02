@@ -58,7 +58,7 @@ public class HudHook
             cancellable = true)
     public void startCrosshair(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawCrosshair())
+        if (TimerUtils.drawCrosshair(MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -97,7 +97,7 @@ public class HudHook
                              int x,
                              CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawJumpbar(stack))
+        if (TimerUtils.drawJumpbar(stack, MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -139,7 +139,7 @@ public class HudHook
                                 int x,
                                 CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawExperience(stack))
+        if (TimerUtils.drawExperience(stack, MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -204,7 +204,7 @@ public class HudHook
             cancellable = true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawMountHealth(stack))
+        if (TimerUtils.drawMountHealth(stack, MinecraftClient.getInstance().getTickDelta()))
         {
             callbackInfo.cancel();
         }
@@ -260,7 +260,7 @@ public class HudHook
     public boolean shouldRenderPotion(StatusEffectInstance effect)
     {
         currentEffect = effect;
-        return TimerUtils.updatePotion(effect);
+        return TimerUtils.updatePotion(effect, MinecraftClient.getInstance().getTickDelta());
     }
 
     /**
@@ -316,7 +316,7 @@ public class HudHook
                             MatrixStack matrices,
                             CallbackInfo callbackInfo)
     {
-        if (TimerUtils.updateHotbar())
+        if (TimerUtils.updateHotbar(tickDelta))
         {
             callbackInfo.cancel();
         }

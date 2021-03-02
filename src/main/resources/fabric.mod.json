@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "markil3.immersive_hud.Main"
+    ],
+    "modmenu": [
+      "markil3.immersive_hud.Main"
     ]
   },
   "mixins": [
