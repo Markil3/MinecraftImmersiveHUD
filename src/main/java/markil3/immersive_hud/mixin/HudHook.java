@@ -16,12 +16,17 @@
  */
 package markil3.immersive_hud.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.effect.StatusEffectInstance;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import markil3.immersive_hud.TimerUtils;
@@ -36,6 +41,8 @@ import markil3.immersive_hud.TimerUtils;
 @Mixin(InGameHud.class)
 public class HudHook
 {
+    private StatusEffectInstance currentEffect;
+
     /**
      * Determines whether or not to draw the crosshair.
      *
@@ -83,8 +90,7 @@ public class HudHook
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderMountJumpBar", at = @At(value = "HEAD"),
-            cancellable =
-            true)
+            cancellable = true)
     public void startJumpbar(MatrixStack stack,
                              int x,
                              CallbackInfo callbackInfo)
@@ -166,8 +172,7 @@ public class HudHook
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderMountHealth", at = @At(value = "HEAD"),
-            cancellable =
-            true)
+            cancellable = true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
         if (TimerUtils.drawMountHealth())
@@ -187,6 +192,77 @@ public class HudHook
      */
     @Inject(method = "renderMountHealth", at = @At(value = "TAIL"))
     public void finishMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
+    {
+        /*
+         * Resets the color so that nothing else is bothered.
+         */
+        TimerUtils.resetAlpha();
+    }
+
+    /**
+     * Makes the actual adjustment to the hotbar as needed.
+     *
+     * @version 0.2-1.16.4-fabric
+     * @since 0.1-1.16.4-fabric
+     */
+    @Inject(method = "renderStatusEffectOverlay" +
+            "(Lnet/minecraft/client/util/math/MatrixStack;)V", at =
+    @At(value = "HEAD", shift = At.Shift.AFTER))
+    public void startPotion(MatrixStack effect, CallbackInfo info)
+    {
+        TimerUtils.updatePotions(MinecraftClient.getInstance().cameraEntity instanceof ClientPlayerEntity ?
+                                 ((ClientPlayerEntity) MinecraftClient.getInstance().cameraEntity) :
+                                 null);
+    }
+
+    /**
+     * Makes the actual adjustment to the hotbar as needed.
+     *
+     * @version 0.2-1.16.4-fabric
+     * @since 0.1-1.16.4-fabric
+     */
+    @Redirect(method = "renderStatusEffectOverlay" +
+            "(Lnet/minecraft/client/util/math/MatrixStack;)V", at =
+    @At(value = "INVOKE",
+            target =
+                    "Lnet/minecraft/entity/effect/StatusEffectInstance;" +
+                            "shouldShowIcon()Z"))
+    public boolean shouldRenderPotion(StatusEffectInstance effect)
+    {
+        currentEffect = effect;
+        return TimerUtils.updatePotion(effect);
+    }
+
+    /**
+     * Makes the actual adjustment to the hotbar as needed.
+     *
+     * @param matrices - The matrix drawing stack.
+     * @param callbackInfo
+     *
+     * @version 0.2-1.16.4-fabric
+     * @since 0.1-1.16.4-fabric
+     */
+    @ModifyVariable(method = "renderStatusEffectOverlay" +
+            "(Lnet/minecraft/client/util/math/MatrixStack;)V", at =
+    @At(value = "STORE"), ordinal = 1)
+    public float updatePotion(float f,
+                              MatrixStack stack)
+    {
+        return TimerUtils.getPotionAlpha(currentEffect);
+    }
+
+    /**
+     * Resets any changes from drawing the potion effects.
+     *
+     * @param matrices - The matrix drawing stack.
+     * @param callbackInfo
+     *
+     * @version 0.2-1.16.4-fabric
+     * @since 0.2-1.16.4-fabric
+     */
+    @Inject(method = "renderStatusEffectOverlay", at = @At(value = "TAIL"))
+    public void finishPotion(MatrixStack matrices,
+                             CallbackInfo callbackInfo)
     {
         /*
          * Resets the color so that nothing else is bothered.

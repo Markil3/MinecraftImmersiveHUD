@@ -23,6 +23,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BowItem;
@@ -41,7 +43,13 @@ import net.minecraft.item.TridentItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.MathHelper;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -91,6 +99,8 @@ public class TimerUtils
      * second will be the offhand.
      */
     private static int mapLock;
+
+    private static HashMap<StatusEffect, Integer> effectTime = new HashMap<>();
 
     /**
      * How many more ticks the hotbar will be onscreen. Every tick is 1/20th of
@@ -425,6 +435,75 @@ public class TimerUtils
             return false;
         }
         return true;
+    }
+
+    /**
+     * Updates the timings of some of the potions currently affecting the
+     * player.
+     *
+     * @param player - The player being affected.
+     */
+    public static void updatePotions(ClientPlayerEntity player)
+    {
+        for (StatusEffect effect :
+                new HashSet<>(effectTime.keySet()))
+        {
+            if (!player.hasStatusEffect(effect))
+            {
+                effectTime.remove(effect);
+            }
+        }
+    }
+
+    /**
+     * Updates the timings of some of the potions currently affecting the
+     * player.
+     *
+     * @param effectinstance - The effect to update
+     */
+    public static boolean updatePotion(StatusEffectInstance effectinstance)
+    {
+        Integer time = effectTime.get(effectinstance.getEffectType());
+        if (time == null)
+        {
+            effectTime.put(effectinstance.getEffectType(),
+                    (time = VISUAL_TIME));
+        }
+        else
+        {
+            effectTime.put(effectinstance.getEffectType(), (time -= 1));
+        }
+        return Main.getAlpha(time) > 0;
+    }
+
+    /**
+     * Obtains how transparent
+     *
+     * @param effectinstance
+     *
+     * @return
+     */
+    public static float getPotionAlpha(StatusEffectInstance effectinstance)
+    {
+        final int BLINK_TIME = 200;
+        float effectAlpha = 0.0F;
+        if (effectinstance.getDuration() <= BLINK_TIME)
+        {
+            effectAlpha =
+                    MathHelper.sin(7000F / (effectinstance.getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
+                            .getDuration() + 100F) + 0.5F;
+        }
+        else if (effectinstance.getDuration() <= BLINK_TIME + 10)
+        {
+            effectAlpha = -(effectinstance.getDuration() - 200) / 22F + 0.454F;
+        }
+        else
+        {
+            effectAlpha =
+                    Main.getAlpha(effectTime.getOrDefault(effectinstance.getEffectType(),
+                            0));
+        }
+        return effectAlpha;
     }
 
     /**
