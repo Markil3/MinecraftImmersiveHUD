@@ -63,8 +63,8 @@ public class ConfigManager
     public static class TimeValues
     {
         private static final int SHOW_TIME = 6 * TICKS_PER_SECOND;
-        private static final int FADE_IN = TICKS_PER_SECOND / 2;
-        private static final int FADE_OUT = TICKS_PER_SECOND;
+        private static final int FADE_IN = TICKS_PER_SECOND / 4;
+        private static final int FADE_OUT = TICKS_PER_SECOND / 2;
 
         private final String name;
         private final ForgeConfigSpec.IntValue maxTime;
@@ -78,19 +78,19 @@ public class ConfigManager
             this.name = name;
             this.maxTime =
                     configSpecBuilder.translation("immersive_hud.configGui." + name + "Time.title")
-                            .defineInRange(name + "Time",
+                            .defineInRange(name + "Time.maxTime",
                                     SHOW_TIME,
                                     0,
                                     MAX_TIME);
             this.fadeIn =
                     configSpecBuilder.translation("immersive_hud.configGui." + name + "FadeIn.title")
-                            .defineInRange(name + "FadeIn",
+                            .defineInRange(name + "Time.fadeIn",
                                     FADE_IN,
                                     0,
                                     MAX_TIME);
             this.fadeOut =
                     configSpecBuilder.translation("immersive_hud.configGui." + name + "FadeOut.title")
-                            .defineInRange(name + "FadeOUT",
+                            .defineInRange(name + "Time.fadeOut",
                                     FADE_OUT,
                                     0,
                                     MAX_TIME);
