@@ -22,7 +22,7 @@
       "markil3.immersive_hud.Main"
     ],
     "modmenu": [
-      "markil3.immersive_hud.Main"
+      "markil3.immersive_hud.ModMenu"
     ]
   },
   "mixins": [
@@ -35,5 +35,9 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "minecraft": "1.16.x"
+  },
+  "suggests": {
+    "modmenu": "*",
+    "cloth-config2": "*"
   }
 }

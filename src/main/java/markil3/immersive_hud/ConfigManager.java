@@ -3,9 +3,6 @@ package markil3.immersive_hud;
 import net.minecraft.util.math.MathHelper;
 
 import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.ConfigData;
-import me.shedaniel.autoconfig.annotation.Config;
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
 
@@ -15,13 +12,11 @@ import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
  * <p>
  * The methods that change this mod's configuration do not automatically write
  * those changes to the configuration file on disk. Instead, they only update
- * the configuration in memory. To write any changes, use the {@link #save()}
- * method.
+ * the configuration in memory.
  *
  * @author Markil 3
  */
-@Config(name = "immersive_hud")
-public class ConfigManager implements ConfigData
+public class ConfigManager
 {
     public static class TimeValues
     {
@@ -90,7 +85,6 @@ public class ConfigManager implements ConfigData
     private int handTime = 30 * TICKS_PER_SECOND;
     private boolean showArmor = true;
     private double minHealth = 0.5;
-    @ConfigEntry.BoundedDiscrete(max = 20)
     private int minHunger = 17;
 
     /**
@@ -100,7 +94,22 @@ public class ConfigManager implements ConfigData
      */
     public static ConfigManager getInstance()
     {
-        return AutoConfig.getConfigHolder(ConfigManager.class).getConfig();
+        try
+        {
+            if (Class.forName("me.shedaniel.autoconfig.AutoConfig") != null)
+            {
+                return AutoConfig.getConfigHolder(ConfigManagerCloth.class)
+                        .getConfig();
+            }
+            else
+            {
+                throw new ClassNotFoundException();
+            }
+        }
+        catch (ClassNotFoundException e)
+        {
+            return new ConfigManager();
+        }
     }
 
     // Validations
@@ -267,12 +276,6 @@ public class ConfigManager implements ConfigData
     public void setMinHunger(int boundary)
     {
         this.minHunger = MathHelper.clamp(boundary, 0, 20);
-    }
-
-    @Override
-    public void validatePostLoad() throws ValidationException
-    {
-        this.setMinHealth(this.minHealth);
     }
 /**
      * Saves changes to this mod's configuration.
