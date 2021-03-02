@@ -1,11 +1,11 @@
 package markil3.immersive_hud;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
+import net.minecraft.client.gui.screen.Screen;
 
-import net.minecraft.text.TranslatableText;
+import java.util.function.Function;
 
-import me.shedaniel.autoconfig.AutoConfig;
+import io.github.prospector.modmenu.api.ModMenuApi;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -25,44 +25,38 @@ public class ModMenu implements ModMenuApi
         final float FADE_OUT = 0.5F;
 
         DoubleListEntry maxTime =
-                entryBuilder.startDoubleField(new TranslatableText(
-                                "option.immersive_hud." + name +
-                                        "MaxTime"),
+                entryBuilder.startDoubleField("option.immersive_hud." + name +
+                                "MaxTime",
                         (float) value.getMaxTime() / TICKS_PER_SECOND)
                         .setDefaultValue(SHOW_TIME)
                         .setMin(0)
                         .setMax(10 * 60 * TICKS_PER_SECOND) // 10 Minutes
-                        .setTooltip(new TranslatableText(
-                                "tooltip.immersive_hud." + name +
-                                        "MaxTime"))
+                        .setTooltip("tooltip.immersive_hud." + name +
+                                "MaxTime")
                         .setSaveConsumer(val -> value.setMaxTime((int) (val * TICKS_PER_SECOND)))
                         .build();
 
         DoubleListEntry fadeIn =
-                entryBuilder.startDoubleField(new TranslatableText(
-                                "option.immersive_hud." + name +
-                                        "FadeIn"),
+                entryBuilder.startDoubleField("option.immersive_hud." + name +
+                                "FadeIn",
                         (float) value.getFadeInTime() / TICKS_PER_SECOND)
                         .setDefaultValue(FADE_IN)
                         .setMin(0)
                         .setMax(10 * 60 * TICKS_PER_SECOND)
-                        .setTooltip(new TranslatableText(
-                                "tooltip.immersive_hud." + name +
-                                        "FadeIn"))
+                        .setTooltip("tooltip.immersive_hud." + name +
+                                "FadeIn")
                         .setSaveConsumer(val -> value.setFadeInTime((int) (val * TICKS_PER_SECOND)))
                         .build();
 
         DoubleListEntry fadeOut =
-                entryBuilder.startDoubleField(new TranslatableText(
-                                "option.immersive_hud." + name +
-                                        "FadeOut"),
+                entryBuilder.startDoubleField("option.immersive_hud." + name +
+                                "FadeOut",
                         (float) value.getFadeOutTime() / TICKS_PER_SECOND)
                         .setDefaultValue(FADE_OUT)
                         .setMin(0)
                         .setMax(10 * 60 * TICKS_PER_SECOND)
-                        .setTooltip(new TranslatableText(
-                                "tooltip.immersive_hud." + name +
-                                        "FadeOut"))
+                        .setTooltip("tooltip.immersive_hud." + name +
+                                "FadeOut")
                         .setSaveConsumer(val -> value.setFadeOutTime((int) (val * TICKS_PER_SECOND)))
                         .build();
 
@@ -72,7 +66,13 @@ public class ModMenu implements ModMenuApi
     }
 
     @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory()
+    public String getModId()
+    {
+        return "immersive_hud";
+    }
+
+    @Override
+    public Function<Screen, ? extends Screen> getConfigScreenFactory()
     {
         return screen -> {
             ConfigCategory general;
@@ -80,15 +80,16 @@ public class ModMenu implements ModMenuApi
             ConfigManager instance = ConfigManager.getInstance();
             final ConfigBuilder builder = ConfigBuilder.create()
                     .setParentScreen(screen)
-                    .setTitle(new TranslatableText(
-                            "immersive_hud.configGui.title"))
+                    .setTitle("immersive_hud.configGui.title")
                     .setSavingRunnable(() -> {
                         try
                         {
-                            if (Class.forName("me.shedaniel.autoconfig.AutoConfig") != null)
+                            if (Class.forName(
+                                    "me.shedaniel.autoconfig.AutoConfig") != null)
                             {
-                                AutoConfig.getConfigHolder(ConfigManagerCloth.class)
-                                        .save();
+                                ((me.sargunvohra.mcmods.autoconfig1u.ConfigManager<ConfigManagerCloth>) AutoConfig
+                                        .getConfigHolder(
+                                                ConfigManagerCloth.class)).save();
                             }
                         }
                         catch (ClassNotFoundException e)
@@ -97,8 +98,8 @@ public class ModMenu implements ModMenuApi
                         }
                     });
             general =
-                    builder.getOrCreateCategory(new TranslatableText(
-                            "category.immersive_hud.general"));
+                    builder.getOrCreateCategory("category.immersive_hud" +
+                            ".general");
             entryBuilder = builder.entryBuilder();
 
             startTimeField("hotbar", entryBuilder,
@@ -120,50 +121,43 @@ public class ModMenu implements ModMenuApi
                     general,
                     instance.getPotionTime());
 
-            general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
-                            "option.immersive_hud" +
-                                    ".crosshairTime"),
+            general.addEntry(entryBuilder.startDoubleField(
+                    "option.immersive_hud.crosshairTime",
                     (float) instance.getCrosshairTime() / TICKS_PER_SECOND)
                     .setDefaultValue(6)
-                    .setTooltip(new TranslatableText(
-                            "tooltip.immersive_hud" +
-                                    ".crosshairTime"))
+                    .setTooltip("tooltip.immersive_hud.crosshairTime")
                     .setSaveConsumer(val -> instance.setCrosshairTime((int) (val * TICKS_PER_SECOND)))
                     .build());
 
-            general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
-                            "option.immersive_hud.handTime"),
+            general.addEntry(entryBuilder.startDoubleField(
+                    "option.immersive_hud.handTime",
                     (float) instance.getHandTime() / TICKS_PER_SECOND)
                     .setDefaultValue(30)
-                    .setTooltip(new TranslatableText(
-                            "tooltip.immersive_hud.handTime"))
+                    .setTooltip("tooltip.immersive_hud.handTime")
                     .setSaveConsumer(val -> instance.setHandTime((int) (val * TICKS_PER_SECOND)))
                     .build());
 
-            general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
-                            "option.immersive_hud.minHealth"),
+            general.addEntry(entryBuilder.startDoubleField(
+                    "option.immersive_hud.minHealth",
                     instance.getMinHealth())
                     .setDefaultValue(0.5)
-                    .setTooltip(new TranslatableText(
-                            "tooltip.immersive_hud.minHealth"))
+                    .setTooltip("tooltip.immersive_hud.minHealth")
                     .setSaveConsumer(val -> instance.setMinHealth(val))
                     .build());
 
-            general.addEntry(entryBuilder.startIntField(new TranslatableText(
-                            "option.immersive_hud.minHunger"),
+            general.addEntry(entryBuilder.startIntField(
+                    "option.immersive_hud.minHunger",
                     instance.getMinHunger())
                     .setDefaultValue(17)
-                    .setTooltip(new TranslatableText(
-                            "tooltip.immersive_hud.minHunger"))
+                    .setTooltip("tooltip.immersive_hud.minHunger")
                     .setSaveConsumer(val -> instance.setMinHunger(val))
                     .build());
 
-            general.addEntry(entryBuilder.startBooleanToggle(new TranslatableText(
-                            "option.immersive_hud.showArmor"),
+            general.addEntry(entryBuilder.startBooleanToggle(
+                    "option.immersive_hud.showArmor",
                     instance.shouldShowArmor())
                     .setDefaultValue(true)
-                    .setTooltip(new TranslatableText(
-                            "tooltip.immersive_hud.showArmor"))
+                    .setTooltip("tooltip.immersive_hud.showArmor")
                     .setSaveConsumer(val -> instance.shouldShowArmor(val))
                     .build());
 

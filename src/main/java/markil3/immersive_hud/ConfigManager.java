@@ -2,7 +2,7 @@ package markil3.immersive_hud;
 
 import net.minecraft.util.math.MathHelper;
 
-import me.shedaniel.autoconfig.AutoConfig;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 
 import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
 

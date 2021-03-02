@@ -19,8 +19,8 @@ package markil3.immersive_hud;
 
 import net.fabricmc.api.ModInitializer;
 
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
+import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
 
 /**
  * The main entry point for the Immersive HUD mod.
@@ -37,7 +37,7 @@ public class Main implements ModInitializer
     {
         try
         {
-            if (Class.forName("me.shedaniel.autoconfig.AutoConfig") != null)
+            if (Class.forName("me.sargunvohra.mcmods.autoconfig1u.AutoConfig") != null)
             {
                 AutoConfig.register(ConfigManagerCloth.class,
                         Toml4jConfigSerializer::new);

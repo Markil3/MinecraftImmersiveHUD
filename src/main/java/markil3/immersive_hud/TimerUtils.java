@@ -337,10 +337,6 @@ public class TimerUtils
                                                     0);
             }
         }
-        else
-        {
-            System.out.println("Unusing hand " + hand);
-        }
     }
 
     /**
@@ -469,7 +465,7 @@ public class TimerUtils
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static boolean drawMountHealth(MatrixStack stack, float ticks)
+    public static boolean drawMountHealth(float ticks)
     {
         /*
          * When the health percentage falls to this level or below, the
@@ -501,9 +497,9 @@ public class TimerUtils
                 mountHealth = mount.getHealth();
                 changed = true;
             }
-            if (mountMaxHealth != mount.getMaxHealth())
+            if (mountMaxHealth != mount.getMaximumHealth())
             {
-                mountMaxHealth = mount.getMaxHealth();
+                mountMaxHealth = mount.getMaximumHealth();
                 changed = true;
             }
         }
@@ -524,10 +520,10 @@ public class TimerUtils
          */
         if (mountHealth / mountMaxHealth > HEALTH_BOUNDARY)
         {
-            if (mountTime > 0)
+            if (tmp != null && mountTime > 0)
             {
-                stack.push();
-                stack.translate(0F,
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 setAlpha(Main.getAlpha(mountTime,
@@ -538,8 +534,8 @@ public class TimerUtils
             }
             return true;
         }
-        stack.push();
-        stack.translate(0F,
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -699,9 +695,9 @@ public class TimerUtils
             health = entity.getHealth();
             changed = true;
         }
-        if (maxHealth != entity.getMaxHealth())
+        if (maxHealth != entity.getMaximumHealth())
         {
-            maxHealth = entity.getMaxHealth();
+            maxHealth = entity.getMaximumHealth();
             changed = true;
         }
         if (changed)
@@ -817,13 +813,11 @@ public class TimerUtils
      * Determines whether or not to draw the horse jump bar, adjusting the alpha
      * as needed.
      *
-     * @param stack
-     *
      * @return If true, then cancel drawing the jump bar.
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static boolean drawJumpbar(MatrixStack stack, float ticks)
+    public static boolean drawJumpbar(float ticks)
     {
         ConfigManager.TimeValues jump =
                 ConfigManager.getInstance().getJumpTime();
@@ -851,8 +845,8 @@ public class TimerUtils
         }
         if (jumpTime > 0)
         {
-            stack.push();
-            stack.translate(0F, TimerUtils.getJumpTranslation(), 0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0F, TimerUtils.getJumpTranslation(), 0F);
             setAlpha(Main.getAlpha(jumpTime,
                     jump.getMaxTime(),
                     jump.getFadeInTime(),
@@ -870,7 +864,7 @@ public class TimerUtils
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static boolean drawExperience(MatrixStack stack, float ticks)
+    public static boolean drawExperience(float ticks)
     {
         ConfigManager.TimeValues experience =
                 ConfigManager.getInstance().getExperienceTime();
@@ -905,8 +899,8 @@ public class TimerUtils
         }
         if (experienceTime > 0)
         {
-            stack.push();
-            stack.translate(0F, TimerUtils.getExperienceTranslation(), 0F);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0F, TimerUtils.getExperienceTranslation(), 0F);
             setAlpha(Main.getAlpha(experienceTime,
                     experience.getMaxTime(),
                     experience.getFadeInTime(),
@@ -923,7 +917,7 @@ public class TimerUtils
      *
      * @return If true, then cancel drawing the hotbar.
      *
-     * @see #recolorHotbar(MatrixStack)
+     * @see #recolorHotbar()
      * @since 0.1-1.16.4-fabric
      */
     public static boolean updateHotbar(float ticks)
@@ -1146,12 +1140,11 @@ public class TimerUtils
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static void recolorHotbar(MatrixStack stack)
+    public static void recolorHotbar()
     {
         ConfigManager.TimeValues hotbar =
                 ConfigManager.getInstance().getHotbarTime();
         RenderSystem.pushMatrix();
-        stack.push();
         RenderSystem.translatef(0F, TimerUtils.getHotbarTranslation(), 0F);
         setAlpha(Main.getAlpha(hotbarTime,
                 hotbar.getMaxTime(),
