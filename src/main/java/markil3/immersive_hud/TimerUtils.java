@@ -615,7 +615,8 @@ public class TimerUtils
         }
         else if (effectinstance.getDuration() <= BLINK_TIME + potion.getFadeInTime())
         {
-            effectAlpha = -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
+            effectAlpha =
+                    -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
         }
         else
         {
@@ -688,8 +689,7 @@ public class TimerUtils
             return true;
         }
         boolean changed = false;
-        boolean canceled =
-                healthTime == 0 && health / maxHealth > HEALTH_BOUNDARY;
+        boolean canceled;
 
         /**
          * Checks for a change in current or max health.
@@ -718,13 +718,19 @@ public class TimerUtils
          * Only makes a change if the player is healthy. Otherwise,
          * the bar is shown.
          */
-        if (health / maxHealth > HEALTH_BOUNDARY)
+        if (health / maxHealth > HEALTH_BOUNDARY && !entity
+                .hasStatusEffect(StatusEffects.WITHER) && !entity.hasStatusEffect(
+                StatusEffects.POISON))
         {
             setAlpha(Main.getAlpha(healthTime,
                     healthTimes.getMaxTime(),
                     healthTimes.getFadeInTime(),
                     healthTimes.getFadeOutTime()));
         }
+        canceled =
+                healthTime == 0 && health / maxHealth > HEALTH_BOUNDARY && !entity
+                        .hasStatusEffect(StatusEffects.WITHER) && !entity.hasStatusEffect(
+                        StatusEffects.POISON);
         return canceled;
     }
 
@@ -792,14 +798,19 @@ public class TimerUtils
         {
             return true;
         }
-        else
+        /*
+         * Only makes a change if the player is healthy. Otherwise,
+         * the bar is shown.
+         */
+        if (hunger > HUNGER_BOUNDARY && !entity.hasStatusEffect(StatusEffects.HUNGER))
         {
             setAlpha(Main.getAlpha(hungerTime,
                     hungerTimes.getMaxTime(),
                     hungerTimes.getFadeInTime(),
                     hungerTimes.getFadeOutTime()));
-            return false;
         }
+        return hungerTime == 0 && hunger > HUNGER_BOUNDARY && !entity
+                .hasStatusEffect(StatusEffects.HUNGER);
     }
 
     /**
