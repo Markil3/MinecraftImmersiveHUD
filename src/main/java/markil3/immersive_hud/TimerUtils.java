@@ -758,7 +758,7 @@ public class TimerUtils
          * Only makes a change if the player is healthy. Otherwise,
          * the bar is shown.
          */
-        if (health / maxHealth > HEALTH_BOUNDARY)
+        if (health / maxHealth > HEALTH_BOUNDARY && !mc.player.isPotionActive(Effects.WITHER) && !mc.player.isPotionActive(Effects.POISON))
         {
             if (healthTime > 0)
             {
@@ -828,22 +828,27 @@ public class TimerUtils
          * Only fade a change if the player is satisfied. Otherwise,
          * the bar is shown.
          */
-        if (hungerTime <= 0 && hunger > HUNGER_BOUNDARY)
+        if (hunger > HUNGER_BOUNDARY && !mc.player.isPotionActive(Effects.HUNGER))
         {
+            if (hungerTime > 0)
+            {
+                setAlpha(Main.getAlpha(hungerTime,
+                        hungerTimes.getMaxTime(),
+                        hungerTimes.getFadeInTime(),
+                        hungerTimes.getFadeOutTime()));
+                stack.push();
+                stack.translate(0F,
+                        getHealthTranslation(),
+                        0F);
+                return false;
+            }
             return true;
         }
-        else
-        {
-            setAlpha(Main.getAlpha(hungerTime,
-                    hungerTimes.getMaxTime(),
-                    hungerTimes.getFadeInTime(),
-                    hungerTimes.getFadeOutTime()));
-            stack.push();
-            stack.translate(0F,
-                    getHealthTranslation(),
-                    0F);
-            return false;
-        }
+        stack.push();
+        stack.translate(0F,
+                getHealthTranslation(),
+                0F);
+        return false;
     }
 
     /**
