@@ -467,13 +467,13 @@ public class TimerUtils
         {
             effectTime.put(effectinstance.getPotion(), (time -= ticks));
         }
-        if (effectinstance.getDuration() <= potion.getFadeOutTime())
+        if (effectinstance.getDuration() <= BLINK_TIME)
         {
             effectAlpha =
                     MathHelper.sin(7000F / (effectinstance.getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
                             .getDuration() + 100F) + 0.5F;
         }
-        else if (effectinstance.getDuration() <= potion.getFadeOutTime() + 10)
+        else if (effectinstance.getDuration() <= BLINK_TIME + 10)
         {
             effectAlpha = -(effectinstance.getDuration() - 200) / 22F + 0.454F;
         }
