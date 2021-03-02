@@ -96,7 +96,7 @@ public class ConfigManager
     {
         try
         {
-            if (Class.forName("me.shedaniel.autoconfig.AutoConfig") != null)
+            if (Class.forName("me.sargunvohra.mcmods.autoconfig1u.AutoConfig") != null)
             {
                 return AutoConfig.getConfigHolder(ConfigManagerCloth.class)
                         .getConfig();

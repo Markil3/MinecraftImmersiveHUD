@@ -85,7 +85,8 @@ public class ModMenu implements ModMenuApi
                         try
                         {
                             if (Class.forName(
-                                    "me.shedaniel.autoconfig.AutoConfig") != null)
+                                    "me.sargunvohra.mcmods.autoconfig1u" +
+                                            ".AutoConfig") != null)
                             {
                                 ((me.sargunvohra.mcmods.autoconfig1u.ConfigManager<ConfigManagerCloth>) AutoConfig
                                         .getConfigHolder(
