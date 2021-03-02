@@ -9,8 +9,9 @@
     "Markil 3"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.planetminecraft.com/mod/immersive-hud/",
+    "sources": "https://github.com/Markil3/MinecraftImmersiveHUD",
+    "issues": "https://github.com/Markil3/MinecraftImmersiveHUD/issues"
   },
 
   "license": "GPL-3.0-only",
