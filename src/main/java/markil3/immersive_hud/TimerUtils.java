@@ -206,6 +206,50 @@ public class TimerUtils
     }
 
     /**
+     * Obtains the offset from the bottom of the screen that the hotbar
+     * receives.
+     *
+     * @return The offset the hotbar uses.
+     */
+    public static int getHotbarTranslation()
+    {
+        return (int) (22F * (1 - Main.getAlpha(hotbarTime)));
+    }
+
+    /**
+     * Obtains the offset from the bottom of the screen that the experience bar
+     * receives.
+     *
+     * @return The offset the experience bar uses.
+     */
+    public static int getExperienceTranslation()
+    {
+        return (int) ((12F + (22 - getHotbarTranslation())) * (1 - Main.getAlpha(experienceTime))) + getHotbarTranslation();
+    }
+
+    /**
+     * Obtains the offset from the bottom of the screen that the jump bar
+     * receives.
+     *
+     * @return The offset the jump bar uses.
+     */
+    public static int getJumpTranslation()
+    {
+        return (int) ((12F + (22 - getHotbarTranslation())) * (1 - Main.getAlpha(jumpTime))) + getHotbarTranslation();
+    }
+
+    /**
+     * Obtains the offset that the status bars (health, hunger, etc.) gets from
+     * their usual position.
+     *
+     * @return The offset.
+     */
+    public static float getHealthTranslation()
+    {
+        return 7 * (1 - Math.max(Main.getAlpha(experienceTime), Main.getAlpha(jumpTime))) + 22 * (1 - Main.getAlpha(hotbarTime));//Math.min(, getHotbarTranslation());
+    }
+
+    /**
      * Run whenever the player clicks a mouse button. This brings the hands into
      * view, and briefly brings the health and hunger into view if the held item
      * is food.
@@ -386,7 +430,7 @@ public class TimerUtils
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static boolean drawMountHealth()
+    public static boolean drawMountHealth(MatrixStack stack)
     {
         /*
          * When the health percentage falls to this level or below, the
@@ -431,6 +475,10 @@ public class TimerUtils
 
         if (mountTime > 0)
         {
+            stack.push();
+            stack.translate(0F,
+                    getHealthTranslation(),
+                    0F);
             setAlpha(Main.getAlpha(mountTime));
             return false;
         }
@@ -663,8 +711,9 @@ public class TimerUtils
      * @return If true, then cancel drawing the jump bar.
      *
      * @since 0.1-1.16.4-fabric
+     * @param stack
      */
-    public static boolean drawJumpbar()
+    public static boolean drawJumpbar(MatrixStack stack)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
         ClientPlayerEntity entity;
@@ -687,6 +736,8 @@ public class TimerUtils
         }
         if (jumpTime > 0)
         {
+            stack.push();
+            stack.translate(0F, TimerUtils.getJumpTranslation(), 0F);
             setAlpha(Main.getAlpha(jumpTime));
             return false;
         }
@@ -701,7 +752,7 @@ public class TimerUtils
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static boolean drawExperience()
+    public static boolean drawExperience(MatrixStack stack)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
         ClientPlayerEntity entity;
@@ -731,6 +782,8 @@ public class TimerUtils
         }
         if (experienceTime > 0)
         {
+            stack.push();
+            stack.translate(0F, TimerUtils.getExperienceTranslation(), 0F);
             setAlpha(Main.getAlpha(experienceTime));
             return false;
         }
@@ -953,8 +1006,11 @@ public class TimerUtils
      *
      * @since 0.1-1.16.4-fabric
      */
-    public static void recolorHotbar()
+    public static void recolorHotbar(MatrixStack stack)
     {
+        RenderSystem.pushMatrix();
+        stack.push();
+        RenderSystem.translatef(0F, TimerUtils.getHotbarTranslation(), 0F);
         setAlpha(Main.getAlpha(hotbarTime));
     }
 }

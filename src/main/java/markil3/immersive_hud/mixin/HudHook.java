@@ -16,6 +16,8 @@
  */
 package markil3.immersive_hud.mixin;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -95,7 +97,7 @@ public class HudHook
                              int x,
                              CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawJumpbar())
+        if (TimerUtils.drawJumpbar(stack))
         {
             callbackInfo.cancel();
         }
@@ -115,6 +117,7 @@ public class HudHook
                               int x,
                               CallbackInfo callbackInfo)
     {
+        stack.pop();
         /*
          * Resets the color so that nothing else is bothered.
          */
@@ -136,7 +139,7 @@ public class HudHook
                                 int x,
                                 CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawExperience())
+        if (TimerUtils.drawExperience(stack))
         {
             callbackInfo.cancel();
         }
@@ -156,10 +159,36 @@ public class HudHook
                                  int x,
                                  CallbackInfo callbackInfo)
     {
+        stack.pop();
         /*
          * Resets the color so that nothing else is bothered.
          */
         TimerUtils.resetAlpha();
+    }
+
+    /**
+     * Changes the position of the status bars as the ones below them move up
+     * and down.
+     *
+     * @param stack - The matrix stack used.
+     *
+     * @return The same matrix stack, with a new matrix pushed onto it.
+     */
+    @ModifyVariable(method = "renderStatusBars(Lnet/minecraft/client/util" +
+            "/math/MatrixStack;)V", at = @At("HEAD"))
+    public MatrixStack startStatus(MatrixStack stack)
+    {
+        stack.push();
+        stack.translate(0F, TimerUtils.getHealthTranslation(), 0F);
+        return stack;
+    }
+
+    @ModifyVariable(method = "renderStatusBars(Lnet/minecraft/client/util" +
+            "/math/MatrixStack;)V", at = @At("TAIL"))
+    public MatrixStack finishStatus(MatrixStack stack)
+    {
+        stack.pop();
+        return stack;
     }
 
     /**
@@ -175,7 +204,7 @@ public class HudHook
             cancellable = true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawMountHealth())
+        if (TimerUtils.drawMountHealth(stack))
         {
             callbackInfo.cancel();
         }
@@ -196,6 +225,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
+        stack.pop();
         TimerUtils.resetAlpha();
     }
 
@@ -236,15 +266,15 @@ public class HudHook
     /**
      * Makes the actual adjustment to the hotbar as needed.
      *
-     * @param matrices - The matrix drawing stack.
-     * @param callbackInfo
+     * @param f - The original transparency
+     * @param stack - The matrix stack
      *
      * @version 0.2-1.16.4-fabric
      * @since 0.1-1.16.4-fabric
      */
     @ModifyVariable(method = "renderStatusEffectOverlay" +
             "(Lnet/minecraft/client/util/math/MatrixStack;)V", at =
-    @At(value = "STORE"), ordinal = 1)
+    @At(value = "STORE"))
     public float updatePotion(float f,
                               MatrixStack stack)
     {
@@ -309,14 +339,14 @@ public class HudHook
                              MatrixStack matrices,
                              CallbackInfo callbackInfo)
     {
-        TimerUtils.recolorHotbar();
+        TimerUtils.recolorHotbar(matrices);
     }
 
     /**
      * Resets any changes from drawing the hotbar.
      *
      * @param tickDelta
-     * @param matrices - The matrix drawing stack.
+     * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
      * @version 0.2-1.16.4-fabric
@@ -324,9 +354,11 @@ public class HudHook
      */
     @Inject(method = "renderHotbar", at = @At(value = "TAIL"))
     public void finishHotbar(float tickDelta,
-                             MatrixStack matrices,
+                             MatrixStack stack,
                              CallbackInfo callbackInfo)
     {
+        RenderSystem.popMatrix();
+        stack.pop();
         /*
          * Resets the color so that nothing else is bothered.
          */
