@@ -473,9 +473,9 @@ public class TimerUtils
                     MathHelper.sin(7000F / (effectinstance.getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
                             .getDuration() + 100F) + 0.5F;
         }
-        else if (effectinstance.getDuration() <= BLINK_TIME + 10)
+        else if (effectinstance.getDuration() <= BLINK_TIME + potion.getFadeInTime())
         {
-            effectAlpha = -(effectinstance.getDuration() - 200) / 22F + 0.454F;
+            effectAlpha = -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
         }
         else
         {
