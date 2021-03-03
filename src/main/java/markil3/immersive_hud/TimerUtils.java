@@ -305,9 +305,8 @@ public class TimerUtils
                 /*
                  * Undo the transformation of the previous hand
                  */
-                matrixStack
-                        .translate(0,
-                                1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME,
+                matrixStack.func_227862_a_(0,
+                        (float) (1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
                                 0);
             }
             if (offHandTime == 0 && !offHandLock)
@@ -323,8 +322,8 @@ public class TimerUtils
                 if (offHandTime < HAND_UP_TIME)
                 {
                     matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME,
+                            .func_227862_a_(0,
+                                    (float) (-1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME),
                                     0);
                 }
             }
@@ -343,8 +342,8 @@ public class TimerUtils
                 if (mainHandTime < HAND_UP_TIME)
                 {
                     matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME,
+                            .func_227862_a_(0,
+                                    (float) (-1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
                                     0);
                 }
             }
@@ -717,7 +716,7 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHealth(MatrixStack stack, float ticks)
+    public static boolean drawHealth(float ticks)
     {
         /*
          * When the health percentage falls to this level or below, the
@@ -762,8 +761,8 @@ public class TimerUtils
         {
             if (healthTime > 0)
             {
-                stack.push();
-                stack.translate(0F,
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 setAlpha(Main.getAlpha(healthTime,
@@ -774,8 +773,8 @@ public class TimerUtils
             }
             return true;
         }
-        stack.push();
-        stack.translate(0F,
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -789,7 +788,7 @@ public class TimerUtils
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawHunger(MatrixStack stack, float ticks)
+    public static boolean drawHunger(float ticks)
     {
         /*
          * When hunger falls to this level or below, the hunger bar won't
@@ -836,16 +835,16 @@ public class TimerUtils
                         hungerTimes.getMaxTime(),
                         hungerTimes.getFadeInTime(),
                         hungerTimes.getFadeOutTime()));
-                stack.push();
-                stack.translate(0F,
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 return false;
             }
             return true;
         }
-        stack.push();
-        stack.translate(0F,
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -855,14 +854,13 @@ public class TimerUtils
      * Determines whether or not to draw the armor bar, adjusting the alpha as
      * needed.
      *
-     * @param stack
      * @param ticks
      *
      * @return If true, then cancel drawing the armor bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawArmor(MatrixStack stack, float ticks)
+    public static boolean drawArmor(float ticks)
     {
         ConfigManager.TimeValues healthTimes;
         /*
@@ -875,8 +873,8 @@ public class TimerUtils
                     healthTimes.getMaxTime(),
                     healthTimes.getFadeInTime(),
                     healthTimes.getFadeOutTime()));
-            stack.push();
-            stack.translate(0F,
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0F,
                     getHealthTranslation(),
                     0F);
             return false;
@@ -887,17 +885,16 @@ public class TimerUtils
     /**
      * Repositions the oxygen bar.
      *
-     * @param stack
      * @param ticks
      *
      * @return If true, then cancel drawing the oxygen bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawAir(MatrixStack stack, float ticks)
+    public static boolean drawAir(float ticks)
     {
-        stack.push();
-        stack.translate(0F,
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -907,14 +904,13 @@ public class TimerUtils
      * Determines whether or not to draw the mount's health, adjusting the alpha
      * as needed.
      *
-     * @param stack
      * @param ticks
      *
      * @return If true, then cancel drawing the mount health bar.
      *
      * @since 0.2-1.16.4-forge
      */
-    public static boolean drawMountHealth(MatrixStack stack, float ticks)
+    public static boolean drawMountHealth(float ticks)
     {
         /*
          * When the health percentage falls to this level or below, the
@@ -969,8 +965,8 @@ public class TimerUtils
         {
             if (mountTime > 0)
             {
-                stack.push();
-                stack.translate(0F,
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 setAlpha(Main.getAlpha(mountTime,
@@ -981,8 +977,8 @@ public class TimerUtils
             }
             return true;
         }
-        stack.push();
-        stack.translate(0F,
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;

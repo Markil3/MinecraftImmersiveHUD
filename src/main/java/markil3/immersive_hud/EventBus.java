@@ -16,12 +16,15 @@
  */
 package markil3.immersive_hud;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,19 +62,14 @@ public class EventBus
     @SubscribeEvent
     public static void onClick(final PlayerInteractEvent event)
     {
-        DistExecutor.safeRunWhenOn(Dist.CLIENT,
-                (DistExecutor.SafeSupplier<DistExecutor.SafeRunnable>) () -> new DistExecutor.SafeRunnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Item item =
-                                Optional.ofNullable(event.getItemStack())
-                                        .map(ItemStack::getItem)
-                                        .orElse(null);
-                        TimerUtils.onClick(event.getHand(), item);
-                    }
-                });
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
+        {
+            Item item =
+                    Optional.ofNullable(event.getItemStack())
+                            .map(ItemStack::getItem)
+                            .orElse(null);
+            TimerUtils.onClick(event.getHand(), item);
+        });
     }
 
     /**
@@ -86,15 +84,10 @@ public class EventBus
     @SubscribeEvent
     public static void onMount(final EntityMountEvent event)
     {
-        DistExecutor.safeRunWhenOn(Dist.CLIENT,
-                (DistExecutor.SafeSupplier<DistExecutor.SafeRunnable>) () -> new DistExecutor.SafeRunnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        TimerUtils.resetMountHealth();
-                    }
-                });
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
+        {
+            TimerUtils.resetMountHealth();
+        });
     }
 
     /**
@@ -104,9 +97,11 @@ public class EventBus
      * @param event - event data
      */
     @SubscribeEvent
-    public static void onRenderHand(final RenderHandEvent event)
+    public static void onRenderHand(final RenderSpecificHandEvent event)
     {
-        if (TimerUtils.onRenderHand(event.getHand(), event.getMatrixStack(), event.getPartialTicks()))
+        if (TimerUtils.onRenderHand(event.getHand(),
+                event.getMatrixStack(),
+                event.getPartialTicks()))
         {
             event.setCanceled(true);
         }
@@ -148,8 +143,7 @@ public class EventBus
                 TimerUtils.updatePotions(mc.player);
                 event.setCanceled(true);
                 RenderUtils.renderPotionIcons(mc,
-                        mc.ingameGUI,
-                        event.getMatrixStack(), event.getPartialTicks());
+                        mc.ingameGUI, event.getPartialTicks());
                 resetAlpha();
             }
             break;
@@ -160,7 +154,6 @@ public class EventBus
                 if (!TimerUtils.drawHotbar(event.getPartialTicks()))
                 {
                     RenderUtils.renderHotbar(mc, mc.ingameGUI,
-                            event.getMatrixStack(),
                             event.getPartialTicks(), TimerUtils.hotbarTime);
                 }
             }
@@ -168,21 +161,21 @@ public class EventBus
         case HEALTH:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawHealth(event.getMatrixStack(), event.getPartialTicks()))
+                if (TimerUtils.drawHealth(event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                event.getMatrixStack().pop();
+                RenderSystem.popMatrix();
                 resetAlpha();
             }
             break;
         case FOOD:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawHunger(event.getMatrixStack(), event.getPartialTicks()))
+                if (TimerUtils.drawHunger(event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -192,14 +185,14 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                event.getMatrixStack().pop();
+                RenderSystem.popMatrix();
                 resetAlpha();
             }
             break;
         case ARMOR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawArmor(event.getMatrixStack(), event.getPartialTicks()))
+                if (TimerUtils.drawArmor(event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -209,14 +202,14 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                event.getMatrixStack().pop();
+                RenderSystem.popMatrix();
                 resetAlpha();
             }
             break;
         case AIR:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawAir(event.getMatrixStack(), event.getPartialTicks()))
+                if (TimerUtils.drawAir(event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
@@ -226,21 +219,21 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                event.getMatrixStack().pop();
+                RenderSystem.popMatrix();
                 resetAlpha();
             }
             break;
         case HEALTHMOUNT:
             if (event instanceof RenderGameOverlayEvent.Pre)
             {
-                if (TimerUtils.drawMountHealth(event.getMatrixStack(), event.getPartialTicks()))
+                if (TimerUtils.drawMountHealth(event.getPartialTicks()))
                 {
                     event.setCanceled(true);
                 }
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                event.getMatrixStack().pop();
+                RenderSystem.popMatrix();
                 resetAlpha();
             }
             break;
@@ -250,8 +243,10 @@ public class EventBus
                 event.setCanceled(true);
                 if (!TimerUtils.drawJumpbar(event.getPartialTicks()))
                 {
-                    RenderUtils.renderHorseJumpBar(mc, mc.ingameGUI,
-                            event.getMatrixStack(), event.getPartialTicks(), TimerUtils.jumpTime);
+                    RenderUtils.renderHorseJumpBar(mc,
+                            mc.ingameGUI,
+                            event.getPartialTicks(),
+                            TimerUtils.jumpTime);
                 }
             }
             break;
@@ -261,8 +256,10 @@ public class EventBus
                 event.setCanceled(true);
                 if (!TimerUtils.drawExperience(event.getPartialTicks()))
                 {
-                    RenderUtils.renderExperience(mc, mc.ingameGUI,
-                            event.getMatrixStack(), event.getPartialTicks(), TimerUtils.experienceTime);
+                    RenderUtils.renderExperience(mc,
+                            mc.ingameGUI,
+                            event.getPartialTicks(),
+                            TimerUtils.experienceTime);
                 }
             }
             break;

@@ -17,6 +17,7 @@ package markil3.immersive_hud;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
@@ -38,7 +39,9 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.HandSide;
@@ -62,10 +65,10 @@ public class RenderUtils
 {
     public static void renderPotionIcons(Minecraft mc,
                                          IngameGui gui,
-                                         MatrixStack matrixStack, float ticks)
+                                         float ticks)
     {
-        int scaledWidth = mc.getMainWindow().getScaledWidth();
-        int scaledHeight = mc.getMainWindow().getScaledHeight();
+        int scaledWidth = mc.func_228018_at_().getScaledWidth();
+        int scaledHeight = mc.func_228018_at_().getScaledHeight();
 
         Collection<EffectInstance> collection =
                 mc.player.getActivePotionEffects();
@@ -86,7 +89,9 @@ public class RenderUtils
                     .sortedCopy(collection))
             {
                 Effect effect = effectinstance.getPotion();
-                float effectAlpha = TimerUtils.getPotionAlpha(mc.player, effectinstance, ticks);
+                float effectAlpha = TimerUtils.getPotionAlpha(mc.player,
+                        effectinstance,
+                        ticks);
                 if (!effectinstance.shouldRenderHUD() || effectAlpha < 0.01F)
                 {
                     continue;
@@ -118,11 +123,11 @@ public class RenderUtils
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, effectAlpha);
                     if (effectinstance.isAmbient())
                     {
-                        gui.blit(matrixStack, k, l, 165, 166, 24, 24);
+                        gui.blit(k, l, 165, 166, 24, 24);
                     }
                     else
                     {
-                        gui.blit(matrixStack, k, l, 141, 166, 24, 24);
+                        gui.blit(k, l, 141, 166, 24, 24);
                     }
 
                     TextureAtlasSprite textureatlassprite =
@@ -132,11 +137,10 @@ public class RenderUtils
                     float f1 = effectAlpha;
                     list.add(() -> {
                         mc.getTextureManager()
-                                .bindTexture(textureatlassprite.getAtlasTexture()
-                                        .getTextureLocation());
+                                .bindTexture(textureatlassprite.func_229241_m_()
+                                        .func_229223_g_());
                         RenderSystem.color4f(1.0F, 1.0F, 1.0F, f1);
-                        gui.blit(matrixStack,
-                                j1 + 3,
+                        gui.blit(j1 + 3,
                                 k1 + 3,
                                 gui.getBlitOffset(),
                                 18,
@@ -144,7 +148,6 @@ public class RenderUtils
                                 textureatlassprite);
                     });
                     effectinstance.renderHUDEffect(gui,
-                            matrixStack,
                             k,
                             l,
                             gui.getBlitOffset(),
@@ -161,7 +164,6 @@ public class RenderUtils
      *
      * @param mc - A Minecraft instance.
      * @param gui - The GUI.
-     * @param matrixStack - The rendering transformation matrix stack.
      * @param ticks
      * @param renderTime - How much time before this element becomes fully
      * transparent.
@@ -170,18 +172,21 @@ public class RenderUtils
      */
     public static void renderHorseJumpBar(Minecraft mc,
                                           IngameGui gui,
-                                          MatrixStack matrixStack,
                                           float ticks, double renderTime)
     {
-        ConfigManager.TimeValues jump = ConfigManager.getInstance().getJumpTime();
+        ConfigManager.TimeValues jump =
+                ConfigManager.getInstance().getJumpTime();
         if (renderTime <= 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, jump.getMaxTime(), jump.getFadeInTime(), jump.getFadeOutTime());
-        int scaledWidth = mc.getMainWindow().getScaledWidth();
-        int scaledHeight = mc.getMainWindow().getScaledHeight();
+        float alpha = Main.getAlpha(renderTime,
+                jump.getMaxTime(),
+                jump.getFadeInTime(),
+                jump.getFadeOutTime());
+        int scaledWidth = mc.func_228018_at_().getScaledWidth();
+        int scaledHeight = mc.func_228018_at_().getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
 
         mc.getProfiler().startSection("jumpBar");
@@ -192,10 +197,10 @@ public class RenderUtils
         int i = 182;
         int j = (int) (f * 183.0F);
         int k = scaledHeight - TimerUtils.getJumpTranslation();
-        gui.blit(matrixStack, xPosition, k, 0, 84, 182, 5);
+        gui.blit(xPosition, k, 0, 84, 182, 5);
         if (j > 0)
         {
-            gui.blit(matrixStack, xPosition, k, 0, 89, j, 5);
+            gui.blit(xPosition, k, 0, 89, j, 5);
         }
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -208,7 +213,6 @@ public class RenderUtils
      *
      * @param mc - A Minecraft instance.
      * @param gui - The GUI.
-     * @param matrixStack - The rendering transformation matrix stack.
      * @param ticks
      * @param renderTime - How much time before this element becomes fully
      * transparent.
@@ -217,23 +221,27 @@ public class RenderUtils
      */
     public static void renderExperience(Minecraft mc,
                                         IngameGui gui,
-                                        MatrixStack matrixStack,
                                         float ticks, double renderTime)
     {
-        ConfigManager.TimeValues experience = ConfigManager.getInstance().getHealthTime();
-        ConfigManager.TimeValues hotbar = ConfigManager.getInstance().getHotbarTime();
+        ConfigManager.TimeValues experience =
+                ConfigManager.getInstance().getHealthTime();
+        ConfigManager.TimeValues hotbar =
+                ConfigManager.getInstance().getHotbarTime();
         if (renderTime <= 0)
         {
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, experience.getMaxTime(), experience.getFadeInTime(), experience.getFadeOutTime());
+        float alpha = Main.getAlpha(renderTime,
+                experience.getMaxTime(),
+                experience.getFadeInTime(),
+                experience.getFadeOutTime());
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
         {
-            int scaledWidth = mc.getMainWindow().getScaledWidth();
-            int scaledHeight = mc.getMainWindow().getScaledHeight();
+            int scaledWidth = mc.func_228018_at_().getScaledWidth();
+            int scaledHeight = mc.func_228018_at_().getScaledHeight();
             int x = scaledWidth / 2 - 91;
 
             mc.getProfiler().startSection("expBar");
@@ -245,10 +253,10 @@ public class RenderUtils
                 int j = 182;
                 int k = (int) (mc.player.experience * 183.0F);
                 int l = scaledHeight - TimerUtils.getExperienceTranslation();
-                gui.blit(matrixStack, x, l, 0, 64, 182, 5);
+                gui.blit(x, l, 0, 64, 182, 5);
                 if (k > 0)
                 {
-                    gui.blit(matrixStack, x, l, 0, 69, k, 5);
+                    gui.blit(x, l, 0, 69, k, 5);
                 }
             }
 
@@ -261,34 +269,33 @@ public class RenderUtils
                 String s = "" + mc.player.experienceLevel;
                 int i1 = (scaledWidth - gui.getFontRenderer()
                         .getStringWidth(s)) / 2;
-                int j1 = scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime, hotbar.getMaxTime(), hotbar.getFadeInTime(), hotbar.getFadeOutTime()) + 9F) * alpha) - (int) (4F * alpha);
+                int j1 =
+                        scaledHeight - (int) ((22F * Main.getAlpha(TimerUtils.hotbarTime,
+                                hotbar.getMaxTime(),
+                                hotbar.getFadeInTime(),
+                                hotbar.getFadeOutTime()) + 9F) * alpha) - (int) (4F * alpha);
                 gui.getFontRenderer()
-                        .drawString(matrixStack,
-                                s,
+                        .drawString(s,
                                 (float) (i1 + 1),
                                 (float) j1,
                                 0);
                 gui.getFontRenderer()
-                        .drawString(matrixStack,
-                                s,
+                        .drawString(s,
                                 (float) (i1 - 1),
                                 (float) j1,
                                 0);
                 gui.getFontRenderer()
-                        .drawString(matrixStack,
-                                s,
+                        .drawString(s,
                                 (float) i1,
                                 (float) (j1 + 1),
                                 0);
                 gui.getFontRenderer()
-                        .drawString(matrixStack,
-                                s,
+                        .drawString(s,
                                 (float) i1,
                                 (float) (j1 - 1),
                                 0);
                 gui.getFontRenderer()
-                        .drawString(matrixStack,
-                                s,
+                        .drawString(s,
                                 (float) i1,
                                 (float) j1,
                                 8453920);
@@ -305,20 +312,19 @@ public class RenderUtils
      *
      * @param mc - A Minecraft instance.
      * @param gui - The GUI.
-     * @param matrixStack - The rendering transformation matrix stack.
      * @param partialTicks
      * @param renderTime - How much time before this element becomes fully
      * transparent.
      *
-     * @see IngameGui#renderHotbar(float, MatrixStack)
+     * @see IngameGui#renderHotbar(float)
      */
     public static void renderHotbar(Minecraft mc,
                                     IngameGui gui,
-                                    MatrixStack matrixStack,
                                     float partialTicks,
                                     double renderTime)
     {
-        ConfigManager.TimeValues hotbar = ConfigManager.getInstance().getHotbarTime();
+        ConfigManager.TimeValues hotbar =
+                ConfigManager.getInstance().getHotbarTime();
         final ResourceLocation WIDGETS_TEX_PATH =
                 new ResourceLocation("textures/gui/widgets.png");
         PlayerEntity playerentity = mc.player;
@@ -328,10 +334,13 @@ public class RenderUtils
             return;
         }
 
-        float alpha = Main.getAlpha(renderTime, hotbar.getMaxTime(), hotbar.getFadeInTime(), hotbar.getFadeOutTime());
+        float alpha = Main.getAlpha(renderTime,
+                hotbar.getMaxTime(),
+                hotbar.getFadeInTime(),
+                hotbar.getFadeOutTime());
 
-        int scaledWidth = mc.getMainWindow().getScaledWidth();
-        int scaledHeight = mc.getMainWindow().getScaledHeight();
+        int scaledWidth = mc.func_228018_at_().getScaledWidth();
+        int scaledHeight = mc.func_228018_at_().getScaledHeight();
         if (playerentity != null)
         {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -343,9 +352,13 @@ public class RenderUtils
             int k = 182;
             int l = 91;
             gui.setBlitOffset(-90);
-            gui.blit(matrixStack, i - 91, scaledHeight - TimerUtils.getHotbarTranslation(), 0, 0, 182, 22);
-            gui.blit(matrixStack,
-                    i - 91 - 1 + playerentity.inventory.currentItem * 20,
+            gui.blit(i - 91,
+                    scaledHeight - TimerUtils.getHotbarTranslation(),
+                    0,
+                    0,
+                    182,
+                    22);
+            gui.blit(i - 91 - 1 + playerentity.inventory.currentItem * 20,
                     scaledHeight - (int) (22F * alpha) - 1,
                     0,
                     22,
@@ -355,8 +368,7 @@ public class RenderUtils
             {
                 if (handside == HandSide.LEFT)
                 {
-                    gui.blit(matrixStack,
-                            i - 91 - 29,
+                    gui.blit(i - 91 - 29,
                             scaledHeight - (int) (23F * alpha),
                             24,
                             22,
@@ -365,8 +377,7 @@ public class RenderUtils
                 }
                 else
                 {
-                    gui.blit(matrixStack,
-                            i + 91,
+                    gui.blit(i + 91,
                             scaledHeight - (int) (23F * alpha),
                             53,
                             22,
@@ -428,9 +439,8 @@ public class RenderUtils
                             .bindTexture(AbstractGui.GUI_ICONS_LOCATION);
                     int l1 = (int) (f * 19.0F);
                     RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                    gui.blit(matrixStack, k2, j2, 0, 94, 18, 18);
-                    gui.blit(matrixStack,
-                            k2,
+                    gui.blit(k2, j2, 0, 94, 18, 18);
+                    gui.blit(k2,
                             j2 + 18 - l1,
                             18,
                             112 - l1,
@@ -463,132 +473,79 @@ public class RenderUtils
                                  PlayerEntity player,
                                  ItemStack stack)
     {
-        if (!stack.isEmpty())
-        {
-            float f = (float) stack.getAnimationsToGo() - partialTicks;
-            RenderSystem.pushMatrix();
+        if (!stack.isEmpty()) {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-            if (f > 0.0F)
-            {
+            float f = (float)stack.getAnimationsToGo() - partialTicks;
+            if (f > 0.0F) {
                 RenderSystem.pushMatrix();
                 float f1 = 1.0F + f / 5.0F;
-                RenderSystem.translatef((float) (x + 8),
-                        (float) (y + 12),
-                        0.0F);
+                RenderSystem.translatef((float)(x + 8), (float)(y + 12), 0.0F);
                 RenderSystem.scalef(1.0F / f1, (f1 + 1.0F) / 2.0F, 1.0F);
-                RenderSystem.translatef((float) (-(x + 8)),
-                        (float) (-(y + 12)),
-                        0.0F);
+                RenderSystem.translatef((float)(-(x + 8)), (float)(-(y + 12)), 0.0F);
             }
 
-            renderItemAndEffectIntoGUI(mc, alpha, player, stack, x, y);
-            if (f > 0.0F)
-            {
+            renderItemAndEffectIntoGUI(mc, player, stack, x, y, alpha);
+            if (f > 0.0F) {
                 RenderSystem.popMatrix();
             }
-            RenderSystem.popMatrix();
 
-            mc.getItemRenderer()
-                    .renderItemOverlays(mc.fontRenderer, stack, x, y);
+            mc.getItemRenderer().renderItemOverlays(mc.fontRenderer, stack, x, y);
         }
     }
 
-    /**
-     * Renders a single item on the HUD.
-     *
-     * @param mc - A Minecraft instance.
-     * @param alpha - How transparent the item should be, on a scale from 0 to
-     * 1.
-     * @param ent - The player that the item is from.
-     * @param stack - The item to render.
-     * @param x - The x position of the item on the screen.
-     * @param y - The y position of the item on the screen
-     *
-     * @see net.minecraft.client.renderer.ItemRenderer#renderItemIntoGUI(LivingEntity,
-     * ItemStack, int, int)
-     */
-    static void renderItemAndEffectIntoGUI(Minecraft mc,
-                                           float alpha,
-                                           PlayerEntity ent,
-                                           ItemStack stack,
-                                           int x,
-                                           int y)
+    private static void renderItemAndEffectIntoGUI(Minecraft mc, LivingEntity entityIn, ItemStack itemIn, int x, int y, float alpha)
     {
-        TextureManager textureManager = mc.textureManager;
-        IBakedModel bakedmodel = mc.getItemRenderer()
-                .getItemModelWithOverrides(stack,
-                        (World) null,
-                        (LivingEntity) null);
-        if (!stack.isEmpty())
-        {
-            try
-            {
+        if (!itemIn.isEmpty()) {
+            float zLevel = 50.0F;
+
+            try {
+                IBakedModel bakedmodel = mc.getItemRenderer().getItemModelWithOverrides(itemIn, (World)null, entityIn);
                 RenderSystem.pushMatrix();
-                textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-                textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
-                        .setBlurMipmapDirect(false, false);
+                mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+                mc.getTextureManager().func_229267_b_(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
                 RenderSystem.enableRescaleNormal();
-//                RenderSystem.enableAlphaTest();
-//                RenderSystem.defaultAlphaFunc();
-//                RenderSystem.enableBlend();
-//                RenderSystem.blendFunc(GlStateManager.SourceFactor
-//                .SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-                RenderSystem.translatef((float) x, (float) y, 100.0F + 50F);
+                RenderSystem.enableAlphaTest();
+                RenderSystem.defaultAlphaFunc();
+                RenderSystem.enableBlend();
+                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                RenderSystem.translatef((float)x, (float)y, 100.0F + zLevel);
                 RenderSystem.translatef(8.0F, 8.0F, 0.0F);
                 RenderSystem.scalef(1.0F, -1.0F, 1.0F);
                 RenderSystem.scalef(16.0F, 16.0F, 16.0F);
                 MatrixStack matrixstack = new MatrixStack();
-                IRenderTypeBuffer.Impl irendertypebuffer$impl =
-                        Minecraft.getInstance()
-                                .getRenderTypeBuffers()
-                                .getBufferSource();
-                boolean flag = !bakedmodel.isSideLit();
-                if (flag)
-                {
-                    RenderHelper.setupGuiFlatDiffuseLighting();
+                IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().func_228019_au_().func_228487_b_();
+                Item item = itemIn.getItem();
+                boolean flag = !bakedmodel.isGui3d() || item == Items.SHIELD || item == Items.TRIDENT;
+                if (flag) {
+                    RenderHelper.func_227783_c_();
                 }
 
-                mc.getItemRenderer()
-                        .renderItem(stack,
-                                ItemCameraTransforms.TransformType.GUI,
-                                false,
-                                matrixstack,
-                                irendertypebuffer$impl,
-                                15728880,
-                                OverlayTexture.NO_OVERLAY,
-                                bakedmodel);
-                irendertypebuffer$impl.finish();
+                mc.getItemRenderer().func_229111_a_(itemIn, ItemCameraTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.field_229196_a_, bakedmodel);
+                irendertypebuffer$impl.func_228461_a_();
                 RenderSystem.enableDepthTest();
-                if (flag)
-                {
-                    RenderHelper.setupGui3DDiffuseLighting();
+                if (flag) {
+                    RenderHelper.func_227784_d_();
                 }
 
-//                RenderSystem.disableAlphaTest();
+                RenderSystem.disableAlphaTest();
                 RenderSystem.disableRescaleNormal();
                 RenderSystem.popMatrix();
-            }
-            catch (Throwable throwable)
-            {
-                CrashReport crashreport = CrashReport.makeCrashReport(throwable,
-                        "Rendering item");
-                CrashReportCategory crashreportcategory =
-                        crashreport.makeCategory("Item being rendered");
+            } catch (Throwable throwable) {
+                CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
+                CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
                 crashreportcategory.addDetail("Item Type", () -> {
-                    return String.valueOf((Object) stack.getItem());
+                    return String.valueOf((Object)itemIn.getItem());
                 });
-                crashreportcategory.addDetail("Registry Name",
-                        () -> String.valueOf(stack.getItem()
-                                .getRegistryName()));
+                crashreportcategory.addDetail("Registry Name", () -> String.valueOf(itemIn.getItem().getRegistryName()));
                 crashreportcategory.addDetail("Item Damage", () -> {
-                    return String.valueOf(stack.getDamage());
+                    return String.valueOf(itemIn.getDamage());
                 });
                 crashreportcategory.addDetail("Item NBT", () -> {
-                    return String.valueOf((Object) stack.getTag());
+                    return String.valueOf((Object)itemIn.getTag());
                 });
                 crashreportcategory.addDetail("Item Foil", () -> {
-                    return String.valueOf(stack.hasEffect());
+                    return String.valueOf(itemIn.hasEffect());
                 });
                 throw new ReportedException(crashreport);
             }
