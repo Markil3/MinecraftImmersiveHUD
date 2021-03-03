@@ -2,6 +2,8 @@ package markil3.immersive_hud;
 
 import net.minecraft.util.math.MathHelper;
 
+//import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 
 import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
@@ -278,8 +280,8 @@ public class ConfigManager
         this.minHunger = MathHelper.clamp(boundary, 0, 20);
     }
 /**
-     * Saves changes to this mod's configuration.
-     */
+ * Saves changes to this mod's configuration.
+ */
 //    public void save()
 //    {
 //        SPEC.save();

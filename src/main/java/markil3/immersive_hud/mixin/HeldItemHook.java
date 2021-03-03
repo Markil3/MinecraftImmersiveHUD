@@ -17,9 +17,7 @@
 package markil3.immersive_hud.mixin;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.FirstPersonRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 
@@ -37,42 +35,33 @@ import markil3.immersive_hud.TimerUtils;
  * @author Markil 3
  * @version 0.1-1.16.4-fabric
  */
-@Mixin(HeldItemRenderer.class)
+@Mixin(FirstPersonRenderer.class)
 public class HeldItemHook
 {
     /**
      * Determines whether or not to render a certain hand.
      *
-     * @param player
-     * @param tickDelta
-     * @param pitch
      * @param hand
-     * @param swingProgress
-     * @param item
-     * @param equipProgress
-     * @param matrices
-     * @param vertexConsumers
-     * @param light
      * @param callbackInfo
      *
      * @since 0.1-1.16.4-fabric
      */
-    @Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/util/math/MatrixStack;push()V",
-            shift = At.Shift.AFTER), cancellable = true)
-    public void renderHand(AbstractClientPlayerEntity player,
-                           float tickDelta,
-                           float pitch,
+    @Inject(method = "renderFirstPersonItem" +
+            "(Lnet/minecraft/client/network/AbstractClientPlayerEntity;" +
+            "FFLnet/minecraft/util/Hand;FLnet/minecraft/item/ItemStack;F)V",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform" +
+                    "/GlStateManager;pushMatrix()V", shift = At.Shift.AFTER),
+            cancellable = true)
+    public void renderHand(AbstractClientPlayerEntity abstractClientPlayerEntity,
+                           float f,
+                           float g,
                            Hand hand,
-                           float swingProgress,
-                           ItemStack item,
-                           float equipProgress,
-                           MatrixStack matrices,
-                           VertexConsumerProvider vertexConsumers,
-                           int light,
+                           float h,
+                           ItemStack itemStack,
+                           float i,
                            CallbackInfo callbackInfo)
     {
-        if (TimerUtils.onRenderHand(hand, matrices, tickDelta))
+        if (TimerUtils.onRenderHand(hand, f))
         {
             callbackInfo.cancel();
         }

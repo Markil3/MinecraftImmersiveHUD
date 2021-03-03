@@ -16,11 +16,10 @@
  */
 package markil3.immersive_hud;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -35,10 +34,11 @@ import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.FishingRodItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.LingeringPotionItem;
 import net.minecraft.item.RangedWeaponItem;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SnowballItem;
-import net.minecraft.item.ThrowablePotionItem;
+import net.minecraft.item.SplashPotionItem;
 import net.minecraft.item.TridentItem;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
@@ -173,7 +173,7 @@ public class TimerUtils
      */
     public static void setAlpha(float alpha)
     {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
     }
 
     /**
@@ -344,14 +344,12 @@ public class TimerUtils
      * hands into and out of view as needed.
      *
      * @param hand - The hand being rendered.
-     * @param matrixStack - The rendering stack.
      *
      * @return If true, then don't render this hand at all.
      *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean onRenderHand(Hand hand,
-                                       MatrixStack matrixStack,
                                        float ticks)
     {
         final float HAND_UP_TIME = 20F;
@@ -371,10 +369,9 @@ public class TimerUtils
                 }
                 if (offHandTime < HAND_UP_TIME)
                 {
-                    matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - offHandTime) /
-                                            HAND_UP_TIME,
+                    GlStateManager.translatef(0,
+                            (float) (-1.0F * (HAND_UP_TIME - offHandTime) /
+                                                                        HAND_UP_TIME),
                                     0);
                 }
             }
@@ -392,10 +389,9 @@ public class TimerUtils
                 }
                 if (mainHandTime < HAND_UP_TIME)
                 {
-                    matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - mainHandTime) /
-                                            HAND_UP_TIME,
+                    GlStateManager.translatef(0,
+                            (float) (-1.0F * (HAND_UP_TIME - mainHandTime) /
+                                                                        HAND_UP_TIME),
                                     0);
                 }
             }
@@ -422,13 +418,13 @@ public class TimerUtils
         boolean changed = false;
         boolean canceled = false;
 
-        if (mc.crosshairTarget != null && mc.crosshairTarget
+        if (mc.hitResult != null && mc.hitResult
                 .getType() != HitResult.Type.MISS)
         {
-            if (mc.crosshairTarget.getType() == HitResult.Type
+            if (mc.hitResult.getType() == HitResult.Type
                     .ENTITY)
             {
-                if (((EntityHitResult) mc.crosshairTarget).getEntity() != entity
+                if (((EntityHitResult) mc.hitResult).getEntity() != entity
                         .getVehicle())
                 {
                     changed = true;
@@ -497,9 +493,9 @@ public class TimerUtils
                 mountHealth = mount.getHealth();
                 changed = true;
             }
-            if (mountMaxHealth != mount.getMaximumHealth())
+            if (mountMaxHealth != mount.getHealthMaximum())
             {
-                mountMaxHealth = mount.getMaximumHealth();
+                mountMaxHealth = mount.getHealthMaximum();
                 changed = true;
             }
         }
@@ -522,8 +518,8 @@ public class TimerUtils
         {
             if (tmp != null && mountTime > 0)
             {
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(0F,
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 setAlpha(Main.getAlpha(mountTime,
@@ -534,8 +530,8 @@ public class TimerUtils
             }
             return true;
         }
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F,
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -695,9 +691,9 @@ public class TimerUtils
             health = entity.getHealth();
             changed = true;
         }
-        if (maxHealth != entity.getMaximumHealth())
+        if (maxHealth != entity.getHealthMaximum())
         {
-            maxHealth = entity.getMaximumHealth();
+            maxHealth = entity.getHealthMaximum();
             changed = true;
         }
         if (changed)
@@ -845,8 +841,8 @@ public class TimerUtils
         }
         if (jumpTime > 0)
         {
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0F, TimerUtils.getJumpTranslation(), 0F);
+            GlStateManager.pushMatrix();
+            GlStateManager.translatef(0F, TimerUtils.getJumpTranslation(), 0F);
             setAlpha(Main.getAlpha(jumpTime,
                     jump.getMaxTime(),
                     jump.getFadeInTime(),
@@ -899,8 +895,10 @@ public class TimerUtils
         }
         if (experienceTime > 0)
         {
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0F, TimerUtils.getExperienceTranslation(), 0F);
+            GlStateManager.pushMatrix();
+            GlStateManager.translatef(0F,
+                    TimerUtils.getExperienceTranslation(),
+                    0F);
             setAlpha(Main.getAlpha(experienceTime,
                     experience.getMaxTime(),
                     experience.getFadeInTime(),
@@ -1042,7 +1040,7 @@ public class TimerUtils
                  * Items that have the crosshairs enabled for as long
                  * as the item is being held at all.
                  */
-                else if (item instanceof ThrowablePotionItem ||
+                else if (item instanceof SplashPotionItem || item instanceof LingeringPotionItem ||
                         item instanceof SnowballItem || item instanceof
                         EggItem || item instanceof EnderPearlItem || item
                         instanceof FishingRodItem)
@@ -1144,8 +1142,8 @@ public class TimerUtils
     {
         ConfigManager.TimeValues hotbar =
                 ConfigManager.getInstance().getHotbarTime();
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F, TimerUtils.getHotbarTranslation(), 0F);
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F, TimerUtils.getHotbarTranslation(), 0F);
         setAlpha(Main.getAlpha(hotbarTime,
                 hotbar.getMaxTime(),
                 hotbar.getFadeInTime(),

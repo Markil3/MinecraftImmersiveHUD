@@ -22,6 +22,9 @@ import net.fabricmc.api.ModInitializer;
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
 
+//import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
+//import me.sargunvohra.mcmods.autoconfig1u.serializer.Toml4jConfigSerializer;
+
 /**
  * The main entry point for the Immersive HUD mod.
  *

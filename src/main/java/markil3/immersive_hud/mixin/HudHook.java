@@ -16,7 +16,7 @@
  */
 package markil3.immersive_hud.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -119,7 +119,7 @@ public class HudHook
             CallbackInfo callbackInfo)
     {
         logger.debug("Finishing jumpbar");
-        RenderSystem.popMatrix();
+        GlStateManager.popMatrix();
         /*
          * Resets the color so that nothing else is bothered.
          */
@@ -157,7 +157,7 @@ public class HudHook
     public void finishExperience(int x, CallbackInfo callbackInfo)
     {
         logger.debug("Finishing experience bar");
-        RenderSystem.popMatrix();
+        GlStateManager.popMatrix();
         /*
          * Resets the color so that nothing else is bothered.
          */
@@ -175,8 +175,8 @@ public class HudHook
     public void startStatus(CallbackInfo info)
     {
         logger.debug("Starting status bars");
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F, TimerUtils.getHealthTranslation(), 0F);
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F, TimerUtils.getHealthTranslation(), 0F);
     }
 
     /**
@@ -262,7 +262,7 @@ public class HudHook
     public void finishStatus(CallbackInfo info)
     {
         logger.debug("Finishing status bars");
-        RenderSystem.popMatrix();
+        GlStateManager.popMatrix();
     }
 
     /**
@@ -302,7 +302,7 @@ public class HudHook
         /*
          * Resets the color so that nothing else is bothered.
          */
-        RenderSystem.popMatrix();
+        GlStateManager.popMatrix();
         TimerUtils.resetAlpha();
     }
 
@@ -406,7 +406,7 @@ public class HudHook
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderHotbar", at = @At(value = "INVOKE", target =
-            "Lcom/mojang/blaze3d/systems/RenderSystem;color4f(FFFF)V", shift
+            "Lcom/mojang/blaze3d/platform/GlStateManager;color4f(FFFF)V", shift
             = At.Shift.AFTER))
     public void adjustHotbar(float tickDelta,
                              CallbackInfo callbackInfo)
@@ -429,7 +429,7 @@ public class HudHook
                              CallbackInfo callbackInfo)
     {
         logger.debug("Finishing hotbar");
-        RenderSystem.popMatrix();
+        GlStateManager.popMatrix();
         /*
          * Resets the color so that nothing else is bothered.
          */
