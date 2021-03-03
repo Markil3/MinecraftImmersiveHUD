@@ -16,7 +16,7 @@
  */
 package markil3.immersive_hud;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
@@ -100,7 +100,6 @@ public class EventBus
     public static void onRenderHand(final RenderSpecificHandEvent event)
     {
         if (TimerUtils.onRenderHand(event.getHand(),
-                event.getMatrixStack(),
                 event.getPartialTicks()))
         {
             event.setCanceled(true);
@@ -168,7 +167,7 @@ public class EventBus
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.popMatrix();
+                GlStateManager.popMatrix();
                 resetAlpha();
             }
             break;
@@ -185,7 +184,7 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.popMatrix();
+                GlStateManager.popMatrix();
                 resetAlpha();
             }
             break;
@@ -202,7 +201,7 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.popMatrix();
+                GlStateManager.popMatrix();
                 resetAlpha();
             }
             break;
@@ -219,7 +218,7 @@ public class EventBus
              */
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.popMatrix();
+                GlStateManager.popMatrix();
                 resetAlpha();
             }
             break;
@@ -233,7 +232,7 @@ public class EventBus
             }
             else if (event instanceof RenderGameOverlayEvent.Post)
             {
-                RenderSystem.popMatrix();
+                GlStateManager.popMatrix();
                 resetAlpha();
             }
             break;

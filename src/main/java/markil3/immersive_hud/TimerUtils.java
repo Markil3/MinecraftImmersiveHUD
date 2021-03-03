@@ -1,7 +1,6 @@
 package markil3.immersive_hud;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -15,16 +14,16 @@ import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.FishingRodItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.LingeringPotionItem;
 import net.minecraft.item.ShieldItem;
 import net.minecraft.item.ShootableItem;
 import net.minecraft.item.SnowballItem;
-import net.minecraft.item.ThrowablePotionItem;
+import net.minecraft.item.SplashPotionItem;
 import net.minecraft.item.TridentItem;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
@@ -170,7 +169,7 @@ public class TimerUtils
      */
     public static void setAlpha(float alpha)
     {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
     }
 
     /**
@@ -270,11 +269,11 @@ public class TimerUtils
             if (item.isFood())
             {
                 healthTime = health.getMaxTime() - (healthTime > 0 ?
-                             health.getFadeInTime() :
-                             0);
+                                                    health.getFadeInTime() :
+                                                    0);
                 hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
-                             hunger.getFadeInTime() :
-                             0);
+                                                    hunger.getFadeInTime() :
+                                                    0);
             }
         }
     }
@@ -284,7 +283,6 @@ public class TimerUtils
      * hands into and out of view as needed.
      *
      * @param hand - The hand being rendered.
-     * @param matrixStack - The rendering stack.
      * @param ticks
      *
      * @return If true, then don't render this hand at all.
@@ -292,7 +290,6 @@ public class TimerUtils
      * @since 0.2-1.16.4-forge
      */
     public static boolean onRenderHand(Hand hand,
-                                       MatrixStack matrixStack,
                                        float ticks)
     {
         float HAND_UP_TIME = 20F;
@@ -305,9 +302,9 @@ public class TimerUtils
                 /*
                  * Undo the transformation of the previous hand
                  */
-                matrixStack.func_227862_a_(0,
+                GlStateManager.translatef(0,
                         (float) (1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
-                                0);
+                        0);
             }
             if (offHandTime == 0 && !offHandLock)
             {
@@ -321,10 +318,9 @@ public class TimerUtils
                 }
                 if (offHandTime < HAND_UP_TIME)
                 {
-                    matrixStack
-                            .func_227862_a_(0,
-                                    (float) (-1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME),
-                                    0);
+                    GlStateManager.translatef(0,
+                            (float) (-1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME),
+                            0);
                 }
             }
             break;
@@ -341,10 +337,9 @@ public class TimerUtils
                 }
                 if (mainHandTime < HAND_UP_TIME)
                 {
-                    matrixStack
-                            .func_227861_a_(0,
-                                    (float) (-1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
-                                    0);
+                    GlStateManager.translatef(0,
+                            (float) (-1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
+                            0);
                 }
             }
             break;
@@ -360,8 +355,8 @@ public class TimerUtils
         ConfigManager.TimeValues health =
                 ConfigManager.getInstance().getHealthTime();
         mountTime = health.getMaxTime() - (mountTime > 0 ?
-                    health.getFadeInTime() :
-                    0);
+                                           health.getFadeInTime() :
+                                           0);
         jumpTime = 0;
     }
 
@@ -474,7 +469,8 @@ public class TimerUtils
         }
         else if (effectinstance.getDuration() <= BLINK_TIME + potion.getFadeInTime())
         {
-            effectAlpha = -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
+            effectAlpha =
+                    -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
         }
         else
         {
@@ -602,7 +598,7 @@ public class TimerUtils
                  * Items that have the crosshairs enabled for as long
                  * as the item is being held at all.
                  */
-                else if (item instanceof ThrowablePotionItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderPearlItem || item instanceof FishingRodItem)
+                else if (item instanceof SplashPotionItem || item instanceof LingeringPotionItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderPearlItem || item instanceof FishingRodItem)
                 {
                     switch (i)
                     {
@@ -645,11 +641,11 @@ public class TimerUtils
                 if (item.isFood())
                 {
                     healthTime = health.getMaxTime() - (healthTime > 0 ?
-                                 health.getFadeInTime() :
-                                 0);
+                                                        health.getFadeInTime() :
+                                                        0);
                     hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
-                                 hunger.getFadeInTime() :
-                                 0);
+                                                        hunger.getFadeInTime() :
+                                                        0);
                 }
                 if (i == 0)
                 {
@@ -757,12 +753,13 @@ public class TimerUtils
          * Only makes a change if the player is healthy. Otherwise,
          * the bar is shown.
          */
-        if (health / maxHealth > HEALTH_BOUNDARY && !mc.player.isPotionActive(Effects.WITHER) && !mc.player.isPotionActive(Effects.POISON))
+        if (health / maxHealth > HEALTH_BOUNDARY && !mc.player.isPotionActive(
+                Effects.WITHER) && !mc.player.isPotionActive(Effects.POISON))
         {
             if (healthTime > 0)
             {
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(0F,
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 setAlpha(Main.getAlpha(healthTime,
@@ -773,8 +770,8 @@ public class TimerUtils
             }
             return true;
         }
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F,
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -816,8 +813,8 @@ public class TimerUtils
         if (changed || hunger <= HUNGER_BOUNDARY)
         {
             hungerTime = hungerTimes.getMaxTime() - (hungerTime > 0 ?
-                         hungerTimes.getFadeInTime() :
-                         0);
+                                                     hungerTimes.getFadeInTime() :
+                                                     0);
         }
         else if (hungerTime > 0)
         {
@@ -835,16 +832,16 @@ public class TimerUtils
                         hungerTimes.getMaxTime(),
                         hungerTimes.getFadeInTime(),
                         hungerTimes.getFadeOutTime()));
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(0F,
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 return false;
             }
             return true;
         }
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F,
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -873,8 +870,8 @@ public class TimerUtils
                     healthTimes.getMaxTime(),
                     healthTimes.getFadeInTime(),
                     healthTimes.getFadeOutTime()));
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(0F,
+            GlStateManager.pushMatrix();
+            GlStateManager.translatef(0F,
                     getHealthTranslation(),
                     0F);
             return false;
@@ -893,8 +890,8 @@ public class TimerUtils
      */
     public static boolean drawAir(float ticks)
     {
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F,
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;
@@ -965,8 +962,8 @@ public class TimerUtils
         {
             if (mountTime > 0)
             {
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(0F,
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef(0F,
                         getHealthTranslation(),
                         0F);
                 setAlpha(Main.getAlpha(mountTime,
@@ -977,8 +974,8 @@ public class TimerUtils
             }
             return true;
         }
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F,
+        GlStateManager.pushMatrix();
+        GlStateManager.translatef(0F,
                 getHealthTranslation(),
                 0F);
         return false;

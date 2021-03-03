@@ -16,39 +16,34 @@ package markil3.immersive_hud;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.PotionSpriteUploader;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.AttackIndicatorStatus;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,18 +58,79 @@ import java.util.List;
  */
 public class RenderUtils
 {
+    private static int getBlitOffset(IngameGui gui)
+    {
+        Field blitAccessField = null;
+        int blitAccess = 0;
+        try
+        {
+            blitAccessField = AbstractGui.class.getDeclaredField("blitOffset");
+        }
+        catch (NoSuchFieldException e)
+        {
+            e.printStackTrace();
+        }
+        if (!blitAccessField.isAccessible())
+        {
+            blitAccessField.setAccessible(true);
+        }
+        try
+        {
+            blitAccess = (int) blitAccessField.get(gui);
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+
+        return blitAccess;
+    }
+
+    private static boolean setBlitOffset(IngameGui gui, int value)
+    {
+        Field blitAccessField = null;
+        int blitAccess = 0;
+        try
+        {
+            blitAccessField = AbstractGui.class.getDeclaredField("blitOffset");
+        }
+        catch (NoSuchFieldException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!blitAccessField.isAccessible())
+        {
+            blitAccessField.setAccessible(true);
+        }
+        try
+        {
+            blitAccessField.set(gui, value);
+            return true;
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void renderPotionIcons(Minecraft mc,
                                          IngameGui gui,
                                          float ticks)
     {
-        int scaledWidth = mc.func_228018_at_().getScaledWidth();
-        int scaledHeight = mc.func_228018_at_().getScaledHeight();
+
+        int scaledWidth = mc.mainWindow.getScaledWidth();
+        int scaledHeight = mc.mainWindow.getScaledHeight();
 
         Collection<EffectInstance> collection =
                 mc.player.getActivePotionEffects();
+
+
         if (!collection.isEmpty())
         {
-            RenderSystem.enableBlend();
+            GlStateManager.enableBlend();
             int i = 0;
             int j = 0;
             PotionSpriteUploader potionspriteuploader =
@@ -92,7 +148,7 @@ public class RenderUtils
                 float effectAlpha = TimerUtils.getPotionAlpha(mc.player,
                         effectinstance,
                         ticks);
-                if (!effectinstance.shouldRenderHUD() || effectAlpha < 0.01F)
+                if (!effectinstance.isShowIcon() || effectAlpha < 0.01F)
                 {
                     continue;
                 }
@@ -120,7 +176,7 @@ public class RenderUtils
                         l += 26;
                     }
 
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, effectAlpha);
+                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, effectAlpha);
                     if (effectinstance.isAmbient())
                     {
                         gui.blit(k, l, 165, 166, 24, 24);
@@ -130,31 +186,25 @@ public class RenderUtils
                         gui.blit(k, l, 141, 166, 24, 24);
                     }
 
+                    float f_f = effectAlpha;
+                    int k_f = k;
+                    int l_f = l;
+
                     TextureAtlasSprite textureatlassprite =
-                            potionspriteuploader.getSprite(effect);
-                    int j1 = k;
-                    int k1 = l;
-                    float f1 = effectAlpha;
+                            potionspriteuploader.func_215288_a(effect);
                     list.add(() -> {
-                        mc.getTextureManager()
-                                .bindTexture(textureatlassprite.func_229241_m_()
-                                        .func_229223_g_());
-                        RenderSystem.color4f(1.0F, 1.0F, 1.0F, f1);
-                        gui.blit(j1 + 3,
-                                k1 + 3,
-                                gui.getBlitOffset(),
-                                18,
-                                18,
-                                textureatlassprite);
+                        GlStateManager.color4f(1.0F, 1.0F, 1.0F, f_f);
+                        gui.blit(k_f + 3, l_f + 3, getBlitOffset(gui), 18, 18, textureatlassprite);
                     });
-                    effectinstance.renderHUDEffect(gui,
+                    effect.renderHUDEffect(effectinstance, gui,
                             k,
                             l,
-                            gui.getBlitOffset(),
+                            getBlitOffset(gui),
                             effectAlpha);
                 }
             }
 
+            mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_EFFECTS_TEXTURE);
             list.forEach(Runnable::run);
         }
     }
@@ -168,7 +218,7 @@ public class RenderUtils
      * @param renderTime - How much time before this element becomes fully
      * transparent.
      *
-     * @see IngameGui#renderHorseJumpBar(MatrixStack, int)
+     * @see IngameGui#renderHorseJumpBar(int)
      */
     public static void renderHorseJumpBar(Minecraft mc,
                                           IngameGui gui,
@@ -185,13 +235,13 @@ public class RenderUtils
                 jump.getMaxTime(),
                 jump.getFadeInTime(),
                 jump.getFadeOutTime());
-        int scaledWidth = mc.func_228018_at_().getScaledWidth();
-        int scaledHeight = mc.func_228018_at_().getScaledHeight();
+        int scaledWidth = mc.mainWindow.getScaledWidth();
+        int scaledHeight = mc.mainWindow.getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
 
         mc.getProfiler().startSection("jumpBar");
-        RenderSystem.enableBlend();
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        GlStateManager.enableBlend();
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
         mc.getTextureManager().bindTexture(AbstractGui.GUI_ICONS_LOCATION);
         float f = mc.player.getHorseJumpPower();
         int i = 182;
@@ -202,9 +252,9 @@ public class RenderUtils
         {
             gui.blit(xPosition, k, 0, 89, j, 5);
         }
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        RenderSystem.disableBlend();
+        GlStateManager.disableBlend();
         mc.getProfiler().endSection();
     }
 
@@ -217,7 +267,7 @@ public class RenderUtils
      * @param renderTime - How much time before this element becomes fully
      * transparent.
      *
-     * @see IngameGui#func_238454_b_(MatrixStack, int)
+     * @see IngameGui#func_238454_b_(int)
      */
     public static void renderExperience(Minecraft mc,
                                         IngameGui gui,
@@ -236,16 +286,16 @@ public class RenderUtils
                 experience.getMaxTime(),
                 experience.getFadeInTime(),
                 experience.getFadeOutTime());
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
         {
-            int scaledWidth = mc.func_228018_at_().getScaledWidth();
-            int scaledHeight = mc.func_228018_at_().getScaledHeight();
+            int scaledWidth = mc.mainWindow.getScaledWidth();
+            int scaledHeight = mc.mainWindow.getScaledHeight();
             int x = scaledWidth / 2 - 91;
 
             mc.getProfiler().startSection("expBar");
-            RenderSystem.enableBlend();
+            GlStateManager.enableBlend();
             mc.getTextureManager().bindTexture(AbstractGui.GUI_ICONS_LOCATION);
             int i = mc.player.xpBarCap();
             if (i > 0)
@@ -260,12 +310,12 @@ public class RenderUtils
                 }
             }
 
-            RenderSystem.disableBlend();
+            GlStateManager.disableBlend();
             mc.getProfiler().endSection();
             if (mc.player.experienceLevel > 0)
             {
                 mc.getProfiler().startSection("expLevel");
-                RenderSystem.enableBlend();
+                GlStateManager.enableBlend();
                 String s = "" + mc.player.experienceLevel;
                 int i1 = (scaledWidth - gui.getFontRenderer()
                         .getStringWidth(s)) / 2;
@@ -299,11 +349,11 @@ public class RenderUtils
                                 (float) i1,
                                 (float) j1,
                                 8453920);
-                RenderSystem.disableBlend();
+                GlStateManager.disableBlend();
                 mc.getProfiler().endSection();
             }
         }
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
 
@@ -339,25 +389,21 @@ public class RenderUtils
                 hotbar.getFadeInTime(),
                 hotbar.getFadeOutTime());
 
-        int scaledWidth = mc.func_228018_at_().getScaledWidth();
-        int scaledHeight = mc.func_228018_at_().getScaledHeight();
+        int scaledWidth = mc.mainWindow.getScaledWidth();
+        int scaledHeight = mc.mainWindow.getScaledHeight();
         if (playerentity != null)
         {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
             ItemStack itemstack = playerentity.getHeldItemOffhand();
             HandSide handside = playerentity.getPrimaryHand().opposite();
             int i = scaledWidth / 2;
-            int j = gui.getBlitOffset();
+            int j = getBlitOffset(gui);
             int k = 182;
             int l = 91;
-            gui.setBlitOffset(-90);
-            gui.blit(i - 91,
-                    scaledHeight - TimerUtils.getHotbarTranslation(),
-                    0,
-                    0,
-                    182,
-                    22);
+            setBlitOffset(gui, -90);
+            gui.blit(i - 91, scaledHeight - TimerUtils.getHotbarTranslation(), 0, 0, 182, 22);
             gui.blit(i - 91 - 1 + playerentity.inventory.currentItem * 20,
                     scaledHeight - (int) (22F * alpha) - 1,
                     0,
@@ -369,7 +415,7 @@ public class RenderUtils
                 if (handside == HandSide.LEFT)
                 {
                     gui.blit(i - 91 - 29,
-                            scaledHeight - (int) (23F * alpha),
+                            scaledHeight - (int) (23 * alpha),
                             24,
                             22,
                             29,
@@ -377,25 +423,26 @@ public class RenderUtils
                 }
                 else
                 {
-                    gui.blit(i + 91,
-                            scaledHeight - (int) (23F * alpha),
-                            53,
-                            22,
-                            29,
-                            24);
+                    gui.blit(i + 91, scaledHeight - (int) (23 * alpha), 53, 22, 29, 24);
                 }
             }
 
-            gui.setBlitOffset(j);
-            RenderSystem.enableRescaleNormal();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
+            setBlitOffset(gui, j);
+            GlStateManager.enableRescaleNormal();
+            GlStateManager.enableBlend();
+            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                    GlStateManager.SourceFactor.ONE,
+                    GlStateManager.DestFactor.ZERO);
+            RenderHelper.enableGUIStandardItemLighting();
 
             for (int i1 = 0; i1 < 9; ++i1)
             {
                 int j1 = i - 90 + i1 * 20 + 2;
-                int k1 = scaledHeight - (int) (16F * alpha) - 3;
-                renderHotbarItem(mc, alpha, j1,
+                int k1 = scaledHeight - (int) (16 * alpha) - 3;
+                renderHotbarItem(mc,
+                        alpha,
+                        j1,
                         k1,
                         partialTicks,
                         playerentity,
@@ -404,10 +451,12 @@ public class RenderUtils
 
             if (!itemstack.isEmpty())
             {
-                int i2 = scaledHeight - (int) (16F * alpha) - 3;
+                int i2 = scaledHeight - (int) (16 * alpha) - 3;
                 if (handside == HandSide.LEFT)
                 {
-                    renderHotbarItem(mc, alpha, i - 91 - 26,
+                    renderHotbarItem(mc,
+                            alpha,
+                            i - 91 - 26,
                             i2,
                             partialTicks,
                             playerentity,
@@ -415,7 +464,9 @@ public class RenderUtils
                 }
                 else
                 {
-                    renderHotbarItem(mc, alpha, i + 91 + 10,
+                    renderHotbarItem(mc,
+                            alpha,
+                            i + 91 + 10,
                             i2,
                             partialTicks,
                             playerentity,
@@ -438,19 +489,15 @@ public class RenderUtils
                     mc.getTextureManager()
                             .bindTexture(AbstractGui.GUI_ICONS_LOCATION);
                     int l1 = (int) (f * 19.0F);
-                    RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+                    GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
                     gui.blit(k2, j2, 0, 94, 18, 18);
-                    gui.blit(k2,
-                            j2 + 18 - l1,
-                            18,
-                            112 - l1,
-                            18,
-                            l1);
+                    gui.blit(k2, j2 + 18 - l1, 18, 112 - l1, 18, l1);
                 }
             }
 
-            RenderSystem.disableRescaleNormal();
-            RenderSystem.disableBlend();
+            RenderHelper.disableStandardItemLighting();
+            GlStateManager.disableRescaleNormal();
+            GlStateManager.disableBlend();
         }
     }
 
@@ -473,76 +520,119 @@ public class RenderUtils
                                  PlayerEntity player,
                                  ItemStack stack)
     {
-        if (!stack.isEmpty()) {
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
-            float f = (float)stack.getAnimationsToGo() - partialTicks;
-            if (f > 0.0F) {
-                RenderSystem.pushMatrix();
+        if (!stack.isEmpty())
+        {
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
+            float f = (float) stack.getAnimationsToGo() - partialTicks;
+            if (f > 0.0F)
+            {
+                GlStateManager.pushMatrix();
                 float f1 = 1.0F + f / 5.0F;
-                RenderSystem.translatef((float)(x + 8), (float)(y + 12), 0.0F);
-                RenderSystem.scalef(1.0F / f1, (f1 + 1.0F) / 2.0F, 1.0F);
-                RenderSystem.translatef((float)(-(x + 8)), (float)(-(y + 12)), 0.0F);
+                GlStateManager.translatef((float) (x + 8),
+                        (float) (y + 12),
+                        0.0F);
+                GlStateManager.scalef(1.0F / f1, (f1 + 1.0F) / 2.0F, 1.0F);
+                GlStateManager.translatef((float) (-(x + 8)),
+                        (float) (-(y + 12)),
+                        0.0F);
             }
 
             renderItemAndEffectIntoGUI(mc, player, stack, x, y, alpha);
-            if (f > 0.0F) {
-                RenderSystem.popMatrix();
+            if (f > 0.0F)
+            {
+                GlStateManager.popMatrix();
             }
 
-            mc.getItemRenderer().renderItemOverlays(mc.fontRenderer, stack, x, y);
+            mc.getItemRenderer()
+                    .renderItemOverlays(mc.fontRenderer, stack, x, y);
         }
     }
 
-    private static void renderItemAndEffectIntoGUI(Minecraft mc, LivingEntity entityIn, ItemStack itemIn, int x, int y, float alpha)
+    private static void renderItemAndEffectIntoGUI(Minecraft mc,
+                                                   LivingEntity entityIn,
+                                                   ItemStack itemIn,
+                                                   int x,
+                                                   int y,
+                                                   float alpha)
     {
-        if (!itemIn.isEmpty()) {
+        if (!itemIn.isEmpty())
+        {
             float zLevel = 50.0F;
 
-            try {
-                IBakedModel bakedmodel = mc.getItemRenderer().getItemModelWithOverrides(itemIn, (World)null, entityIn);
-                RenderSystem.pushMatrix();
-                mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-                mc.getTextureManager().func_229267_b_(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
-                RenderSystem.enableRescaleNormal();
-                RenderSystem.enableAlphaTest();
-                RenderSystem.defaultAlphaFunc();
-                RenderSystem.enableBlend();
-                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.translatef((float)x, (float)y, 100.0F + zLevel);
-                RenderSystem.translatef(8.0F, 8.0F, 0.0F);
-                RenderSystem.scalef(1.0F, -1.0F, 1.0F);
-                RenderSystem.scalef(16.0F, 16.0F, 16.0F);
-                MatrixStack matrixstack = new MatrixStack();
-                IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().func_228019_au_().func_228487_b_();
-                Item item = itemIn.getItem();
-                boolean flag = !bakedmodel.isGui3d() || item == Items.SHIELD || item == Items.TRIDENT;
-                if (flag) {
-                    RenderHelper.func_227783_c_();
+            try
+            {
+                IBakedModel bakedmodel = mc.getItemRenderer()
+                        .getItemModelWithOverrides(itemIn,
+                                (World) null,
+                                entityIn);
+                GlStateManager.pushMatrix();
+                mc.getTextureManager()
+                        .bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+                mc.getTextureManager()
+                        .getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+                        .setBlurMipmap(false, false);
+                GlStateManager.enableRescaleNormal();
+                GlStateManager.enableAlphaTest();
+                GlStateManager.alphaFunc(516, 0.1F);
+                GlStateManager.enableBlend();
+                GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
+                        GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                GlStateManager.color4f(1.0F, 1.0F, 1.0F, alpha);
+                Method transformMethod = null;
+                try
+                {
+                    transformMethod = ItemRenderer.class.getDeclaredMethod("setupGuiTransform", int.class, int.class, boolean.class);
                 }
-
-                mc.getItemRenderer().func_229111_a_(itemIn, ItemCameraTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.field_229196_a_, bakedmodel);
-                irendertypebuffer$impl.func_228461_a_();
-                RenderSystem.enableDepthTest();
-                if (flag) {
-                    RenderHelper.func_227784_d_();
+                catch (NoSuchMethodException e)
+                {
+                    try
+                    {
+                        transformMethod = ItemRenderer.class.getDeclaredMethod("func_180452_a", int.class, int.class, boolean.class);
+                    }
+                    catch (NoSuchMethodException e1)
+                    {
+                        e.printStackTrace();
+                    }
                 }
-
-                RenderSystem.disableAlphaTest();
-                RenderSystem.disableRescaleNormal();
-                RenderSystem.popMatrix();
-            } catch (Throwable throwable) {
-                CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
-                CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
+                if (transformMethod != null)
+                {
+                    if (!transformMethod.isAccessible())
+                    {
+                        transformMethod.setAccessible(true);
+                    }
+                    transformMethod.invoke(mc.getItemRenderer(), x, y, bakedmodel.isGui3d());
+                }
+                bakedmodel =
+                        net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(
+                                bakedmodel,
+                                ItemCameraTransforms.TransformType.GUI,
+                                false);
+                mc.getItemRenderer().renderItem(itemIn, bakedmodel);
+                GlStateManager.disableAlphaTest();
+                GlStateManager.disableRescaleNormal();
+                GlStateManager.disableLighting();
+                GlStateManager.popMatrix();
+                mc.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+                mc.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE)
+                        .restoreLastBlurMipmap();
+            }
+            catch (Throwable throwable)
+            {
+                CrashReport crashreport = CrashReport.makeCrashReport(throwable,
+                        "Rendering item");
+                CrashReportCategory crashreportcategory =
+                        crashreport.makeCategory("Item being rendered");
                 crashreportcategory.addDetail("Item Type", () -> {
-                    return String.valueOf((Object)itemIn.getItem());
+                    return String.valueOf((Object) itemIn.getItem());
                 });
-                crashreportcategory.addDetail("Registry Name", () -> String.valueOf(itemIn.getItem().getRegistryName()));
+                crashreportcategory.addDetail("Registry Name",
+                        () -> String.valueOf(itemIn.getItem()
+                                .getRegistryName()));
                 crashreportcategory.addDetail("Item Damage", () -> {
                     return String.valueOf(itemIn.getDamage());
                 });
                 crashreportcategory.addDetail("Item NBT", () -> {
-                    return String.valueOf((Object)itemIn.getTag());
+                    return String.valueOf((Object) itemIn.getTag());
                 });
                 crashreportcategory.addDetail("Item Foil", () -> {
                     return String.valueOf(itemIn.hasEffect());

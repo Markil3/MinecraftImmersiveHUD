@@ -20,8 +20,7 @@ import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
  * <p>
  * The methods that change this mod's configuration do not automatically write
  * those changes to the configuration file on disk. Instead, they only update
- * the configuration in memory. To write any changes, use the {@link #save()}
- * method.
+ * the configuration in memory.
  *
  * @author Markil 3
  */
@@ -132,20 +131,20 @@ public class ConfigManager
             return this.fadeOut.get();
         }
 
-        public void setMaxTime(int time)
-        {
-            this.maxTime.set(time);
-        }
-
-        public void setFadeInTime(int time)
-        {
-            this.fadeIn.set(time);
-        }
-
-        public void setFadeOutTime(int time)
-        {
-            this.fadeOut.set(time);
-        }
+//        public void setMaxTime(int time)
+//        {
+//            this.maxTime.set(time);
+//        }
+//
+//        public void setFadeInTime(int time)
+//        {
+//            this.fadeIn.set(time);
+//        }
+//
+//        public void setFadeOutTime(int time)
+//        {
+//            this.fadeOut.set(time);
+//        }
     }
 
     private final TimeValues hotbarTime;
@@ -324,63 +323,63 @@ public class ConfigManager
         return this.minHunger.get();
     }
 
-    /**
-     * Sets the time that the hands are allowed to display.
-     *
-     * @param time - The hand display time values.
-     */
-    public void setCrosshairTime(int time)
-    {
-        this.crosshairTime.set(time);
-    }
-
-    /**
-     * Sets the time that the hands are allowed to display.
-     *
-     * @param time - The hand display time values.
-     */
-    public void setHandTime(int time)
-    {
-        this.handTime.set(time);
-    }
-
-    /**
-     * Determines whether the armor bar should render.
-     *
-     * @param show - Whether or not armor shows on the HUD.
-     */
-    public void shouldShowArmor(boolean show)
-    {
-        this.showArmor.set(show);
-    }
-
-    /**
-     * Sets the minimum health for fading. Anything below that and the health
-     * always displays.
-     *
-     * @param boundary - The health boundary, from 0 to 1.
-     */
-    public void setMinHealth(double boundary)
-    {
-        this.minHealth.set(MathHelper.clamp(boundary, 0, 1));
-    }
-
-    /**
-     * Sets the minimum hunger for fading. Anything below that and the hunger
-     * always displays.
-     *
-     * @param boundary - The hunger boundary, from 0 to 20.
-     */
-    public void setMinHunger(int boundary)
-    {
-        this.minHunger.set(MathHelper.clamp(boundary, 0, 20));
-    }
+//    /**
+//     * Sets the time that the hands are allowed to display.
+//     *
+//     * @param time - The hand display time values.
+//     */
+//    public void setCrosshairTime(int time)
+//    {
+//        this.crosshairTime.set(time);
+//    }
+//
+//    /**
+//     * Sets the time that the hands are allowed to display.
+//     *
+//     * @param time - The hand display time values.
+//     */
+//    public void setHandTime(int time)
+//    {
+//        this.handTime.set(time);
+//    }
+//
+//    /**
+//     * Determines whether the armor bar should render.
+//     *
+//     * @param show - Whether or not armor shows on the HUD.
+//     */
+//    public void shouldShowArmor(boolean show)
+//    {
+//        this.showArmor.set(show);
+//    }
+//
+//    /**
+//     * Sets the minimum health for fading. Anything below that and the health
+//     * always displays.
+//     *
+//     * @param boundary - The health boundary, from 0 to 1.
+//     */
+//    public void setMinHealth(double boundary)
+//    {
+//        this.minHealth.set(MathHelper.clamp(boundary, 0, 1));
+//    }
+//
+//    /**
+//     * Sets the minimum hunger for fading. Anything below that and the hunger
+//     * always displays.
+//     *
+//     * @param boundary - The hunger boundary, from 0 to 20.
+//     */
+//    public void setMinHunger(int boundary)
+//    {
+//        this.minHunger.set(MathHelper.clamp(boundary, 0, 20));
+//    }
 
     /**
      * Saves changes to this mod's configuration.
      */
-    public void save()
-    {
-        SPEC.save();
-    }
+//    public void save()
+//    {
+//        SPEC.save();
+//    }
 }
