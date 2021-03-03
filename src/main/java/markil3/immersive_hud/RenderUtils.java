@@ -67,8 +67,8 @@ public class RenderUtils
                                          IngameGui gui,
                                          float ticks)
     {
-        int scaledWidth = mc.func_228018_at_().getScaledWidth();
-        int scaledHeight = mc.func_228018_at_().getScaledHeight();
+        int scaledWidth = mc.getMainWindow().getScaledWidth();
+        int scaledHeight = mc.getMainWindow().getScaledHeight();
 
         Collection<EffectInstance> collection =
                 mc.player.getActivePotionEffects();
@@ -137,8 +137,8 @@ public class RenderUtils
                     float f1 = effectAlpha;
                     list.add(() -> {
                         mc.getTextureManager()
-                                .bindTexture(textureatlassprite.func_229241_m_()
-                                        .func_229223_g_());
+                                .bindTexture(textureatlassprite.getAtlasTexture()
+                                        .getTextureLocation());
                         RenderSystem.color4f(1.0F, 1.0F, 1.0F, f1);
                         gui.blit(j1 + 3,
                                 k1 + 3,
@@ -185,8 +185,8 @@ public class RenderUtils
                 jump.getMaxTime(),
                 jump.getFadeInTime(),
                 jump.getFadeOutTime());
-        int scaledWidth = mc.func_228018_at_().getScaledWidth();
-        int scaledHeight = mc.func_228018_at_().getScaledHeight();
+        int scaledWidth = mc.getMainWindow().getScaledWidth();
+        int scaledHeight = mc.getMainWindow().getScaledHeight();
         int xPosition = scaledWidth / 2 - 91;
 
         mc.getProfiler().startSection("jumpBar");
@@ -240,8 +240,8 @@ public class RenderUtils
 
         if (mc.playerController.gameIsSurvivalOrAdventure())
         {
-            int scaledWidth = mc.func_228018_at_().getScaledWidth();
-            int scaledHeight = mc.func_228018_at_().getScaledHeight();
+            int scaledWidth = mc.getMainWindow().getScaledWidth();
+            int scaledHeight = mc.getMainWindow().getScaledHeight();
             int x = scaledWidth / 2 - 91;
 
             mc.getProfiler().startSection("expBar");
@@ -339,8 +339,8 @@ public class RenderUtils
                 hotbar.getFadeInTime(),
                 hotbar.getFadeOutTime());
 
-        int scaledWidth = mc.func_228018_at_().getScaledWidth();
-        int scaledHeight = mc.func_228018_at_().getScaledHeight();
+        int scaledWidth = mc.getMainWindow().getScaledWidth();
+        int scaledHeight = mc.getMainWindow().getScaledHeight();
         if (playerentity != null)
         {
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
@@ -502,7 +502,7 @@ public class RenderUtils
                 IBakedModel bakedmodel = mc.getItemRenderer().getItemModelWithOverrides(itemIn, (World)null, entityIn);
                 RenderSystem.pushMatrix();
                 mc.getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-                mc.getTextureManager().func_229267_b_(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
+                mc.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
                 RenderSystem.enableRescaleNormal();
                 RenderSystem.enableAlphaTest();
                 RenderSystem.defaultAlphaFunc();
@@ -514,18 +514,18 @@ public class RenderUtils
                 RenderSystem.scalef(1.0F, -1.0F, 1.0F);
                 RenderSystem.scalef(16.0F, 16.0F, 16.0F);
                 MatrixStack matrixstack = new MatrixStack();
-                IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().func_228019_au_().func_228487_b_();
+                IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
                 Item item = itemIn.getItem();
                 boolean flag = !bakedmodel.isGui3d() || item == Items.SHIELD || item == Items.TRIDENT;
                 if (flag) {
-                    RenderHelper.func_227783_c_();
+                    RenderHelper.setupGuiFlatDiffuseLighting();
                 }
 
-                mc.getItemRenderer().func_229111_a_(itemIn, ItemCameraTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.field_229196_a_, bakedmodel);
-                irendertypebuffer$impl.func_228461_a_();
+                mc.getItemRenderer().renderItem(itemIn, ItemCameraTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+                irendertypebuffer$impl.finish();
                 RenderSystem.enableDepthTest();
                 if (flag) {
-                    RenderHelper.func_227784_d_();
+                    RenderHelper.setupGui3DDiffuseLighting();
                 }
 
                 RenderSystem.disableAlphaTest();

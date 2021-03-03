@@ -24,7 +24,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -97,7 +96,7 @@ public class EventBus
      * @param event - event data
      */
     @SubscribeEvent
-    public static void onRenderHand(final RenderSpecificHandEvent event)
+    public static void onRenderHand(final RenderHandEvent event)
     {
         if (TimerUtils.onRenderHand(event.getHand(),
                 event.getMatrixStack(),

@@ -305,7 +305,7 @@ public class TimerUtils
                 /*
                  * Undo the transformation of the previous hand
                  */
-                matrixStack.func_227862_a_(0,
+                matrixStack.translate(0,
                         (float) (1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
                                 0);
             }
@@ -322,7 +322,7 @@ public class TimerUtils
                 if (offHandTime < HAND_UP_TIME)
                 {
                     matrixStack
-                            .func_227862_a_(0,
+                            .translate(0,
                                     (float) (-1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME),
                                     0);
                 }
@@ -342,7 +342,7 @@ public class TimerUtils
                 if (mainHandTime < HAND_UP_TIME)
                 {
                     matrixStack
-                            .func_227861_a_(0,
+                            .translate(0,
                                     (float) (-1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
                                     0);
                 }
