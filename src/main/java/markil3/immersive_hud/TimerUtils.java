@@ -295,7 +295,7 @@ public class TimerUtils
                                        MatrixStack matrixStack,
                                        float ticks)
     {
-        float HAND_UP_TIME = 1F;
+        float HAND_UP_TIME = 20F;
 
         switch (hand)
         {
