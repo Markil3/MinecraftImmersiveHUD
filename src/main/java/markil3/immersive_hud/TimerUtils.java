@@ -926,7 +926,7 @@ public class TimerUtils
         Entity tmp = mc.player.getRidingEntity();
         boolean changed = false;
 
-        if (tmp == null)
+        if (tmp == null || !(tmp instanceof LivingEntity))
         {
             mountHealth = -1;
             mountMaxHealth = -1;
