@@ -84,7 +84,9 @@ public class ConfigManager
     private TimeValues hungerTime = new TimeValues();
     private TimeValues effectTime = new TimeValues();
     private int crosshairTime = 6 * TICKS_PER_SECOND;
+    private boolean hideCrosshair = true;
     private int handTime = 30 * TICKS_PER_SECOND;
+    private boolean hideHands = true;
     private boolean showArmor = true;
     private double minHealth = 0.5;
     private int minHunger = 17;
@@ -187,6 +189,16 @@ public class ConfigManager
     }
 
     /**
+     * Checks whether the crosshairs should be hidden after a period of time.
+     *
+     * @return - Whether or not crosshairs will be hidden.
+     */
+    public boolean hideCrosshair()
+    {
+        return this.hideCrosshair;
+    }
+
+    /**
      * Obtains the time that the hands are allowed to display.
      *
      * @return The hand display time values.
@@ -194,6 +206,16 @@ public class ConfigManager
     public int getHandTime()
     {
         return this.handTime;
+    }
+
+    /**
+     * Checks whether hands should be hidden after a period of time.
+     *
+     * @return - Whether or not hands will be hidden.
+     */
+    public boolean hideHands()
+    {
+        return this.hideHands;
     }
 
     /**
@@ -239,6 +261,16 @@ public class ConfigManager
     }
 
     /**
+     * Sets whether the crosshairs should be hidden after a period of time.
+     *
+     * @param hide - Whether or not crosshairs will be hidden.
+     */
+    public void hideCrosshair(boolean hide)
+    {
+        this.hideCrosshair = hide;
+    }
+
+    /**
      * Sets the time that the hands are allowed to display.
      *
      * @param time - The hand display time values.
@@ -246,6 +278,16 @@ public class ConfigManager
     public void setHandTime(int time)
     {
         this.handTime = time;
+    }
+
+    /**
+     * Sets whether hands should be hidden after a period of time.
+     *
+     * @param hide - Whether or not hands will be hidden.
+     */
+    public void hideHands(boolean hide)
+    {
+        this.hideHands = hide;
     }
 
     /**
