@@ -360,50 +360,54 @@ public class TimerUtils
     {
         final float HAND_UP_TIME = 20F;
 
-        switch (hand)
+        boolean hideHands = ConfigManager.getInstance().hideHands();
+        if (hideHands)
         {
-        case OFF_HAND:
-            if (offHandTime == 0 && !offHandLock)
+            switch (hand)
             {
-                return true;
-            }
-            else if (!offHandLock && (mapLock & 0b01) == 0)
-            {
-                if (offHandTime > 0)
+            case OFF_HAND:
+                if (offHandTime == 0 && !offHandLock)
                 {
-                    offHandTime -= ticks;
+                    return true;
                 }
-                if (offHandTime < HAND_UP_TIME)
+                else if (!offHandLock && (mapLock & 0b01) == 0)
                 {
-                    matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - offHandTime) /
-                                            HAND_UP_TIME,
-                                    0);
+                    if (offHandTime > 0)
+                    {
+                        offHandTime -= ticks;
+                    }
+                    if (offHandTime < HAND_UP_TIME)
+                    {
+                        matrixStack
+                                .translate(0,
+                                        -1.0F * (HAND_UP_TIME - offHandTime) /
+                                                HAND_UP_TIME,
+                                        0);
+                    }
                 }
-            }
-            break;
-        case MAIN_HAND:
-            if (mainHandTime == 0 && !mainHandLock)
-            {
-                return true;
-            }
-            else if (!mainHandLock && (mapLock & 0b10) == 0)
-            {
-                if (mainHandTime > 0)
+                break;
+            case MAIN_HAND:
+                if (mainHandTime == 0 && !mainHandLock)
                 {
-                    mainHandTime -= ticks;
+                    return true;
                 }
-                if (mainHandTime < HAND_UP_TIME)
+                else if (!mainHandLock && (mapLock & 0b10) == 0)
                 {
-                    matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - mainHandTime) /
-                                            HAND_UP_TIME,
-                                    0);
+                    if (mainHandTime > 0)
+                    {
+                        mainHandTime -= ticks;
+                    }
+                    if (mainHandTime < HAND_UP_TIME)
+                    {
+                        matrixStack
+                                .translate(0,
+                                        -1.0F * (HAND_UP_TIME - mainHandTime) /
+                                                HAND_UP_TIME,
+                                        0);
+                    }
                 }
+                break;
             }
-            break;
         }
         return false;
     }
@@ -426,37 +430,41 @@ public class TimerUtils
         boolean changed = false;
         boolean canceled = false;
 
-        if (mc.crosshairTarget != null && mc.crosshairTarget
-                .getType() != HitResult.Type.MISS)
+        boolean hideCrosshair = ConfigManager.getInstance().hideCrosshair();
+        if (hideCrosshair)
         {
-            if (mc.crosshairTarget.getType() == HitResult.Type
-                    .ENTITY)
+            if (mc.crosshairTarget != null && mc.crosshairTarget
+                    .getType() != HitResult.Type.MISS)
             {
-                if (((EntityHitResult) mc.crosshairTarget).getEntity() != entity
-                        .getVehicle())
+                if (mc.crosshairTarget.getType() == HitResult.Type
+                        .ENTITY)
+                {
+                    if (((EntityHitResult) mc.crosshairTarget).getEntity() != entity
+                            .getVehicle())
+                    {
+                        changed = true;
+                    }
+                }
+                else
                 {
                     changed = true;
                 }
             }
+            if (changed || mainHandLock || offHandLock || crosshairTime
+                    > 0)
+            {
+                setAlpha(Main.getAlpha(crosshairTime > 0 ?
+                                       crosshairTime :
+                                       CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
+            }
             else
             {
-                changed = true;
+                canceled = true;
             }
-        }
-        if (changed || mainHandLock || offHandLock || crosshairTime
-                > 0)
-        {
-            setAlpha(Main.getAlpha(crosshairTime > 0 ?
-                                   crosshairTime :
-                                   CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
-        }
-        else
-        {
-            canceled = true;
-        }
-        if (crosshairTime > 0)
-        {
-            crosshairTime -= ticks;
+            if (crosshairTime > 0)
+            {
+                crosshairTime -= ticks;
+            }
         }
         return canceled;
     }

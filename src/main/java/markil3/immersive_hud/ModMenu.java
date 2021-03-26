@@ -131,6 +131,15 @@ public class ModMenu implements ModMenuApi
                     .setSaveConsumer(val -> instance.setCrosshairTime((int) (val * TICKS_PER_SECOND)))
                     .build());
 
+            general.addEntry(entryBuilder.startBooleanToggle(new TranslatableText(
+                            "option.immersive_hud.hideCrosshair"),
+                    instance.hideCrosshair())
+                    .setDefaultValue(true)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.hideCrosshair"))
+                    .setSaveConsumer(val -> instance.hideCrosshair(val))
+                    .build());
+
             general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
                             "option.immersive_hud.handTime"),
                     (float) instance.getHandTime() / TICKS_PER_SECOND)
@@ -138,6 +147,15 @@ public class ModMenu implements ModMenuApi
                     .setTooltip(new TranslatableText(
                             "tooltip.immersive_hud.handTime"))
                     .setSaveConsumer(val -> instance.setHandTime((int) (val * TICKS_PER_SECOND)))
+                    .build());
+
+            general.addEntry(entryBuilder.startBooleanToggle(new TranslatableText(
+                            "option.immersive_hud.hideHands"),
+                    instance.hideHands())
+                    .setDefaultValue(true)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.hideHands"))
+                    .setSaveConsumer(val -> instance.hideHands(val))
                     .build());
 
             general.addEntry(entryBuilder.startDoubleField(new TranslatableText(
