@@ -23,7 +23,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -62,14 +61,24 @@ public class EventBus
     @SubscribeEvent
     public static void onClick(final PlayerInteractEvent event)
     {
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
+        try
         {
-            Item item =
-                    Optional.ofNullable(event.getItemStack())
-                            .map(ItemStack::getItem)
-                            .orElse(null);
-            TimerUtils.onClick(event.getHand(), item);
-        });
+            DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
+            {
+                Item item =
+                        Optional.ofNullable(event.getItemStack())
+                                .map(ItemStack::getItem)
+                                .orElse(null);
+                TimerUtils.onClick(event.getHand(), item);
+            });
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running markil3.immersive_hud.EventBus#onClick " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -84,10 +93,20 @@ public class EventBus
     @SubscribeEvent
     public static void onMount(final EntityMountEvent event)
     {
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
+        try
         {
-            TimerUtils.resetMountHealth();
-        });
+            DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
+            {
+                TimerUtils.resetMountHealth();
+            });
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running markil3.immersive_hud.EventBus#onMount " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -99,10 +118,20 @@ public class EventBus
     @SubscribeEvent
     public static void onRenderHand(final RenderSpecificHandEvent event)
     {
-        if (TimerUtils.onRenderHand(event.getHand(),
-                event.getPartialTicks()))
+        try
         {
-            event.setCanceled(true);
+            if (TimerUtils.onRenderHand(event.getHand(),
+                    event.getPartialTicks()))
+            {
+                event.setCanceled(true);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running markil3.immersive_hud" +
+                            ".EventBus#onRenderHand event",
+                    e);
         }
     }
 
@@ -115,153 +144,162 @@ public class EventBus
     @SubscribeEvent
     public static void onGUIDraw(final RenderGameOverlayEvent event)
     {
-        Minecraft mc = Minecraft.getInstance();
-        boolean fadeIn = false;
-
-        switch (event.getType())
+        try
         {
-        case CROSSHAIRS:
-            if (event instanceof RenderGameOverlayEvent.Pre)
+            Minecraft mc = Minecraft.getInstance();
+            boolean fadeIn = false;
+
+            switch (event.getType())
             {
-                if (TimerUtils.drawCrosshair(event.getPartialTicks()))
+            case CROSSHAIRS:
+                if (event instanceof RenderGameOverlayEvent.Pre)
+                {
+                    if (TimerUtils.drawCrosshair(event.getPartialTicks()))
+                    {
+                        event.setCanceled(true);
+                    }
+                }
+                /*
+                 * Reset the transparency.
+                 */
+                else if (event instanceof RenderGameOverlayEvent.Post)
+                {
+                    resetAlpha();
+                }
+                break;
+            case POTION_ICONS:
+                if (event instanceof RenderGameOverlayEvent.Pre)
+                {
+                    TimerUtils.updatePotions(mc.player);
+                    event.setCanceled(true);
+                    RenderUtils.renderPotionIcons(mc,
+                            mc.ingameGUI, event.getPartialTicks());
+                    resetAlpha();
+                }
+                break;
+            case HOTBAR:
+                if (event instanceof RenderGameOverlayEvent.Pre)
                 {
                     event.setCanceled(true);
+                    if (!TimerUtils.drawHotbar(event.getPartialTicks()))
+                    {
+                        RenderUtils.renderHotbar(mc, mc.ingameGUI,
+                                event.getPartialTicks(), TimerUtils.hotbarTime);
+                    }
                 }
-            }
-            /*
-             * Reset the transparency.
-             */
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                resetAlpha();
-            }
-            break;
-        case POTION_ICONS:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                TimerUtils.updatePotions(mc.player);
-                event.setCanceled(true);
-                RenderUtils.renderPotionIcons(mc,
-                        mc.ingameGUI, event.getPartialTicks());
-                resetAlpha();
-            }
-            break;
-        case HOTBAR:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                event.setCanceled(true);
-                if (!TimerUtils.drawHotbar(event.getPartialTicks()))
+                break;
+            case HEALTH:
+                if (event instanceof RenderGameOverlayEvent.Pre)
                 {
-                    RenderUtils.renderHotbar(mc, mc.ingameGUI,
-                            event.getPartialTicks(), TimerUtils.hotbarTime);
+                    if (TimerUtils.drawHealth(event.getPartialTicks()))
+                    {
+                        event.setCanceled(true);
+                    }
                 }
-            }
-            break;
-        case HEALTH:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                if (TimerUtils.drawHealth(event.getPartialTicks()))
+                else if (event instanceof RenderGameOverlayEvent.Post)
                 {
-                    event.setCanceled(true);
+                    GlStateManager.popMatrix();
+                    resetAlpha();
                 }
-            }
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                GlStateManager.popMatrix();
-                resetAlpha();
-            }
-            break;
-        case FOOD:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                if (TimerUtils.drawHunger(event.getPartialTicks()))
+                break;
+            case FOOD:
+                if (event instanceof RenderGameOverlayEvent.Pre)
                 {
-                    event.setCanceled(true);
+                    if (TimerUtils.drawHunger(event.getPartialTicks()))
+                    {
+                        event.setCanceled(true);
+                    }
                 }
-            }
-            /*
-             * Reset the transparency.
-             */
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                GlStateManager.popMatrix();
-                resetAlpha();
-            }
-            break;
-        case ARMOR:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                if (TimerUtils.drawArmor(event.getPartialTicks()))
+                /*
+                 * Reset the transparency.
+                 */
+                else if (event instanceof RenderGameOverlayEvent.Post)
                 {
-                    event.setCanceled(true);
+                    GlStateManager.popMatrix();
+                    resetAlpha();
                 }
-            }
-            /*
-             * Reset the transparency.
-             */
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                GlStateManager.popMatrix();
-                resetAlpha();
-            }
-            break;
-        case AIR:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                if (TimerUtils.drawAir(event.getPartialTicks()))
+                break;
+            case ARMOR:
+                if (event instanceof RenderGameOverlayEvent.Pre)
                 {
-                    event.setCanceled(true);
+                    if (TimerUtils.drawArmor(event.getPartialTicks()))
+                    {
+                        event.setCanceled(true);
+                    }
                 }
-            }
-            /*
-             * Reset the transparency.
-             */
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                GlStateManager.popMatrix();
-                resetAlpha();
-            }
-            break;
-        case HEALTHMOUNT:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                if (TimerUtils.drawMountHealth(event.getPartialTicks()))
+                /*
+                 * Reset the transparency.
+                 */
+                else if (event instanceof RenderGameOverlayEvent.Post)
+                {
+                    GlStateManager.popMatrix();
+                    resetAlpha();
+                }
+                break;
+            case AIR:
+                if (event instanceof RenderGameOverlayEvent.Pre)
+                {
+                    if (TimerUtils.drawAir(event.getPartialTicks()))
+                    {
+                        event.setCanceled(true);
+                    }
+                }
+                /*
+                 * Reset the transparency.
+                 */
+                else if (event instanceof RenderGameOverlayEvent.Post)
+                {
+                    GlStateManager.popMatrix();
+                    resetAlpha();
+                }
+                break;
+            case HEALTHMOUNT:
+                if (event instanceof RenderGameOverlayEvent.Pre)
+                {
+                    if (TimerUtils.drawMountHealth(event.getPartialTicks()))
+                    {
+                        event.setCanceled(true);
+                    }
+                }
+                else if (event instanceof RenderGameOverlayEvent.Post)
+                {
+                    GlStateManager.popMatrix();
+                    resetAlpha();
+                }
+                break;
+            case JUMPBAR:
+                if (event instanceof RenderGameOverlayEvent.Pre)
                 {
                     event.setCanceled(true);
+                    if (!TimerUtils.drawJumpbar(event.getPartialTicks()))
+                    {
+                        RenderUtils.renderHorseJumpBar(mc,
+                                mc.ingameGUI,
+                                event.getPartialTicks(),
+                                TimerUtils.jumpTime);
+                    }
                 }
-            }
-            else if (event instanceof RenderGameOverlayEvent.Post)
-            {
-                GlStateManager.popMatrix();
-                resetAlpha();
-            }
-            break;
-        case JUMPBAR:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                event.setCanceled(true);
-                if (!TimerUtils.drawJumpbar(event.getPartialTicks()))
+                break;
+            case EXPERIENCE:
+                if (event instanceof RenderGameOverlayEvent.Pre)
                 {
-                    RenderUtils.renderHorseJumpBar(mc,
-                            mc.ingameGUI,
-                            event.getPartialTicks(),
-                            TimerUtils.jumpTime);
+                    event.setCanceled(true);
+                    if (!TimerUtils.drawExperience(event.getPartialTicks()))
+                    {
+                        RenderUtils.renderExperience(mc,
+                                mc.ingameGUI,
+                                event.getPartialTicks(),
+                                TimerUtils.experienceTime);
+                    }
                 }
+                break;
             }
-            break;
-        case EXPERIENCE:
-            if (event instanceof RenderGameOverlayEvent.Pre)
-            {
-                event.setCanceled(true);
-                if (!TimerUtils.drawExperience(event.getPartialTicks()))
-                {
-                    RenderUtils.renderExperience(mc,
-                            mc.ingameGUI,
-                            event.getPartialTicks(),
-                            TimerUtils.experienceTime);
-                }
-            }
-            break;
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running markil3.immersive_hud.EventBus#onGUIDraw event",
+                    e);
         }
     }
 }
