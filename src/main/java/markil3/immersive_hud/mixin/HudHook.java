@@ -24,6 +24,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.effect.StatusEffectInstance;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,6 +45,8 @@ import markil3.immersive_hud.TimerUtils;
 @Mixin(InGameHud.class)
 public class HudHook
 {
+    private static final Logger LOGGER = LogManager.getLogger(HudHook.class);
+
     private StatusEffectInstance currentEffect;
 
     /**
@@ -58,10 +62,21 @@ public class HudHook
             cancellable = true)
     public void startCrosshair(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawCrosshair(MinecraftClient.getInstance()
-                .getTickDelta()))
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawCrosshair(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#startCrosshair " +
+                            "event",
+                    e);
         }
     }
 
@@ -77,10 +92,21 @@ public class HudHook
     @Inject(method = "renderCrosshair", at = @At(value = "TAIL"))
     public void finishCrosshair(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderCrosshair " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -98,10 +124,21 @@ public class HudHook
                              int x,
                              CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawJumpbar(stack,
-                MinecraftClient.getInstance().getTickDelta()))
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawJumpbar(stack,
+                    MinecraftClient.getInstance().getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountJumpBar " +
+                            "event",
+                    e);
         }
     }
 
@@ -119,11 +156,22 @@ public class HudHook
                               int x,
                               CallbackInfo callbackInfo)
     {
-        stack.pop();
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        try
+        {
+            stack.pop();
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountJumpBar " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -141,10 +189,21 @@ public class HudHook
                                 int x,
                                 CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawExperience(stack,
-                MinecraftClient.getInstance().getTickDelta()))
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawExperience(stack,
+                    MinecraftClient.getInstance().getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderExperienceBar " +
+                            "event",
+                    e);
         }
     }
 
@@ -162,11 +221,22 @@ public class HudHook
                                  int x,
                                  CallbackInfo callbackInfo)
     {
-        stack.pop();
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        try
+        {
+            stack.pop();
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderExperienceBar " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -181,8 +251,19 @@ public class HudHook
             "/math/MatrixStack;)V", at = @At("HEAD"))
     public MatrixStack startStatus(MatrixStack stack)
     {
-        stack.push();
-        stack.translate(0F, TimerUtils.getHealthTranslation(), 0F);
+        try
+        {
+            stack.push();
+            stack.translate(0F, TimerUtils.getHealthTranslation(), 0F);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
+        }
         return stack;
     }
 
@@ -197,9 +278,20 @@ public class HudHook
             "/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
     public void renderArmor(MatrixStack matrices, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawArmor())
+        try
         {
-            TimerUtils.setAlpha(0F);
+            if (TimerUtils.drawArmor())
+            {
+                TimerUtils.setAlpha(0F);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
         }
     }
 
@@ -215,13 +307,25 @@ public class HudHook
             ordinal = 0))
     public void renderHealth(MatrixStack matrices, CallbackInfo callbackInfo)
     {
-        /*
-         * Resets the transparency from the previous call.
-         */
-        TimerUtils.setAlpha(1F);
-        if (TimerUtils.drawHealth(MinecraftClient.getInstance().getTickDelta()))
+        try
         {
-            TimerUtils.setAlpha(0F);
+            /*
+             * Resets the transparency from the previous call.
+             */
+            TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawHealth(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                TimerUtils.setAlpha(0F);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
         }
     }
 
@@ -237,13 +341,25 @@ public class HudHook
             ordinal = 1))
     public void renderFood(MatrixStack matrices, CallbackInfo callbackInfo)
     {
-        /*
-         * Resets the transparency from the previous call.
-         */
-        TimerUtils.setAlpha(1F);
-        if (TimerUtils.drawHunger(MinecraftClient.getInstance().getTickDelta()))
+        try
         {
-            TimerUtils.setAlpha(0F);
+            /*
+             * Resets the transparency from the previous call.
+             */
+            TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawHunger(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                TimerUtils.setAlpha(0F);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
         }
     }
 
@@ -259,17 +375,39 @@ public class HudHook
             ordinal = 2))
     public void renderAir(MatrixStack matrices, CallbackInfo callbackInfo)
     {
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.setAlpha(1F);
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.setAlpha(1F);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
+        }
     }
 
     @ModifyVariable(method = "renderStatusBars(Lnet/minecraft/client/util" +
             "/math/MatrixStack;)V", at = @At("TAIL"))
     public MatrixStack finishStatus(MatrixStack stack)
     {
-        stack.pop();
+        try
+        {
+            stack.pop();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
+        }
         return stack;
     }
 
@@ -286,10 +424,21 @@ public class HudHook
             cancellable = true)
     public void startMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawMountHealth(stack,
-                MinecraftClient.getInstance().getTickDelta()))
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawMountHealth(stack,
+                    MinecraftClient.getInstance().getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountHealth " +
+                            "event",
+                    e);
         }
     }
 
@@ -305,11 +454,22 @@ public class HudHook
     @Inject(method = "renderMountHealth", at = @At(value = "TAIL"))
     public void finishMountHealth(MatrixStack stack, CallbackInfo callbackInfo)
     {
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        stack.pop();
-        TimerUtils.resetAlpha();
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            stack.pop();
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountHealth " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -323,9 +483,20 @@ public class HudHook
     @At(value = "HEAD", shift = At.Shift.AFTER))
     public void startPotion(MatrixStack effect, CallbackInfo info)
     {
-        TimerUtils.updatePotions(MinecraftClient.getInstance().cameraEntity instanceof ClientPlayerEntity ?
-                                 ((ClientPlayerEntity) MinecraftClient.getInstance().cameraEntity) :
-                                 null);
+        try
+        {
+            TimerUtils.updatePotions(MinecraftClient.getInstance().cameraEntity instanceof ClientPlayerEntity ?
+                                     ((ClientPlayerEntity) MinecraftClient.getInstance().cameraEntity) :
+                                     null);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -342,9 +513,21 @@ public class HudHook
                             "shouldShowIcon()Z"))
     public boolean shouldRenderPotion(StatusEffectInstance effect)
     {
-        currentEffect = effect;
-        return TimerUtils.updatePotion(effect,
-                MinecraftClient.getInstance().getTickDelta());
+        try
+        {
+            currentEffect = effect;
+            return TimerUtils.updatePotion(effect,
+                    MinecraftClient.getInstance().getTickDelta());
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
+        return true;
     }
 
     /**
@@ -362,7 +545,19 @@ public class HudHook
     public float updatePotion(float f,
                               MatrixStack stack)
     {
-        return TimerUtils.getPotionAlpha(currentEffect);
+        try
+        {
+            return TimerUtils.getPotionAlpha(currentEffect);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
+        return 1F;
     }
 
     /**
@@ -378,10 +573,21 @@ public class HudHook
     public void finishPotion(MatrixStack matrices,
                              CallbackInfo callbackInfo)
     {
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -400,9 +606,20 @@ public class HudHook
                             MatrixStack matrices,
                             CallbackInfo callbackInfo)
     {
-        if (TimerUtils.updateHotbar(tickDelta))
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.updateHotbar(tickDelta))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderHotbar " +
+                            "event",
+                    e);
         }
     }
 
@@ -423,7 +640,18 @@ public class HudHook
                              MatrixStack matrices,
                              CallbackInfo callbackInfo)
     {
-        TimerUtils.recolorHotbar(matrices);
+        try
+        {
+            TimerUtils.recolorHotbar(matrices);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderHotbar " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -441,11 +669,22 @@ public class HudHook
                              MatrixStack stack,
                              CallbackInfo callbackInfo)
     {
-        RenderSystem.popMatrix();
-        stack.pop();
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        try
+        {
+            RenderSystem.popMatrix();
+            stack.pop();
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderHotbar " +
+                            "event",
+                    e);
+        }
     }
 }

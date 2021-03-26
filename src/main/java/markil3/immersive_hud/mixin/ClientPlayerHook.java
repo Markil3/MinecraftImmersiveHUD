@@ -21,6 +21,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,6 +40,9 @@ import markil3.immersive_hud.TimerUtils;
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerHook
 {
+    private static final Logger LOGGER =
+            LogManager.getLogger(ClientPlayerHook.class);
+
     /**
      * Updates hand timing every time an attack is initiated.
      *
@@ -49,7 +54,18 @@ public class ClientPlayerHook
     @Inject(method = "swingHand", at = @At(value = "TAIL"))
     public void swingHand(Hand hand, CallbackInfo callbackInfo)
     {
-        TimerUtils.onClick(hand, hand == null);
+        try
+        {
+            TimerUtils.onClick(hand, hand == null);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.network" +
+                            ".ClientPlayerEntity#swingHand " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -63,7 +79,18 @@ public class ClientPlayerHook
     @Inject(method = "setCurrentHand", at = @At(value = "TAIL"))
     public void setCurrentHand(Hand hand, CallbackInfo callbackInfo)
     {
-        TimerUtils.onClick(hand, hand == null);
+        try
+        {
+            TimerUtils.onClick(hand, hand == null);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.network" +
+                            ".ClientPlayerEntity#setCurrentHand " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -76,10 +103,21 @@ public class ClientPlayerHook
     @Inject(method = "clearActiveItem", at = @At(value = "HEAD"))
     public void clearActiveItem(CallbackInfo callbackInfo)
     {
-        if (MinecraftClient.getInstance().cameraEntity instanceof LivingEntity)
+        try
         {
-            TimerUtils.onClick(((LivingEntity) MinecraftClient.getInstance().cameraEntity)
-                    .getActiveHand(), true);
+            if (MinecraftClient.getInstance().cameraEntity instanceof LivingEntity)
+            {
+                TimerUtils.onClick(((LivingEntity) MinecraftClient.getInstance().cameraEntity)
+                        .getActiveHand(), true);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.network" +
+                            ".ClientPlayerEntity#clearActiveItem " +
+                            "event",
+                    e);
         }
     }
 }
