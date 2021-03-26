@@ -294,55 +294,60 @@ public class TimerUtils
     {
         float HAND_UP_TIME = 20F;
 
-        switch (hand)
+        boolean hideHands =
+                ConfigManager.getInstance().hideHands();
+        if (hideHands)
         {
-        case OFF_HAND:
-            if (mainHandTime > 0 && mainHandTime < HAND_UP_TIME)
+            switch (hand)
             {
-                /*
-                 * Undo the transformation of the previous hand
-                 */
-                GlStateManager.translatef(0,
-                        (float) (1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
-                        0);
-            }
-            if (offHandTime == 0 && !offHandLock)
-            {
-                return true;
-            }
-            else if (!offHandLock && (mapLock & 0b01) == 0)
-            {
-                if (offHandTime > 0)
+            case OFF_HAND:
+                if (mainHandTime > 0 && mainHandTime < HAND_UP_TIME)
                 {
-                    offHandTime -= ticks;
-                }
-                if (offHandTime < HAND_UP_TIME)
-                {
+                    /*
+                     * Undo the transformation of the previous hand
+                     */
                     GlStateManager.translatef(0,
-                            (float) (-1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME),
+                            (float) (1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
                             0);
                 }
-            }
-            break;
-        case MAIN_HAND:
-            if (mainHandTime == 0 && !mainHandLock)
-            {
-                return true;
-            }
-            else if (!mainHandLock && (mapLock & 0b10) == 0)
-            {
-                if (mainHandTime > 0)
+                if (offHandTime == 0 && !offHandLock)
                 {
-                    mainHandTime -= ticks;
+                    return true;
                 }
-                if (mainHandTime < HAND_UP_TIME)
+                else if (!offHandLock && (mapLock & 0b01) == 0)
                 {
-                    GlStateManager.translatef(0,
-                            (float) (-1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
-                            0);
+                    if (offHandTime > 0)
+                    {
+                        offHandTime -= ticks;
+                    }
+                    if (offHandTime < HAND_UP_TIME)
+                    {
+                        GlStateManager.translatef(0,
+                                (float) (-1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME),
+                                0);
+                    }
                 }
+                break;
+            case MAIN_HAND:
+                if (mainHandTime == 0 && !mainHandLock)
+                {
+                    return true;
+                }
+                else if (!mainHandLock && (mapLock & 0b10) == 0)
+                {
+                    if (mainHandTime > 0)
+                    {
+                        mainHandTime -= ticks;
+                    }
+                    if (mainHandTime < HAND_UP_TIME)
+                    {
+                        GlStateManager.translatef(0,
+                                (float) (-1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME),
+                                0);
+                    }
+                }
+                break;
             }
-            break;
         }
         return false;
     }
@@ -378,34 +383,39 @@ public class TimerUtils
         boolean changed = false;
         boolean canceled = false;
 
-        if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS)
+        boolean hideCrosshair =
+                ConfigManager.getInstance().hideCrosshair();
+        if (hideCrosshair)
         {
-            if (mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
+            if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS)
             {
-                if (mc.objectMouseOver.hitInfo == null || mc.objectMouseOver.hitInfo != mc.player
-                        .getRidingEntity())
+                if (mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
+                {
+                    if (mc.objectMouseOver.hitInfo == null || mc.objectMouseOver.hitInfo != mc.player
+                            .getRidingEntity())
+                    {
+                        changed = true;
+                    }
+                }
+                else
                 {
                     changed = true;
                 }
             }
+            if (changed || mainHandLock || offHandLock || crosshairTime > 0)
+            {
+                setAlpha(Main.getAlpha(crosshairTime > 0 ?
+                                       crosshairTime :
+                                       CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
+            }
             else
             {
-                changed = true;
+                canceled = true;
             }
-        }
-        if (changed || mainHandLock || offHandLock || crosshairTime > 0)
-        {
-            setAlpha(Main.getAlpha(crosshairTime > 0 ?
-                                   crosshairTime :
-                                   CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
-        }
-        else
-        {
-            canceled = true;
-        }
-        if (crosshairTime > 0)
-        {
-            crosshairTime -= ticks;
+            if (crosshairTime > 0)
+            {
+                crosshairTime -= ticks;
+            }
         }
 
         return canceled;
