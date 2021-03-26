@@ -123,6 +123,15 @@ public class ModMenu
                                             .setCrosshairTime((int) (val * TICKS_PER_SECOND)))
                                     .build());
 
+                            general.addEntry(entryBuilder.startBooleanToggle(new TranslationTextComponent(
+                                    "option.immersive_hud.hideCrosshair"), ConfigManager.getInstance().hideCrosshair())
+                                    .setDefaultValue(true)
+                                    .setTooltip(new TranslationTextComponent(
+                                            "tooltip.immersive_hud.hideCrosshair"))
+                                    .setSaveConsumer(val -> ConfigManager.getInstance()
+                                            .hideCrosshair(val))
+                                    .build());
+
                             general.addEntry(entryBuilder.startDoubleField(new TranslationTextComponent(
                                             "option.immersive_hud.handTime"),
                                     (float) ConfigManager.getInstance()
@@ -132,6 +141,15 @@ public class ModMenu
                                             "tooltip.immersive_hud.handTime"))
                                     .setSaveConsumer(val -> ConfigManager.getInstance()
                                             .setHandTime((int) (val * TICKS_PER_SECOND)))
+                                    .build());
+
+                            general.addEntry(entryBuilder.startBooleanToggle(new TranslationTextComponent(
+                                            "option.immersive_hud.hideHands"), ConfigManager.getInstance().hideHands())
+                                    .setDefaultValue(true)
+                                    .setTooltip(new TranslationTextComponent(
+                                            "tooltip.immersive_hud.hideHands"))
+                                    .setSaveConsumer(val -> ConfigManager.getInstance()
+                                            .hideHands(val))
                                     .build());
 
                             general.addEntry(entryBuilder.startDoubleField(new TranslationTextComponent(

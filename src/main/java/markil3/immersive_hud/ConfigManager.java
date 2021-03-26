@@ -155,7 +155,9 @@ public class ConfigManager
     private final TimeValues hungerTime;
     private final TimeValues effectTime;
     private final ForgeConfigSpec.IntValue crosshairTime;
+    private final ForgeConfigSpec.BooleanValue hideCrosshair;
     private final ForgeConfigSpec.IntValue handTime;
+    private final ForgeConfigSpec.BooleanValue hideHands;
     private final ForgeConfigSpec.BooleanValue showArmor;
     private final ForgeConfigSpec.DoubleValue minHealth;
     private final ForgeConfigSpec.IntValue minHunger;
@@ -182,6 +184,10 @@ public class ConfigManager
                                 6 * TICKS_PER_SECOND,
                                 0,
                                 10 * 60 * TICKS_PER_SECOND);
+        this.hideCrosshair =
+                configSpecBuilder.translation(
+                        "immersive_hud.configGui.hideCrosshair.title")
+                        .define("hideCrosshair", true);
         this.handTime =
                 configSpecBuilder.translation(
                         "immersive_hud.configGui.handTime.title")
@@ -189,6 +195,10 @@ public class ConfigManager
                                 30 * TICKS_PER_SECOND,
                                 0,
                                 10 * 60 * TICKS_PER_SECOND);
+        this.hideHands =
+                configSpecBuilder.translation(
+                        "immersive_hud.configGui.hideHands.title")
+                        .define("hideHands", true);
         this.showArmor = configSpecBuilder.translation(
                 "immersive_hud.configGui.showArmor.title")
                 .define("showArmor", true);
@@ -283,6 +293,16 @@ public class ConfigManager
     }
 
     /**
+     * Checks whether the crosshairs should be hidden after a period of time.
+     *
+     * @return - Whether or not crosshairs will be hidden.
+     */
+    public boolean hideCrosshair()
+    {
+        return this.hideCrosshair.get();
+    }
+
+    /**
      * Obtains the time that the hands are allowed to display.
      *
      * @return The hand display time values.
@@ -290,6 +310,16 @@ public class ConfigManager
     public int getHandTime()
     {
         return this.handTime.get();
+    }
+
+    /**
+     * Checks whether hands should be hidden after a period of time.
+     *
+     * @return - Whether or not hands will be hidden.
+     */
+    public boolean hideHands()
+    {
+        return this.hideHands.get();
     }
 
     /**
@@ -335,6 +365,16 @@ public class ConfigManager
     }
 
     /**
+     * Sets whether the crosshairs should be hidden after a period of time.
+     *
+     * @param hide - Whether or not crosshairs will be hidden.
+     */
+    public void hideCrosshair(boolean hide)
+    {
+        this.hideCrosshair.set(hide);
+    }
+
+    /**
      * Sets the time that the hands are allowed to display.
      *
      * @param time - The hand display time values.
@@ -342,6 +382,16 @@ public class ConfigManager
     public void setHandTime(int time)
     {
         this.handTime.set(time);
+    }
+
+    /**
+     * Sets whether hands should be hidden after a period of time.
+     *
+     * @param hide - Whether or not hands will be hidden.
+     */
+    public void hideHands(boolean hide)
+    {
+        this.hideHands.set(hide);
     }
 
     /**

@@ -24,7 +24,6 @@ import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
@@ -270,11 +269,11 @@ public class TimerUtils
             if (item.isFood())
             {
                 healthTime = health.getMaxTime() - (healthTime > 0 ?
-                             health.getFadeInTime() :
-                             0);
+                                                    health.getFadeInTime() :
+                                                    0);
                 hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
-                             hunger.getFadeInTime() :
-                             0);
+                                                    hunger.getFadeInTime() :
+                                                    0);
             }
         }
     }
@@ -297,58 +296,63 @@ public class TimerUtils
     {
         float HAND_UP_TIME = 20F;
 
-        switch (hand)
+        boolean hideHands =
+                ConfigManager.getInstance().hideHands();
+        if (hideHands)
         {
-        case OFF_HAND:
-            if (mainHandTime > 0 && mainHandTime < HAND_UP_TIME)
+            switch (hand)
             {
-                /*
-                 * Undo the transformation of the previous hand
-                 */
-                matrixStack
-                        .translate(0,
-                                1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME,
-                                0);
-            }
-            if (offHandTime == 0 && !offHandLock)
-            {
-                return true;
-            }
-            else if (!offHandLock && (mapLock & 0b01) == 0)
-            {
-                if (offHandTime > 0)
+            case OFF_HAND:
+                if (mainHandTime > 0 && mainHandTime < HAND_UP_TIME)
                 {
-                    offHandTime -= ticks;
-                }
-                if (offHandTime < HAND_UP_TIME)
-                {
+                    /*
+                     * Undo the transformation of the previous hand
+                     */
                     matrixStack
                             .translate(0,
-                                    -1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME,
+                                    1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME,
                                     0);
                 }
-            }
-            break;
-        case MAIN_HAND:
-            if (mainHandTime == 0 && !mainHandLock)
-            {
-                return true;
-            }
-            else if (!mainHandLock && (mapLock & 0b10) == 0)
-            {
-                if (mainHandTime > 0)
+                if (offHandTime == 0 && !offHandLock)
                 {
-                    mainHandTime -= ticks;
+                    return true;
                 }
-                if (mainHandTime < HAND_UP_TIME)
+                else if (!offHandLock && (mapLock & 0b01) == 0)
                 {
-                    matrixStack
-                            .translate(0,
-                                    -1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME,
-                                    0);
+                    if (offHandTime > 0)
+                    {
+                        offHandTime -= ticks;
+                    }
+                    if (offHandTime < HAND_UP_TIME)
+                    {
+                        matrixStack
+                                .translate(0,
+                                        -1.0F * (HAND_UP_TIME - offHandTime) / HAND_UP_TIME,
+                                        0);
+                    }
                 }
+                break;
+            case MAIN_HAND:
+                if (mainHandTime == 0 && !mainHandLock)
+                {
+                    return true;
+                }
+                else if (!mainHandLock && (mapLock & 0b10) == 0)
+                {
+                    if (mainHandTime > 0)
+                    {
+                        mainHandTime -= ticks;
+                    }
+                    if (mainHandTime < HAND_UP_TIME)
+                    {
+                        matrixStack
+                                .translate(0,
+                                        -1.0F * (HAND_UP_TIME - mainHandTime) / HAND_UP_TIME,
+                                        0);
+                    }
+                }
+                break;
             }
-            break;
         }
         return false;
     }
@@ -361,8 +365,8 @@ public class TimerUtils
         ConfigManager.TimeValues health =
                 ConfigManager.getInstance().getHealthTime();
         mountTime = health.getMaxTime() - (mountTime > 0 ?
-                    health.getFadeInTime() :
-                    0);
+                                           health.getFadeInTime() :
+                                           0);
         jumpTime = 0;
     }
 
@@ -384,34 +388,37 @@ public class TimerUtils
         boolean changed = false;
         boolean canceled = false;
 
-        if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS)
+        if (ConfigManager.getInstance().hideCrosshair())
         {
-            if (mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
+            if (mc.objectMouseOver != null && mc.objectMouseOver.getType() != RayTraceResult.Type.MISS)
             {
-                if (mc.objectMouseOver.hitInfo == null || mc.objectMouseOver.hitInfo != mc.player
-                        .getRidingEntity())
+                if (mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY)
+                {
+                    if (mc.objectMouseOver.hitInfo == null || mc.objectMouseOver.hitInfo != mc.player
+                            .getRidingEntity())
+                    {
+                        changed = true;
+                    }
+                }
+                else
                 {
                     changed = true;
                 }
             }
+            if (changed || mainHandLock || offHandLock || crosshairTime > 0)
+            {
+                setAlpha(Main.getAlpha(crosshairTime > 0 ?
+                                       crosshairTime :
+                                       CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
+            }
             else
             {
-                changed = true;
+                canceled = true;
             }
-        }
-        if (changed || mainHandLock || offHandLock || crosshairTime > 0)
-        {
-            setAlpha(Main.getAlpha(crosshairTime > 0 ?
-                                   crosshairTime :
-                                   CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
-        }
-        else
-        {
-            canceled = true;
-        }
-        if (crosshairTime > 0)
-        {
-            crosshairTime -= ticks;
+            if (crosshairTime > 0)
+            {
+                crosshairTime -= ticks;
+            }
         }
 
         return canceled;
@@ -475,7 +482,8 @@ public class TimerUtils
         }
         else if (effectinstance.getDuration() <= BLINK_TIME + potion.getFadeInTime())
         {
-            effectAlpha = -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
+            effectAlpha =
+                    -(effectinstance.getDuration() - BLINK_TIME) / 22F + 0.454F;
         }
         else
         {
@@ -646,11 +654,11 @@ public class TimerUtils
                 if (item.isFood())
                 {
                     healthTime = health.getMaxTime() - (healthTime > 0 ?
-                                 health.getFadeInTime() :
-                                 0);
+                                                        health.getFadeInTime() :
+                                                        0);
                     hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
-                                 hunger.getFadeInTime() :
-                                 0);
+                                                        hunger.getFadeInTime() :
+                                                        0);
                 }
                 if (i == 0)
                 {
@@ -758,7 +766,8 @@ public class TimerUtils
          * Only makes a change if the player is healthy. Otherwise,
          * the bar is shown.
          */
-        if (health / maxHealth > HEALTH_BOUNDARY && !mc.player.isPotionActive(Effects.WITHER) && !mc.player.isPotionActive(Effects.POISON))
+        if (health / maxHealth > HEALTH_BOUNDARY && !mc.player.isPotionActive(
+                Effects.WITHER) && !mc.player.isPotionActive(Effects.POISON))
         {
             if (healthTime > 0)
             {
@@ -817,8 +826,8 @@ public class TimerUtils
         if (changed || hunger <= HUNGER_BOUNDARY)
         {
             hungerTime = hungerTimes.getMaxTime() - (hungerTime > 0 ?
-                         hungerTimes.getFadeInTime() :
-                         0);
+                                                     hungerTimes.getFadeInTime() :
+                                                     0);
         }
         else if (hungerTime > 0)
         {
