@@ -44,7 +44,7 @@ import markil3.immersive_hud.TimerUtils;
 @Mixin(InGameHud.class)
 public class HudHook
 {
-    private static final Logger logger = LogManager.getLogger(HudHook.class);
+    private static final Logger LOGGER = LogManager.getLogger(HudHook.class);
 
     private StatusEffectInstance currentEffect;
 
@@ -60,11 +60,22 @@ public class HudHook
             cancellable = true)
     public void startCrosshair(CallbackInfo callbackInfo)
     {
-        logger.debug("Starting crosshair");
-        if (TimerUtils.drawCrosshair(MinecraftClient.getInstance()
-                .getTickDelta()))
+        LOGGER.debug("Starting crosshair");
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawCrosshair(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderCrosshair " +
+                            "event",
+                    e);
         }
     }
 
@@ -79,11 +90,22 @@ public class HudHook
     @Inject(method = "renderCrosshair", at = @At(value = "TAIL"))
     public void finishCrosshair(CallbackInfo callbackInfo)
     {
-        logger.debug("Finishing crosshair");
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        LOGGER.debug("Finishing crosshair");
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderCrosshair " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -98,10 +120,22 @@ public class HudHook
             cancellable = true)
     public void startJumpbar(int x, CallbackInfo callbackInfo)
     {
-        logger.debug("Starting jumpbar");
-        if (TimerUtils.drawJumpbar(MinecraftClient.getInstance().getTickDelta()))
+        LOGGER.debug("Starting jumpbar");
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawJumpbar(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountJumpBar " +
+                            "event",
+                    e);
         }
     }
 
@@ -118,12 +152,23 @@ public class HudHook
             int x,
             CallbackInfo callbackInfo)
     {
-        logger.debug("Finishing jumpbar");
-        RenderSystem.popMatrix();
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        LOGGER.debug("Finishing jumpbar");
+        try
+        {
+            RenderSystem.popMatrix();
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountJumpBar " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -138,10 +183,22 @@ public class HudHook
             cancellable = true)
     public void startExperience(int x, CallbackInfo callbackInfo)
     {
-        logger.debug("Starting experience bar");
-        if (TimerUtils.drawExperience(MinecraftClient.getInstance().getTickDelta()))
+        LOGGER.debug("Starting experience bar");
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawExperience(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderExperienceBar " +
+                            "event",
+                    e);
         }
     }
 
@@ -156,27 +213,48 @@ public class HudHook
     @Inject(method = "renderExperienceBar", at = @At(value = "TAIL"))
     public void finishExperience(int x, CallbackInfo callbackInfo)
     {
-        logger.debug("Finishing experience bar");
-        RenderSystem.popMatrix();
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        LOGGER.debug("Finishing experience bar");
+        try
+        {
+            RenderSystem.popMatrix();
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderExperienceBar " +
+                            "event",
+                    e);
+        }
     }
 
     /**
      * Changes the position of the status bars as the ones below them move up
      * and down.
      *
-     *
      * @return The same matrix stack, with a new matrix pushed onto it.
      */
     @Inject(method = "renderStatusBars", at = @At("HEAD"))
     public void startStatus(CallbackInfo info)
     {
-        logger.debug("Starting status bars");
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(0F, TimerUtils.getHealthTranslation(), 0F);
+        LOGGER.debug("Starting status bars");
+        try
+        {
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0F, TimerUtils.getHealthTranslation(), 0F);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -190,10 +268,21 @@ public class HudHook
                     "(Ljava/lang/String;)V"))
     public void renderArmor(CallbackInfo callbackInfo)
     {
-        logger.debug("Rendering armor");
-        if (TimerUtils.drawArmor())
+        LOGGER.debug("Rendering armor");
+        try
         {
-            TimerUtils.setAlpha(0F);
+            if (TimerUtils.drawArmor())
+            {
+                TimerUtils.setAlpha(0F);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
         }
     }
 
@@ -209,14 +298,26 @@ public class HudHook
             ordinal = 0))
     public void renderHealth(CallbackInfo callbackInfo)
     {
-        logger.debug("Rendering health");
-        /*
-         * Resets the transparency from the previous call.
-         */
-        TimerUtils.setAlpha(1F);
-        if (TimerUtils.drawHealth(MinecraftClient.getInstance().getTickDelta()))
+        LOGGER.debug("Rendering health");
+        try
         {
-            TimerUtils.setAlpha(0F);
+            /*
+             * Resets the transparency from the previous call.
+             */
+            TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawHealth(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                TimerUtils.setAlpha(0F);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
         }
     }
 
@@ -225,19 +326,32 @@ public class HudHook
      *
      * @param callbackInfo
      */
-    @Inject(method = "renderStatusBars()V", at = @At(value = "INVOKE", target = "Lnet" +
+    @Inject(method = "renderStatusBars()V", at = @At(value = "INVOKE",
+            target = "Lnet" +
             "/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
             ordinal = 1))
     public void renderFood(CallbackInfo callbackInfo)
     {
-        logger.debug("Rendering food");
-        /*
-         * Resets the transparency from the previous call.
-         */
-        TimerUtils.setAlpha(1F);
-        if (TimerUtils.drawHunger(MinecraftClient.getInstance().getTickDelta()))
+        LOGGER.debug("Rendering food");
+        try
         {
-            TimerUtils.setAlpha(0F);
+            /*
+             * Resets the transparency from the previous call.
+             */
+            TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawHunger(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                TimerUtils.setAlpha(0F);
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
         }
     }
 
@@ -246,23 +360,46 @@ public class HudHook
      *
      * @param callbackInfo
      */
-    @Inject(method = "renderStatusBars()V", at = @At(value = "INVOKE", target = "Lnet" +
+    @Inject(method = "renderStatusBars()V", at = @At(value = "INVOKE",
+            target = "Lnet" +
             "/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
             ordinal = 2))
     public void renderAir(CallbackInfo callbackInfo)
     {
-        logger.debug("Rendering air");
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.setAlpha(1F);
+        LOGGER.debug("Rendering air");
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.setAlpha(1F);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
+        }
     }
 
     @Inject(method = "renderStatusBars", at = @At("TAIL"))
     public void finishStatus(CallbackInfo info)
     {
-        logger.debug("Finishing status bars");
-        RenderSystem.popMatrix();
+        LOGGER.debug("Finishing status bars");
+        try
+        {
+            RenderSystem.popMatrix();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusBars " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -277,13 +414,25 @@ public class HudHook
             cancellable = true)
     public void startMountHealth(CallbackInfo callbackInfo)
     {
-        if (TimerUtils.drawMountHealth(MinecraftClient.getInstance().getTickDelta()))
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.drawMountHealth(MinecraftClient.getInstance()
+                    .getTickDelta()))
+            {
+                callbackInfo.cancel();
+            }
+            else
+            {
+                LOGGER.debug("Starting mount health");
+            }
         }
-        else
+        catch (Exception e)
         {
-            logger.debug("Starting mount health");
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountHealth " +
+                            "event",
+                    e);
         }
     }
 
@@ -298,12 +447,23 @@ public class HudHook
     @Inject(method = "renderMountHealth", at = @At(value = "TAIL"))
     public void finishMountHealth(CallbackInfo callbackInfo)
     {
-        logger.debug("Finishing mount health");
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        RenderSystem.popMatrix();
-        TimerUtils.resetAlpha();
+        LOGGER.debug("Finishing mount health");
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            RenderSystem.popMatrix();
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderMountHealth " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -316,10 +476,21 @@ public class HudHook
     @At(value = "HEAD", shift = At.Shift.AFTER))
     public void startPotion(CallbackInfo info)
     {
-        logger.debug("Starting potions");
-        TimerUtils.updatePotions(MinecraftClient.getInstance().cameraEntity instanceof ClientPlayerEntity ?
-                                 ((ClientPlayerEntity) MinecraftClient.getInstance().cameraEntity) :
-                                 null);
+        LOGGER.debug("Starting potions");
+        try
+        {
+            TimerUtils.updatePotions(MinecraftClient.getInstance().cameraEntity instanceof ClientPlayerEntity ?
+                                     ((ClientPlayerEntity) MinecraftClient.getInstance().cameraEntity) :
+                                     null);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -335,10 +506,22 @@ public class HudHook
                             "shouldShowIcon()Z"))
     public boolean shouldRenderPotion(StatusEffectInstance effect)
     {
-        logger.debug("Updating potions");
-        currentEffect = effect;
-        return TimerUtils.updatePotion(effect,
-                MinecraftClient.getInstance().getTickDelta());
+        LOGGER.debug("Updating potions");
+        try
+        {
+            currentEffect = effect;
+            return TimerUtils.updatePotion(effect,
+                    MinecraftClient.getInstance().getTickDelta());
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
+        return true;
     }
 
     /**
@@ -353,8 +536,20 @@ public class HudHook
     @At(value = "STORE"))
     public float updatePotion(float f)
     {
-        logger.debug("Adjusting potions");
-        return TimerUtils.getPotionAlpha(currentEffect);
+        LOGGER.debug("Adjusting potions");
+        try
+        {
+            return TimerUtils.getPotionAlpha(currentEffect);
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
+        return 1F;
     }
 
     /**
@@ -368,11 +563,22 @@ public class HudHook
     @Inject(method = "renderStatusEffectOverlay", at = @At(value = "TAIL"))
     public void finishPotion(CallbackInfo callbackInfo)
     {
-        logger.debug("Finishing potions");
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        LOGGER.debug("Finishing potions");
+        try
+        {
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderStatusEffectOverlay " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -389,10 +595,21 @@ public class HudHook
     public void startHotbar(float tickDelta,
                             CallbackInfo callbackInfo)
     {
-        logger.debug("Starting hotbar");
-        if (TimerUtils.updateHotbar(tickDelta))
+        LOGGER.debug("Starting hotbar");
+        try
         {
-            callbackInfo.cancel();
+            if (TimerUtils.updateHotbar(tickDelta))
+            {
+                callbackInfo.cancel();
+            }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderHotbar " +
+                            "event",
+                    e);
         }
     }
 
@@ -411,8 +628,19 @@ public class HudHook
     public void adjustHotbar(float tickDelta,
                              CallbackInfo callbackInfo)
     {
-        logger.debug("Adjusting hotbar");
-        TimerUtils.recolorHotbar();
+        LOGGER.debug("Adjusting hotbar");
+        try
+        {
+            TimerUtils.recolorHotbar();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud" +
+                            ".InGameHud#renderHotbar " +
+                            "event",
+                    e);
+        }
     }
 
     /**
@@ -428,11 +656,21 @@ public class HudHook
     public void finishHotbar(float tickDelta,
                              CallbackInfo callbackInfo)
     {
-        logger.debug("Finishing hotbar");
-        RenderSystem.popMatrix();
-        /*
-         * Resets the color so that nothing else is bothered.
-         */
-        TimerUtils.resetAlpha();
+        LOGGER.debug("Finishing hotbar");
+        try
+        {
+            RenderSystem.popMatrix();
+            /*
+             * Resets the color so that nothing else is bothered.
+             */
+            TimerUtils.resetAlpha();
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.gui.hud.InGameHud#renderHotbar " +
+                            "event",
+                    e);
+        }
     }
 }
