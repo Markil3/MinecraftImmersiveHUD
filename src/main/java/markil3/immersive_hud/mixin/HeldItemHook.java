@@ -21,6 +21,8 @@ import net.minecraft.client.render.FirstPersonRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,6 +40,8 @@ import markil3.immersive_hud.TimerUtils;
 @Mixin(FirstPersonRenderer.class)
 public class HeldItemHook
 {
+    private static final Logger LOGGER = LogManager.getLogger(HeldItemHook.class);
+
     /**
      * Determines whether or not to render a certain hand.
      *
@@ -61,9 +65,20 @@ public class HeldItemHook
                            float i,
                            CallbackInfo callbackInfo)
     {
+        try
+        {
         if (TimerUtils.onRenderHand(hand, f))
         {
             callbackInfo.cancel();
+        }
+        }
+        catch (Exception e)
+        {
+            LOGGER.error(
+                    "Error in running net.minecraft.client.render" +
+                            ".FirstPersonRenderer#renderFirstPersonItem " +
+                            "event",
+                    e);
         }
     }
 
