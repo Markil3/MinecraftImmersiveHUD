@@ -3,6 +3,7 @@ package markil3.immersive_hud;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
@@ -49,7 +50,7 @@ public class ConfigManager
                 new ForgeConfigSpec.Builder().configure(ConfigManager::new);
         INSTANCE = specPair.getLeft();
         SPEC = specPair.getRight();
-        CommentedFileConfig config = CommentedFileConfig.builder(CONFIG_PATH)
+        CommentedFileConfig config = CommentedFileConfig.builder(Minecraft.getInstance().gameDir.toPath().toAbsolutePath().resolve(CONFIG_PATH))
                 .sync()
                 .autoreload()
                 .writingMode(WritingMode.REPLACE)
