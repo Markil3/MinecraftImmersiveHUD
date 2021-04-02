@@ -1,57 +1,77 @@
 {
   "homepage": "https://github.com/Markil3/MinecraftImmersiveHUD/releases",
   "1.14": {
-    "1.0-1.14-forge": "Removes support for Cloth Config."
+    "1.0-1.14-forge": "Removes support for Cloth Config.",
+    "1.1-1.14-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.14-forge": "Bug fixes."
   },
   "1.14.1": {
-    "1.0-1.14-forge": "Removes support for Cloth Config."
+    "1.0-1.14-forge": "Removes support for Cloth Config.",
+    "1.1-1.14-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.14-forge": "Bug fixes."
   },
   "1.14.2": {
-    "1.0-1.14-forge": "Removes support for Cloth Config."
+    "1.0-1.14-forge": "Removes support for Cloth Config.",
+    "1.1-1.14-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.14-forge": "Bug fixes."
   },
   "1.14.3": {
-    "1.0-1.14-forge": "Removes support for Cloth Config."
+    "1.0-1.14-forge": "Removes support for Cloth Config.",
+    "1.1-1.14-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.14-forge": "Bug fixes."
   },
   "1.14.4": {
-    "1.0-1.14-forge": "Removes support for Cloth Config."
+    "1.0-1.14-forge": "Removes support for Cloth Config.",
+    "1.1-1.14-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.14-forge": "Bug fixes."
   },
   "1.15": {
-    "1.0-1.15-forge": "Removes support for Cloth Config."
+    "1.0-1.15-forge": "Removes support for Cloth Config.",
+    "1.1-1.15-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.15-forge": "Bug fixes."
   },
   "1.15.1": {
-    "1.0-1.15-forge": "Removes support for Cloth Config."
+    "1.0-1.15-forge": "Removes support for Cloth Config.",
+    "1.1-1.15-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.15-forge": "Bug fixes."
   },
   "1.15.2": {
-    "1.0-1.15.2-forge": "Removes support for Cloth Config."
+    "1.0-1.15.2-forge": "Removes support for Cloth Config.",
+    "1.1-1.15.2-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.15.2-forge": "Bug fixes."
   },
   "1.16.4": {
     "0.1-1.16.4-forge": "Initial release",
-    "1.0-1.16.4-forge": "Causes potion effects to fade, adds sliding animations to the hotbar, experience, and jump bars, and adds support for configuring the timings."
+    "1.0-1.16.4-forge": "Causes potion effects to fade, adds sliding animations to the hotbar, experience, and jump bars, and adds support for configuring the timings.",
+    "1.1-1.16.4-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.16.4-forge": "Bug fixes."
   },
   "1.16.5": {
     "0.1-1.16.4-forge": "Initial release",
-    "1.0-1.16.4-forge": "Causes potion effects to fade, adds sliding animations to the hotbar, experience, and jump bars, and adds support for configuring the timings."
+    "1.0-1.16.4-forge": "Causes potion effects to fade, adds sliding animations to the hotbar, experience, and jump bars, and adds support for configuring the timings.",
+    "1.1-1.16.4-forge": "Gives players the option of preventing hands and crosshairs from fading.",
+    "1.1.1-1.16.4-forge": "Bug fixes."
   },
   "promos": {
-    "1.14-latest": "1.0-1.14-forge",
-    "1.14-recommended": "1.0-1.14-forge",
-    "1.14.1-latest": "1.0-1.14-forge",
-    "1.14.1-recommended": "1.0-1.14-forge",
-    "1.14.2-latest": "1.0-1.14-forge",
-    "1.14.2-recommended": "1.0-1.14-forge",
-    "1.14.3-latest": "1.0-1.14-forge",
-    "1.14.3-recommended": "1.0-1.14-forge",
-    "1.14.4-latest": "1.0-1.14-forge",
-    "1.14.4-recommended": "1.0-1.14-forge",
-    "1.15-latest": "1.0-1.15-forge",
-    "1.15-recommended": "1.0-1.15-forge",
-    "1.15.1-latest": "1.0-1.15-forge",
-    "1.15.1-recommended": "1.0-1.15-forge",
-    "1.15.2-latest": "1.0-1.15.2-forge",
-    "1.15.2-recommended": "1.0-1.15.2-forge",
-    "1.16.4-latest": "1.0-1.16.4-forge",
-    "1.16.4-recommended": "1.0-1.16.4-forge",
-    "1.16.5-latest": "1.0-1.16.4-forge",
-    "1.16.5-recommended": "1.0-1.16.4-forge"
+    "1.14-latest": "1.1.1-1.14-forge",
+    "1.14-recommended": "1.1.1-1.14-forge",
+    "1.14.1-latest": "1.1.1-1.14-forge",
+    "1.14.1-recommended": "1.1.1-1.14-forge",
+    "1.14.2-latest": "1.1.1-1.14-forge",
+    "1.14.2-recommended": "1.1.1-1.14-forge",
+    "1.14.3-latest": "1.1.1-1.14-forge",
+    "1.14.3-recommended": "1.1.1-1.14-forge",
+    "1.14.4-latest": "1.1.1-1.14-forge",
+    "1.14.4-recommended": "1.1.1-1.14-forge",
+    "1.15-latest": "1.1.1-1.15-forge",
+    "1.15-recommended": "1.1.1-1.15-forge",
+    "1.15.1-latest": "1.1.1-1.15-forge",
+    "1.15.1-recommended": "1.1.10-1.15-forge",
+    "1.15.2-latest": "1.1.1-1.15.2-forge",
+    "1.15.2-recommended": "1.1.1-1.15.2-forge",
+    "1.16.4-latest": "1.1.1-1.16.4-forge",
+    "1.16.4-recommended": "1.1.1-1.16.4-forge",
+    "1.16.5-latest": "1.1.1-1.16.4-forge",
+    "1.16.5-recommended": "1.1.1-1.16.4-forge"
   }
 }
