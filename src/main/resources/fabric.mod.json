@@ -28,7 +28,7 @@
   },
   "mixins": [
     {
-      "config": "modid.mixins.json",
+      "config": "immersive_hud.mixins.json",
       "environment": "client"
     }
   ],
