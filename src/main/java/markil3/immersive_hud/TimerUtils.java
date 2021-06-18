@@ -54,7 +54,7 @@ import java.util.Optional;
  * Contains the logic for changing the HUD.
  *
  * @author Markil 3
- * @version 0.1-1.16.4-fabric
+ * @version 1.1.1-1.17-fabric
  */
 public class TimerUtils
 {
@@ -1150,8 +1150,6 @@ public class TimerUtils
      * Determines whether or not to draw the crosshair, adjusting the alpha as
      * needed.
      *
-     * @return If true, then cancel drawing the crosshair.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static void recolorHotbar(MatrixStack stack)
@@ -1165,5 +1163,12 @@ public class TimerUtils
                 hotbar.getMaxTime(),
                 hotbar.getFadeInTime(),
                 hotbar.getFadeOutTime()));
+        /*
+         * Update the hotbar item matrix
+         */
+        stack = RenderSystem.getModelViewStack();
+        stack.push();
+        stack.translate(0F, TimerUtils.getHotbarTranslation(), 0F);
+        RenderSystem.applyModelViewMatrix();
     }
 }

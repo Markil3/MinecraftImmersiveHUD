@@ -40,7 +40,7 @@ import markil3.immersive_hud.TimerUtils;
  * that most of the logic can be found in {@link TimerUtils}.
  *
  * @author Markil 3
- * @version 0.1-1.16.4-fabric
+ * @version 1.1.1-1.17-fabric
  */
 @Mixin(InGameHud.class)
 public class HudHook
@@ -661,7 +661,7 @@ public class HudHook
      * @param stack - The matrix drawing stack.
      * @param callbackInfo
      *
-     * @version 0.2-1.16.4-fabric
+     * @version 1.1.1-1.17-fabric
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderHotbar", at = @At(value = "TAIL"))
@@ -672,6 +672,9 @@ public class HudHook
         try
         {
             stack.pop();
+            stack = RenderSystem.getModelViewStack();
+            stack.pop();
+            RenderSystem.applyModelViewMatrix();
             /*
              * Resets the color so that nothing else is bothered.
              */
