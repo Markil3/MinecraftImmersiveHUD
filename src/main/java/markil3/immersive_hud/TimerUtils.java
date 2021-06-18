@@ -173,7 +173,7 @@ public class TimerUtils
      */
     public static void setAlpha(float alpha)
     {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, alpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
     }
 
     /**
@@ -847,7 +847,7 @@ public class TimerUtils
             return true;
         }
 
-        if (entity.method_3151() > 0)
+        if (entity.getMountJumpStrength() > 0)
         {
             jumpTime = jump.getMaxTime() - (jumpTime > 0 ?
                                             jump.getFadeInTime() :
@@ -1125,9 +1125,9 @@ public class TimerUtils
         /*
          * Checks for a change in what slot is used.
          */
-        if (selectedHotbarSlot != entity.inventory.selectedSlot)
+        if (selectedHotbarSlot != entity.getInventory().selectedSlot)
         {
-            selectedHotbarSlot = entity.inventory.selectedSlot;
+            selectedHotbarSlot = entity.getInventory().selectedSlot;
             mainHandTime = handTime;
             changed = true;
         }
@@ -1158,9 +1158,9 @@ public class TimerUtils
     {
         ConfigManager.TimeValues hotbar =
                 ConfigManager.getInstance().getHotbarTime();
-        RenderSystem.pushMatrix();
+//        RenderSystem.pushMatrix();
         stack.push();
-        RenderSystem.translatef(0F, TimerUtils.getHotbarTranslation(), 0F);
+        stack.translate(0F, TimerUtils.getHotbarTranslation(), 0F);
         setAlpha(Main.getAlpha(hotbarTime,
                 hotbar.getMaxTime(),
                 hotbar.getFadeInTime(),

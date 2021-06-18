@@ -634,7 +634,7 @@ public class HudHook
      * @since 0.1-1.16.4-fabric
      */
     @Inject(method = "renderHotbar", at = @At(value = "INVOKE", target =
-            "Lcom/mojang/blaze3d/systems/RenderSystem;color4f(FFFF)V", shift
+            "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V", shift
             = At.Shift.AFTER))
     public void adjustHotbar(float tickDelta,
                              MatrixStack matrices,
@@ -671,7 +671,6 @@ public class HudHook
     {
         try
         {
-            RenderSystem.popMatrix();
             stack.pop();
             /*
              * Resets the color so that nothing else is bothered.
