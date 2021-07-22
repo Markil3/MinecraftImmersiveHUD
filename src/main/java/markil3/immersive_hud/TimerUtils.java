@@ -250,6 +250,8 @@ public class TimerUtils
                 ConfigManager.getInstance().getExperienceTime();
         ConfigManager.TimeValues jump =
                 ConfigManager.getInstance().getJumpTime();
+        ConfigManager.TimeValues healthTimes = ConfigManager.getInstance().getHealthTime();
+        ConfigManager.TimeValues hungerTimes = ConfigManager.getInstance().getHungerTime();
 
         float hotbarAlpha = Main.getAlpha(hotbarTime,
                 hotbar.getMaxTime(),
@@ -263,8 +265,21 @@ public class TimerUtils
                 jump.getMaxTime(),
                 jump.getFadeInTime(),
                 jump.getFadeOutTime());
+        float statusAlpha = Main.getAlpha(healthTime,
+                healthTimes.getMaxTime(),
+                healthTimes.getFadeInTime(),
+                healthTimes.getFadeOutTime());
+        statusAlpha = Math.max(statusAlpha, Main.getAlpha(hungerTime,
+                hungerTimes.getMaxTime(),
+                hungerTimes.getFadeInTime(),
+                hungerTimes.getFadeOutTime()));
+        /*
+         * Draw it in its standard location until it is completely transparent, then move it
+         * instantly.
+         */
+        statusAlpha = (float) Math.ceil(statusAlpha);
         return 7 * (1 - Math.max(experienceAlpha,
-                jumpAlpha)) + 22 * (1 - hotbarAlpha);
+                jumpAlpha)) + 22 * (1 - hotbarAlpha) + 42 * (1 - statusAlpha);
     }
 
     /**
