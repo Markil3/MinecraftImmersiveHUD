@@ -329,7 +329,7 @@ public class HudHook
     @Inject(method = "renderStatusBars()V", at = @At(value = "INVOKE",
             target = "Lnet" +
             "/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
-            ordinal = 1))
+            ordinal = 1, shift = At.Shift.BY, by = 3))
     public void renderFood(CallbackInfo callbackInfo)
     {
         LOGGER.debug("Rendering food");
