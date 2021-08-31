@@ -1,12 +1,22 @@
 package markil3.immersive_hud;
 
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 
 //import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 
 import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
 
 import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Configuration manager of this mod, which reads from and writes to this mod's
@@ -90,6 +100,7 @@ public class ConfigManager
     private boolean showArmor = true;
     private double minHealth = 0.5;
     private int minHunger = 17;
+    private Identifier[] ignoredItems = new Identifier[]{Registry.ITEM.getId(Items.FIREWORK_ROCKET)};
 
     /**
      * Returns the instance of this class.
@@ -103,7 +114,7 @@ public class ConfigManager
             if (Class.forName("me.sargunvohra.mcmods.autoconfig1u.AutoConfig") != null)
             {
                 return AutoConfig.getConfigHolder(ConfigManagerCloth.class)
-                        .getConfig();
+                                 .getConfig();
             }
             else
             {
@@ -251,6 +262,16 @@ public class ConfigManager
     }
 
     /**
+     * Obtains a collection of items that won't cause hands and crosshairs to show when used.
+     *
+     * @return A set of ignored items.
+     */
+    public Set<Item> getIgnoredItems()
+    {
+        return Arrays.stream(ignoredItems).map(Registry.ITEM::get).collect(Collectors.toSet());
+    }
+
+    /**
      * Sets the time that the hands are allowed to display.
      *
      * @param time - The hand display time values.
@@ -320,6 +341,16 @@ public class ConfigManager
     public void setMinHunger(int boundary)
     {
         this.minHunger = MathHelper.clamp(boundary, 0, 20);
+    }
+
+    /**
+     * Sets which items won't cause the hands and crosshairs to show when used.
+     *
+     * @param items - A set of ignored items.
+     */
+    public void setIgnoredItems(Item... items)
+    {
+        this.ignoredItems = Arrays.stream(items).map(Registry.ITEM::getId).toArray(Identifier[]::new);
     }
 /**
  * Saves changes to this mod's configuration.
