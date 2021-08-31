@@ -25,6 +25,7 @@
   "option.immersive_hud.minHealth": "Minimum Health Fade",
   "option.immersive_hud.minHunger": "Minimum Hunger Fade",
   "option.immersive_hud.showArmor": "Show Armor",
+  "option.immersive_hud.ignoreList": "Ignored Items",
   "tooltip.immersive_hud.hotbarMaxTime": "How long the hotbar can be displayed on screen in seconds",
   "tooltip.immersive_hud.hotbarFadeIn": "How many seconds it takes for the hotbar to fade in",
   "tooltip.immersive_hud.hotbarFadeOut": "How many seconds it takes for the hotbar to move out",
@@ -49,5 +50,8 @@
   "tooltip.immersive_hud.hideHands": "Whether or not hands should be hidden after a period of time",
   "tooltip.immersive_hud.minHealth": "When the percentage of health goes below this level, the health bar won't fade away",
   "tooltip.immersive_hud.minHunger": "When the hunger level goes below this level, the hunger bar won't fade away",
-  "tooltip.immersive_hud.showArmor": "Whether or not the armor bar should display on the HUD"
+  "tooltip.immersive_hud.showArmor": "Whether or not the armor bar should display on the HUD",
+  "tooltip.immersive_hud.ignoreList": "Which items will not trigger the arm and crosshairs when used",
+  "error.immersive_hud.ignoreList.unknownItem": "Unknown item %s",
+  "error.immersive_hud.ignoreList.illegalId": "%s is not a legal item identifier"
 }

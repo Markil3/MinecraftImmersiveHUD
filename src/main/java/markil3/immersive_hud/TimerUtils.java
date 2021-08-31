@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Contains the logic for changing the HUD.
@@ -287,9 +288,8 @@ public class TimerUtils
      * view, and briefly brings the health and hunger into view if the held item
      * is food.
      *
-     * @param hand - The hand being triggered
+     * @param hand  - The hand being triggered
      * @param clear - Whether the hand it being enabled or disabled.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static void onClick(Hand hand, boolean clear)
@@ -304,6 +304,7 @@ public class TimerUtils
         LivingEntity entity;
         Item item;
         Iterator<ItemStack> hands;
+        Set<Item> ignored;
         if (mc.getCameraEntity() instanceof LivingEntity)
         {
             entity = (LivingEntity) mc.getCameraEntity();
@@ -329,6 +330,14 @@ public class TimerUtils
                             .map(ItemStack::getItem)
                             .orElse(null);
         }
+        if (item != null)
+        {
+            ignored = ConfigManager.getInstance().getIgnoredItems();
+            if (ignored.contains(item))
+            {
+                return;
+            }
+        }
         crosshairTime = ConfigManager.getInstance().getCrosshairTime();
         if (hand == Hand.MAIN_HAND)
         {
@@ -345,11 +354,11 @@ public class TimerUtils
             if (item.isFood())
             {
                 healthTime = health.getMaxTime() - (healthTime > 0 ?
-                                                    health.getFadeInTime() :
-                                                    0);
+                        health.getFadeInTime() :
+                        0);
                 hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
-                                                    hunger.getFadeInTime() :
-                                                    0);
+                        hunger.getFadeInTime() :
+                        0);
             }
         }
         else
@@ -362,11 +371,9 @@ public class TimerUtils
      * Run whenever a hand is rendered in 1st person. This brings the player
      * hands into and out of view as needed.
      *
-     * @param hand - The hand being rendered.
+     * @param hand        - The hand being rendered.
      * @param matrixStack - The rendering stack.
-     *
      * @return If true, then don't render this hand at all.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean onRenderHand(Hand hand,
@@ -432,7 +439,6 @@ public class TimerUtils
      * needed.
      *
      * @return If true, then cancel drawing the crosshair.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawCrosshair(float ticks)
@@ -469,8 +475,8 @@ public class TimerUtils
                     > 0)
             {
                 setAlpha(Main.getAlpha(crosshairTime > 0 ?
-                                       crosshairTime :
-                                       CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
+                        crosshairTime :
+                        CROSSHAIR_TIME, CROSSHAIR_TIME, 0, 0));
             }
             else
             {
@@ -489,7 +495,6 @@ public class TimerUtils
      * as needed.
      *
      * @return If true, then cancel drawing the mount health bar.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawMountHealth(MatrixStack stack, float ticks)
@@ -533,8 +538,8 @@ public class TimerUtils
         if (changed)
         {
             mountTime = healthTimes.getMaxTime() - (mountTime > 0 ?
-                                                    healthTimes.getFadeInTime() :
-                                                    0);
+                    healthTimes.getFadeInTime() :
+                    0);
         }
         else if (mountTime > 0)
         {
@@ -621,7 +626,6 @@ public class TimerUtils
      * Obtains how transparent
      *
      * @param effectinstance
-     *
      * @return
      */
     public static float getPotionAlpha(StatusEffectInstance effectinstance)
@@ -633,7 +637,8 @@ public class TimerUtils
         if (effectinstance.getDuration() <= BLINK_TIME)
         {
             effectAlpha =
-                    MathHelper.sin(7000F / (effectinstance.getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
+                    MathHelper.sin(7000F / (effectinstance
+                            .getDuration() + 16F * (float) Math.PI)) * 50F / (effectinstance
                             .getDuration() + 100F) + 0.5F;
         }
         else if (effectinstance.getDuration() <= BLINK_TIME + potion.getFadeInTime())
@@ -658,7 +663,6 @@ public class TimerUtils
      * needed.
      *
      * @return If true, then cancel drawing the armor bar.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawArmor()
@@ -686,7 +690,6 @@ public class TimerUtils
      * needed.
      *
      * @return If true, then cancel drawing the health.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawHealth(float ticks)
@@ -730,8 +733,8 @@ public class TimerUtils
         if (changed)
         {
             healthTime = healthTimes.getMaxTime() - (healthTime > 0 ?
-                                                     healthTimes.getFadeInTime() :
-                                                     0);
+                    healthTimes.getFadeInTime() :
+                    0);
         }
         else if (healthTime > 0)
         {
@@ -762,7 +765,6 @@ public class TimerUtils
      * needed.
      *
      * @return If true, then cancel drawing the hunger bar.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawHunger(float ticks)
@@ -809,8 +811,8 @@ public class TimerUtils
         if (changed)
         {
             hungerTime = hungerTimes.getMaxTime() - (hungerTime > 0 ?
-                                                     hungerTimes.getFadeInTime() :
-                                                     0);
+                    hungerTimes.getFadeInTime() :
+                    0);
         }
         else if (hungerTime > 0)
         {
@@ -841,9 +843,7 @@ public class TimerUtils
      * as needed.
      *
      * @param stack
-     *
      * @return If true, then cancel drawing the jump bar.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawJumpbar(MatrixStack stack, float ticks)
@@ -865,8 +865,8 @@ public class TimerUtils
         if (entity.method_3151() > 0)
         {
             jumpTime = jump.getMaxTime() - (jumpTime > 0 ?
-                                            jump.getFadeInTime() :
-                                            0);
+                    jump.getFadeInTime() :
+                    0);
         }
         else if (jumpTime > 0)
         {
@@ -890,7 +890,6 @@ public class TimerUtils
      * as needed.
      *
      * @return If true, then cancel drawing the experience bar.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static boolean drawExperience(MatrixStack stack, float ticks)
@@ -919,8 +918,8 @@ public class TimerUtils
         if (changed)
         {
             experienceTime = experience.getMaxTime() - (experienceTime > 0 ?
-                                                        experience.getFadeInTime() :
-                                                        0);
+                    experience.getFadeInTime() :
+                    0);
         }
         else if (experienceTime > 0)
         {
@@ -945,7 +944,6 @@ public class TimerUtils
      * or not to draw it.
      *
      * @return If true, then cancel drawing the hotbar.
-     *
      * @see #recolorHotbar(MatrixStack)
      * @since 0.1-1.16.4-fabric
      */
@@ -1054,7 +1052,7 @@ public class TimerUtils
                 {
                     if (entity.isUsingItem() && entity
                             .getActiveHand() != null && entity.getActiveHand()
-                            .ordinal() == i)
+                                                              .ordinal() == i)
                     {
                         switch (i)
                         {
@@ -1117,11 +1115,11 @@ public class TimerUtils
                 if (item.isFood())
                 {
                     healthTime = health.getMaxTime() - (healthTime > 0 ?
-                                                        health.getFadeInTime() :
-                                                        0);
+                            health.getFadeInTime() :
+                            0);
                     hungerTime = hunger.getMaxTime() - (hungerTime > 0 ?
-                                                        hunger.getFadeInTime() :
-                                                        0);
+                            hunger.getFadeInTime() :
+                            0);
                 }
                 if (i == 0)
                 {
@@ -1150,8 +1148,8 @@ public class TimerUtils
         if (changed)
         {
             hotbarTime = hotbar.getMaxTime() - (hotbarTime > 0 ?
-                                                hotbar.getFadeInTime() :
-                                                0);
+                    hotbar.getFadeInTime() :
+                    0);
         }
         else if (hotbarTime > 0)
         {
@@ -1166,7 +1164,6 @@ public class TimerUtils
      * needed.
      *
      * @return If true, then cancel drawing the crosshair.
-     *
      * @since 0.1-1.16.4-fabric
      */
     public static void recolorHotbar(MatrixStack stack)
