@@ -3,7 +3,11 @@ package markil3.immersive_hud;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
+import net.minecraft.item.Items;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.util.registry.Registry;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -12,6 +16,10 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.DoubleListEntry;
 
 import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ModMenu implements ModMenuApi
 {
@@ -183,6 +191,31 @@ public class ModMenu implements ModMenuApi
                     .setTooltip(new TranslatableText(
                             "tooltip.immersive_hud.showArmor"))
                     .setSaveConsumer(val -> instance.shouldShowArmor(val))
+                    .build());
+
+            general.addEntry(entryBuilder
+                    .startStrList(new TranslatableText("option.immersive_hud.ignoreList"), Arrays
+                            .asList(instance
+                                    .getIgnoredIdentifiers()).stream().map(Identifier::toString)
+                            .collect(Collectors.toList()))
+                    .setDefaultValue(Arrays
+                            .asList(Registry.ITEM.getId(Items.FIREWORK_ROCKET).toString()))
+                    .setTooltip(new TranslatableText("tooltip.immersive_hud.ignoreList"))
+                    .setSaveConsumer(val -> instance.setIgnoredItems(val.toArray(new String[0]))).setErrorSupplier(val -> {
+                        try
+                        {
+                            Optional<String> item = val.stream().filter(i -> !Registry.ITEM.getOrEmpty(new Identifier(i)).isPresent()).findFirst();
+                            if (item.isPresent())
+                            {
+                                return Optional.of(new TranslatableText("error.immersive_hud.ignoreList.unknownItem"));
+                            }
+                        }
+                        catch (InvalidIdentifierException e)
+                        {
+                            return Optional.of(new TranslatableText("error.immersive_hud.ignoreList.illegalId"));
+                        }
+                        return Optional.empty();
+                    })
                     .build());
 
             return builder.build();

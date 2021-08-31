@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Contains the logic for changing the HUD.
@@ -304,6 +305,7 @@ public class TimerUtils
         LivingEntity entity;
         Item item;
         Iterator<ItemStack> hands;
+        Set<Item> ignored;
         if (mc.getCameraEntity() instanceof LivingEntity)
         {
             entity = (LivingEntity) mc.getCameraEntity();
@@ -328,6 +330,14 @@ public class TimerUtils
                             .filter(stack -> !stack.isEmpty())
                             .map(ItemStack::getItem)
                             .orElse(null);
+        }
+        if (item != null)
+        {
+            ignored = ConfigManager.getInstance().getIgnoredItems();
+            if (ignored.contains(item))
+            {
+                return;
+            }
         }
         crosshairTime = ConfigManager.getInstance().getCrosshairTime();
         if (hand == Hand.MAIN_HAND)
