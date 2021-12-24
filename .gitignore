@@ -34,3 +34,8 @@ run/
 /logs/
 local.properties
 remappedSrc/
+MinecraftImmersiveHUD.mcpack
+manifest.json
+pack_icon.png
+scripts/
+subpacks/
