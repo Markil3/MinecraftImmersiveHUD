@@ -3,6 +3,7 @@ package markil3.immersive_hud;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Items;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
@@ -205,6 +206,31 @@ public class ModMenu implements ModMenuApi
                         try
                         {
                             Optional<String> item = val.stream().filter(i -> !Registry.ITEM.getOrEmpty(new Identifier(i)).isPresent()).findFirst();
+                            if (item.isPresent())
+                            {
+                                return Optional.of(new TranslatableText("error.immersive_hud.ignoreList.unknownItem"));
+                            }
+                        }
+                        catch (InvalidIdentifierException e)
+                        {
+                            return Optional.of(new TranslatableText("error.immersive_hud.ignoreList.illegalId"));
+                        }
+                        return Optional.empty();
+                    })
+                    .build());
+
+            general.addEntry(entryBuilder
+                    .startStrList(new TranslatableText("option.immersive_hud.enchantingList"), Arrays
+                            .asList(instance
+                                    .getEnchantingdentifiers()).stream().map(Identifier::toString)
+                            .collect(Collectors.toList()))
+                    .setDefaultValue(Arrays
+                            .asList(Blocks.ENCHANTING_TABLE, Blocks.ANVIL, Blocks.BOOKSHELF, Blocks.FURNACE, Blocks.BLAST_FURNACE, Blocks.SMOKER, Blocks.GRINDSTONE).stream().map(b -> Registry.BLOCK.getId(b).toString()).toList())
+                    .setTooltip(new TranslatableText("tooltip.immersive_hud.enchantingList"))
+                    .setSaveConsumer(val -> instance.setIgnoredItems(val.toArray(new String[0]))).setErrorSupplier(val -> {
+                        try
+                        {
+                            Optional<String> item = val.stream().filter(i -> !Registry.BLOCK.getOrEmpty(new Identifier(i)).isPresent()).findFirst();
                             if (item.isPresent())
                             {
                                 return Optional.of(new TranslatableText("error.immersive_hud.ignoreList.unknownItem"));

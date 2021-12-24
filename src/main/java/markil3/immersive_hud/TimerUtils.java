@@ -18,6 +18,8 @@ package markil3.immersive_hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.math.MatrixStack;
@@ -41,6 +43,7 @@ import net.minecraft.item.SnowballItem;
 import net.minecraft.item.ThrowablePotionItem;
 import net.minecraft.item.TridentItem;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
@@ -926,16 +929,28 @@ public class TimerUtils
             experienceProgress = entity.totalExperience;
             changed = true;
         }
+
+        if (experienceTime <= 0 && mc.crosshairTarget != null && mc.crosshairTarget.getType() == HitResult.Type.BLOCK)
+        {
+            Block block = mc.world.getBlockState(((BlockHitResult) mc.crosshairTarget).getBlockPos()).getBlock();
+            Set<Block> ignored = ConfigManager.getInstance().getEnchantingItems();
+            if (ignored.contains(block))
+            {
+                changed = true;
+            }
+        }
+
         if (changed)
         {
             experienceTime = experience.getMaxTime() - (experienceTime > 0 ?
-                                                        experience.getFadeInTime() :
-                                                        0);
+                    experience.getFadeInTime() :
+                    0);
         }
         else if (experienceTime > 0)
         {
             experienceTime -= ticks;
         }
+
         if (experienceTime > 0)
         {
             stack.push();

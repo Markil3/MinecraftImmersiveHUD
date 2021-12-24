@@ -2,6 +2,8 @@ package markil3.immersive_hud;
 
 import static markil3.immersive_hud.Main.TICKS_PER_SECOND;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
@@ -97,6 +99,7 @@ public class ConfigManager
     private double minHealth = 0.5;
     private int minHunger = 17;
     private Identifier[] ignoredItems = new Identifier[]{Registry.ITEM.getId(Items.FIREWORK_ROCKET)};
+    private Identifier[] enchantingBlocks = new Identifier[]{Registry.BLOCK.getId(Blocks.ENCHANTING_TABLE), Registry.BLOCK.getId(Blocks.ANVIL), Registry.BLOCK.getId(Blocks.BOOKSHELF), Registry.BLOCK.getId(Blocks.FURNACE), Registry.BLOCK.getId(Blocks.BLAST_FURNACE), Registry.BLOCK.getId(Blocks.SMOKER), Registry.BLOCK.getId(Blocks.GRINDSTONE)};
 
     /**
      * Returns the instance of this class.
@@ -277,6 +280,26 @@ public class ConfigManager
     }
 
     /**
+     * Obtains a collection of items that will display the enchantment bar when hovered over.
+     *
+     * @return A set of blocks.
+     */
+    public Set<Block> getEnchantingItems()
+    {
+        return Arrays.stream(enchantingBlocks).map(Registry.BLOCK::get).collect(Collectors.toSet());
+    }
+
+    /**
+     * Obtains a collection of items that will display the enchantment bar when hovered over.
+     *
+     * @return An array blocks.
+     */
+    public Identifier[] getEnchantingdentifiers()
+    {
+        return this.enchantingBlocks;
+    }
+
+    /**
      * Sets the time that the hands are allowed to display.
      *
      * @param time - The hand display time values.
@@ -367,6 +390,27 @@ public class ConfigManager
     {
         this.ignoredItems = Arrays.stream(items).map(Identifier::new).filter(i -> Registry.ITEM.getOrEmpty(i).isPresent()).toArray(Identifier[]::new);
     }
+
+    /**
+     * Sets which items will display the experience bar when hovered over.
+     *
+     * @param items - A set of ignored items.
+     */
+    public void setEnchantingItems(Block... items)
+    {
+        this.enchantingBlocks = Arrays.stream(items).map(Registry.BLOCK::getId).toArray(Identifier[]::new);
+    }
+
+    /**
+     * Sets which items won't cause the hands and crosshairs to show when used.
+     *
+     * @param items - A set of ignored items.
+     */
+    public void setEnchantingItems(String... items)
+    {
+        this.enchantingBlocks = Arrays.stream(items).map(Identifier::new).filter(i -> Registry.BLOCK.getOrEmpty(i).isPresent()).toArray(Identifier[]::new);
+    }
+
 /**
      * Saves changes to this mod's configuration.
      */
