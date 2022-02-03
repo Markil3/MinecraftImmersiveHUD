@@ -125,6 +125,9 @@ public class ModMenu implements ModMenuApi
             startTimeField("hunger", entryBuilder,
                     general,
                     instance.getHungerTime());
+            startTimeField("air", entryBuilder,
+                    general,
+                    instance.getAirTime());
             startTimeField("effect", entryBuilder,
                     general,
                     instance.getPotionTime());
@@ -183,6 +186,15 @@ public class ModMenu implements ModMenuApi
                     .setTooltip(new TranslatableText(
                             "tooltip.immersive_hud.minHunger"))
                     .setSaveConsumer(val -> instance.setMinHunger(val))
+                    .build());
+    
+            general.addEntry(entryBuilder.startIntField(new TranslatableText(
+                                    "option.immersive_hud.minAir"),
+                            instance.getMinAir())
+                    .setDefaultValue(300)
+                    .setTooltip(new TranslatableText(
+                            "tooltip.immersive_hud.minAir"))
+                    .setSaveConsumer(val -> instance.setMinAir(val))
                     .build());
 
             general.addEntry(entryBuilder.startBooleanToggle(new TranslatableText(

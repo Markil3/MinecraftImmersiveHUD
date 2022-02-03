@@ -132,10 +132,20 @@ public class TimerUtils
      */
     private static int hunger = -1;
     /**
+     * Records what the oxygen level was previously. Used to check for a change
+     * in oxygen.
+     */
+    private static int air = -1;
+    /**
      * Records whether or not there was food poisoning. Used to check for a
      * change in hunger.
      */
     private static boolean isFoodPoisoned = false;
+    /**
+     * How many more ticks the oxygen bar will be onscreen. Every tick is 1/20th
+     * of a second.
+     */
+    private static double airTime;
 
     /**
      * How many more ticks the mount's health bar will be onscreen. Every tick
@@ -256,6 +266,8 @@ public class TimerUtils
                 ConfigManager.getInstance().getJumpTime();
         ConfigManager.TimeValues healthTimes = ConfigManager.getInstance().getHealthTime();
         ConfigManager.TimeValues hungerTimes = ConfigManager.getInstance().getHungerTime();
+        ConfigManager.TimeValues airTimes =
+                ConfigManager.getInstance().getAirTime();
 
         float hotbarAlpha = Main.getAlpha(hotbarTime,
                 hotbar.getMaxTime(),
@@ -277,13 +289,24 @@ public class TimerUtils
                 hungerTimes.getMaxTime(),
                 hungerTimes.getFadeInTime(),
                 hungerTimes.getFadeOutTime()));
+        statusAlpha = Math.max(statusAlpha, Main.getAlpha(airTime,
+                airTimes.getMaxTime(),
+                airTimes.getFadeInTime(),
+                airTimes.getFadeOutTime()));
         /*
          * Draw it in its standard location until it is completely transparent, then move it
          * instantly.
          */
         statusAlpha = (float) Math.ceil(statusAlpha);
-        return 7 * (1 - Math.max(experienceAlpha,
-                jumpAlpha)) + 22 * (1 - hotbarAlpha) + 42 * (1 - statusAlpha);
+        float trans = 7 * (1 - Math.max(experienceAlpha,
+                jumpAlpha)) + 22 * (1 - hotbarAlpha) + 42 * (1 - statusAlpha) +  9 * (1 - Math.max(Main.getAlpha(hungerTime,
+                hungerTimes.getMaxTime(),
+                hungerTimes.getFadeInTime(),
+                hungerTimes.getFadeOutTime()), Main.getAlpha(healthTime,
+                healthTimes.getMaxTime(),
+                healthTimes.getFadeInTime(),
+                healthTimes.getFadeOutTime())));
+        return trans;
     }
 
     /**
@@ -847,6 +870,93 @@ public class TimerUtils
         }
         return hungerTime == 0 && hunger > HUNGER_BOUNDARY && !entity
                 .hasStatusEffect(StatusEffects.HUNGER);
+    }
+    
+    /**
+     * Determines whether or not to draw the oxygen bar, adjusting the alpha as
+     * needed.
+     *
+     * @return If true, then cancel drawing the oxygen bar.
+     *
+     * @since 1.3.1-1.18-fabric
+     */
+    public static boolean drawAir(float ticks)
+    {
+        /*
+         * When air falls to this level or below, the oxygen bar won't
+         * disappear, allowing the player to be constantly reminded of their
+         * low oxygen.
+         */
+        final int AIR_BOUNDARY = ConfigManager.getInstance().getMinAir();
+        ConfigManager.TimeValues airTimes =
+                ConfigManager.getInstance().getAirTime();
+    
+        MinecraftClient mc = MinecraftClient.getInstance();
+        PlayerEntity entity;
+        boolean canceled;
+        boolean changed = false;
+    
+        if (mc.getCameraEntity() instanceof PlayerEntity)
+        {
+            entity = (PlayerEntity) mc.getCameraEntity();
+        }
+        else
+        {
+            return true;
+        }
+    
+        if (air != entity.getAir())
+        {
+            float dividor = entity.getMaxAir() / 10;
+            if (air / dividor != entity.getAir() / dividor)
+            {
+                changed = true;
+            }
+            air = entity.getAir();
+        }
+        if (air <= AIR_BOUNDARY)
+        {
+            changed = true;
+        }
+        if (entity.hasStatusEffect(StatusEffects
+                .CONDUIT_POWER) || entity.hasStatusEffect(StatusEffects
+                .WATER_BREATHING))
+        {
+            changed = false;
+        }
+        if (changed)
+        {
+            airTime = airTimes.getMaxTime() - (airTime > 0 ?
+                    airTimes.getFadeInTime() :
+                    0);
+        }
+        else if (airTime > 0)
+        {
+            airTime -= ticks;
+        }
+    
+        if (airTime <= 0 && (air >= AIR_BOUNDARY || entity.hasStatusEffect(StatusEffects
+                .CONDUIT_POWER) || entity.hasStatusEffect(StatusEffects
+                .WATER_BREATHING)))
+        {
+            return true;
+        }
+        /*
+         * Only makes a change if the player is healthy. Otherwise,
+         * the bar is shown.
+         */
+        if (entity.getAir() >= entity.getMaxAir() || entity.hasStatusEffect(StatusEffects
+                .CONDUIT_POWER) || entity.hasStatusEffect(StatusEffects
+                .WATER_BREATHING))
+        {
+            setAlpha(Main.getAlpha(airTime,
+                    airTimes.getMaxTime(),
+                    airTimes.getFadeInTime(),
+                    airTimes.getFadeOutTime()));
+        }
+        return airTime == 0 && entity.getAir() >= entity.getMaxAir() && !entity.hasStatusEffect(StatusEffects
+                .CONDUIT_POWER) && !entity.hasStatusEffect(StatusEffects
+                .WATER_BREATHING);
     }
 
     /**

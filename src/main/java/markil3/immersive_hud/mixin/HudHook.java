@@ -253,8 +253,9 @@ public class HudHook
     {
         try
         {
+            float trans = TimerUtils.getHealthTranslation();
             stack.push();
-            stack.translate(0F, TimerUtils.getHealthTranslation(), 0F);
+            stack.translate(0F, trans, 0F);
         }
         catch (Exception e)
         {
@@ -381,6 +382,10 @@ public class HudHook
              * Resets the color so that nothing else is bothered.
              */
             TimerUtils.setAlpha(1F);
+            if (TimerUtils.drawAir(MinecraftClient.getInstance().getTickDelta()))
+            {
+                TimerUtils.setAlpha(0F);
+            }
         }
         catch (Exception e)
         {
@@ -398,6 +403,7 @@ public class HudHook
     {
         try
         {
+            TimerUtils.setAlpha(1F);
             stack.pop();
         }
         catch (Exception e)

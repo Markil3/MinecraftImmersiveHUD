@@ -90,6 +90,7 @@ public class ConfigManager
     private TimeValues jumpTime = new TimeValues();
     private TimeValues healthTime = new TimeValues();
     private TimeValues hungerTime = new TimeValues();
+    private TimeValues airTime = new TimeValues();
     private TimeValues effectTime = new TimeValues();
     private int crosshairTime = 6 * TICKS_PER_SECOND;
     private boolean hideCrosshair = true;
@@ -98,6 +99,7 @@ public class ConfigManager
     private boolean showArmor = true;
     private double minHealth = 0.5;
     private int minHunger = 17;
+    private int minAir = 300;
     private Identifier[] ignoredItems = new Identifier[]{Registry.ITEM.getId(Items.FIREWORK_ROCKET)};
     private Identifier[] enchantingBlocks = new Identifier[]{Registry.BLOCK.getId(Blocks.ENCHANTING_TABLE), Registry.BLOCK.getId(Blocks.ANVIL), Registry.BLOCK.getId(Blocks.BOOKSHELF), Registry.BLOCK.getId(Blocks.FURNACE), Registry.BLOCK.getId(Blocks.BLAST_FURNACE), Registry.BLOCK.getId(Blocks.SMOKER), Registry.BLOCK.getId(Blocks.GRINDSTONE)};
 
@@ -176,6 +178,11 @@ public class ConfigManager
     public TimeValues getHungerTime()
     {
         return this.hungerTime;
+    }
+    
+    public TimeValues getAirTime()
+    {
+        return this.airTime;
     }
 
     /**
@@ -257,6 +264,17 @@ public class ConfigManager
     public int getMinHunger()
     {
         return this.minHunger;
+    }
+    
+    /**
+     * Obtains the minimum oxygen for fading. Anything below that and the oxygen
+     * always displays.
+     *
+     * @return The oxygen boundary, from 0 to 20.
+     */
+    public int getMinAir()
+    {
+        return this.minAir;
     }
 
     /**
@@ -369,6 +387,17 @@ public class ConfigManager
     public void setMinHunger(int boundary)
     {
         this.minHunger = MathHelper.clamp(boundary, 0, 20);
+    }
+    
+    /**
+     * Sets the minimum oxygen value for fading. Anything below that and the
+     * air bar always displays.
+     *
+     * @param boundary - The air boundary, from 0 to 20.
+     */
+    public void setMinAir(int boundary)
+    {
+        this.minAir = MathHelper.clamp(boundary, 0, 20);
     }
 
     /**
