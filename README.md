@@ -17,6 +17,21 @@ The following elements will only show up under certain conditions:
 * The crosshair will only show when you are looking at something or you are using a bow, crossbow, shield, or trident or holding a throwable item.
 * The hands will show only when you use an item or are holding/using one of the above specified items, or a map.
 
+# An update on the future of this mod.
+*Hello, everyone.*
+
+*I've recently taken on a new job, and, due to the demands of a full-time developer job, I will no longer be able to maintain this project. I've had a lot of fun with it, but continuing it for the future is simply unfeasible.*
+
+*With that said, I am willing to transfer the project, copyright and all, to someone else who is willing to maintain it. If you happen to be interested, email me at markil3@tutanota.com and we can discuss it.*
+
+*Once a transfer is complete, I will post an update here and on the PlanetMinecraft page.*
+
+*I thank you all for the support you've shown in this.*
+
+*May God bless you all,*
+
+*Markil 3*
+
 # Installing
 There are two variants of this mod: One for Forge, and the other for Fabric. Each [release](https://github.com/Markil3/MinecraftImmersiveHUD/releases) comes with jar files for both. You can download the appropriate jar file and place it within the "mods" folder within your Minecraft installation. For more details, see the README files of the appropriate branches.
 
